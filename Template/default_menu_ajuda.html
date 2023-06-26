@@ -1,0 +1,25 @@
+{% load contrib_tags %}
+<li class="">
+    <a href="#" title="">
+        <div class="helper-font-24">
+            <i class="fas fa-question-circle"></i>
+        </div>
+        <span class="sidebar-text">Ajuda</span>
+    </a>
+    <ul class="sub-sidebar corner-top shadow-silver-dark">
+        {% for menu in menus %}
+            {% if not forloop.first %}
+                <li class="divider"></li>
+            {% endif %}
+            <li>
+                <a href="{{ menu.url }}" target="_blank" rel="tooltip" data-placement="top" title="{{ menu.descricao }}" >
+                    <div class="helper-font-24">
+                        <i class="{{ menu.icone }}"></i>
+                    </div>
+                    <span class="sidebar-text">{{ menu.nome }}</span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</li>
+
