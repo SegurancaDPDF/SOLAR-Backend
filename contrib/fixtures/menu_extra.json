@@ -1,0 +1,50 @@
+[
+  {
+    "fields": {
+      "local": "root",
+      "nome": "Sistema Antigo",
+      "descricao": "Sistema Antigo",
+      "url": "",
+      "icone": "fas fa-history",
+      "posicao": 1
+    },
+    "model": "contrib.menuextra",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "local": "ajuda",
+      "nome": "Manuais",
+      "descricao": "Manuais do sistema",
+      "url": "",
+      "icone": "fas fa-copy",
+      "posicao": 1
+    },
+    "model": "contrib.menuextra",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "local": "ajuda",
+      "nome": "Vídeos",
+      "descricao": "Vídeos do sistema",
+      "url": "",
+      "icone": "fas fa-video",
+      "posicao": 2
+    },
+    "model": "contrib.menuextra",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "local": "ajuda",
+      "nome": "Help Desk",
+      "descricao": "Suporte Online",
+      "url": "",
+      "icone": "fas fa-laptop-medical",
+      "posicao": 3
+    },
+    "model": "contrib.menuextra",
+    "pk": 4
+  }
+]
