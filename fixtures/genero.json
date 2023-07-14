@@ -1,0 +1,30 @@
+[
+{
+  "model": "contrib.generopessoa",
+  "pk": 0,
+  "fields": {
+    "nome": "Masculino"
+  }
+},
+{
+  "model": "contrib.generopessoa",
+  "pk": 1,
+  "fields": {
+    "nome": "Feminino"
+  }
+},
+{
+  "model": "contrib.generopessoa",
+  "pk": 2,
+  "fields": {
+    "nome": "Desconhecido / Não informado"
+  }
+},
+{
+  "model": "contrib.generopessoa",
+  "pk": 3,
+  "fields": {
+    "nome": "Não Binário"
+  }
+}
+]

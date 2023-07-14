@@ -1,0 +1,202 @@
+[
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Carteira de Identidade (RG)"
+    },
+    "model": "contrib.documento",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Cadastro de Pessoa F\u00edsica (CPF)"
+    },
+    "model": "contrib.documento",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Comprovante de Endere\u00e7o"
+    },
+    "model": "contrib.documento",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Comprovante de Renda"
+    },
+    "model": "contrib.documento",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Declara\u00e7\u00e3o de Nascido Vivo"
+    },
+    "model": "contrib.documento",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certid\u00e3o de Nascimento"
+    },
+    "model": "contrib.documento",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certid\u00e3o de Casamento"
+    },
+    "model": "contrib.documento",
+    "pk": 7
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certid\u00e3o de \u00d3bito"
+    },
+    "model": "contrib.documento",
+    "pk": 8
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certid\u00e3o de Uni\u00e3o Est\u00e1vel"
+    },
+    "model": "contrib.documento",
+    "pk": 9
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "T\u00edtulo de Eleitor"
+    },
+    "model": "contrib.documento",
+    "pk": 10
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Carteira Nacional de Habilita\u00e7\u00e3o (CNH)"
+    },
+    "model": "contrib.documento",
+    "pk": 11
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Carteira de Trabalho (CTPS)"
+    },
+    "model": "contrib.documento",
+    "pk": 12
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Cart\u00e3o SUS"
+    },
+    "model": "contrib.documento",
+    "pk": 13
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certificado de Alistamento Militar"
+    },
+    "model": "contrib.documento",
+    "pk": 14
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Atestado de Antecedentes Criminais"
+    },
+    "model": "contrib.documento",
+    "pk": 15
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certid\u00e3o de Igualdade de Direitos"
+    },
+    "model": "contrib.documento",
+    "pk": 16
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certid\u00e3o Negativa de D\u00e9bitos"
+    },
+    "model": "contrib.documento",
+    "pk": 17
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Previd\u00eancia Social (Cart\u00e3o INSS)"
+    },
+    "model": "contrib.documento",
+    "pk": 18
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Novo Registro de Identidade Civil (RIC)"
+    },
+    "model": "contrib.documento",
+    "pk": 19
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Diploma"
+    },
+    "model": "contrib.documento",
+    "pk": 20
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Carteira de Estudante"
+    },
+    "model": "contrib.documento",
+    "pk": 21
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Registro Nacional de Estrangeiros"
+    },
+    "model": "contrib.documento",
+    "pk": 22
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Visto para Estrangeiros"
+    },
+    "model": "contrib.documento",
+    "pk": 23
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Passaporte"
+    },
+    "model": "contrib.documento",
+    "pk": 24
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Certificado de Naturaliza\u00e7\u00e3o"
+    },
+    "model": "contrib.documento",
+    "pk": 25
+  }
+]

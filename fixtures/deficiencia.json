@@ -1,0 +1,34 @@
+[
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Visual"
+    },
+    "model": "contrib.deficiencia",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Auditiva"
+    },
+    "model": "contrib.deficiencia",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "F\u00edsica/Motora"
+    },
+    "model": "contrib.deficiencia",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "ativo": true,
+      "nome": "Mental/Intelectual"
+    },
+    "model": "contrib.deficiencia",
+    "pk": 4
+  }
+]
