@@ -1,0 +1,74 @@
+{% load widget_tweaks %}
+<!-- modal Cadastrar movimentacao em procedimento  -->
+<div id="modal-cadastrar-movimentacao-procedimento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel" class="text-center">Novo Procedimento ou Propac</h3>
+    </div>
+    <div class="modal-body">
+        <form action="{% url 'procedimentos:novo_procedimento' %}" id="FormNovoProcedimento" method="post"> <!-- O formulário é submetido para a URL 'procedimentos:novo_procedimento' -->
+            {% csrf_token %} <!-- Token CSRF para proteção contra ataques de falsificação de solicitação entre sites -->
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="control-group">
+                        <label class="control-label"><small><i class="fas fa-folder-open color-yellow"></i> Propac(PP) ou <i class="far fa-file color-blue"></i> Procedimento(PA):</small></label>
+                        <div class="controls">
+                            {{ form.tipo|attr:"required"|add_class:"span12 btn" }} <!-- Campo de seleção para o tipo do procedimento ou propac -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if config.AREA_NO_CADASTRO_PROCEDIMENTOS %} <!-- Verifica se a área deve ser exibida no cadastro de procedimentos -->
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="control-group">
+                        <label class="control-label"><small>Área:</small></label>
+                        <div class="controls">
+                            {{ form.area|attr:"required"|add_class:"span12 btn" }} <!-- Campo de seleção para a área do procedimento -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="control-group">
+                        <label class="control-label"><small>Defensoria responsável:</small></label>
+                        <div class="controls">
+                            {{ form.defensoria_responsavel|attr:"required"|add_class:"span12 btn" }} <!-- Campo de seleção para a defensoria responsável -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="control-group">
+                        <label class="control-label"><small>Defensor Responsável:</small></label>
+                        <div class="controls">
+                            <select class="span12 btn" id="id_defensor_responsavel" name="defensor_responsavel"
+                                    ng-model="defensor_responsavel"
+                                    ng-options="i.nome for i in defensores|filter:{eh_defensor:true} track by i.id" required>
+                            </select> <!-- Campo de seleção para o defensor responsável -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="control-group">
+                        <label class="control-label"><small>Assunto (Objeto):</small></label>
+                        <div class="controls">
+                            {{ form.assunto|attr:"rows:2"|attr:"maxlength:255"|attr:"required"|add_class:"span12" }} <!-- Campo de texto para o assunto do procedimento -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <input type="submit" class="btn btn-success" form="FormNovoProcedimento" value="Salvar" /> <!-- Botão para enviar o formulário e salvar o novo procedimento -->
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button> <!-- Botão para fechar o modal sem salvar o procedimento -->
+    </div>
+</div>
+<!-- modal Cadastrar movimentacao em procedimento -->

@@ -1,0 +1,17 @@
+{% load contrib_tags %}
+
+<!-- Cabeçalho do Evento -->
+<h4>Evento 
+    {% if request.user.is_superuser and manifestacao.fase and manifestacao.fase.tipo_id %}
+        <!-- Link para acessar o Admin de Evento -->
+        <a href="{% url 'admin:processo_fasetipo_change' manifestacao.fase.tipo_id %}" target="_blank" class="text-info"
+        title="Acessar Admin de Evento" rel="tooltip">
+            <i class="fas fa-link"></i>
+        </a>
+    {% endif %}
+    <!-- Texto descritivo do Evento -->
+    <small>Evento a ser lançado</small>
+</h4>
+
+<!-- Formulário para selecionar o tipo de fase do Evento -->
+{{ form.tipo_fase }}

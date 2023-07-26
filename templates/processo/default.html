@@ -1,0 +1,58 @@
+{% extends "default.html" %}
+<!-- Extende o template "default.html" -->
+
+{% load static %}
+{% load humanize %}
+
+{% block titulo %}Processos{% endblock %}
+<!-- Define o título da página como "Processos" -->
+
+{% block css_app %}
+    {% block css_pag %}
+    {% endblock %}
+    <!-- Define o bloco de estilos CSS específicos para a página -->
+{% endblock %}
+
+{% block cabecalho_app %}
+    <h2>
+        <i class="helper-font-24 fas fa-folder"></i>
+        Processos
+        <small></small>
+    </h2>
+    <!-- Define o cabeçalho da aplicação -->
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+<!-- Define o menu da aplicação -->
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+    <!-- Define o cabeçalho da página específica -->
+
+    {% block conteudo_pag %}
+    {% endblock %}
+    <!-- Define o conteúdo da página específica -->
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+    <!-- Define o bloco de scripts JS específicos para a página -->
+
+    <script type="text/javascript" src="{% static "js/app/controllers_processo.js" %}?v={{ config.JSVERSION }}"></script>
+    <!-- Inclui o script "controllers_processo.js" para manipulação de eventos na página -->
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+    <!-- Define o bloco de scripts JS a serem executados quando a página estiver pronta -->
+
+{% endblock %}

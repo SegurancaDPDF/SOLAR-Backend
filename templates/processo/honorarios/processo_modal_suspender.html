@@ -1,0 +1,29 @@
+<div id="modal-suspender" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3><i class="fas fa-lock"></i> Registrar Suspensão</h3>
+    </div>
+    <!-- Div do corpo do modal -->
+    <div class="modal-body">
+        <form id="SuspenderHonorarioForm" action="{% url 'honorarios_suspender' honorario_id=honorario_id %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-body">
+                <!-- Campo para inserir a data de suspensão -->
+                <label>Suspender até</label>
+                <input type="text" name="suspenso_ate" class="datepicker" data-date-format="dd/mm/yyyy" data-mask="99/99/9999" required>
+                <!-- Campo para inserir a anotação -->
+                <label>Anotação <small>(Máximo 255 caracteres)</small></label>
+                <textarea class="span12" name="anotacao" rows="4" maxlength="255" required></textarea>
+            </div>
+        </form>
+    </div>
+    <!-- Div do rodapé do modal -->
+    <div class="modal-footer">
+        <div>
+            <!-- Botão para cancelar o modal -->
+            <button data-dismiss="modal" class="btn">Cancelar</button>
+            <!-- Botão para submeter o formulário do modal -->
+            <button type="submit" form="SuspenderHonorarioForm" class="btn btn-success">Registrar</button>
+        </div>
+    </div>
+</div>

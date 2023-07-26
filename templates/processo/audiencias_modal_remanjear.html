@@ -1,0 +1,47 @@
+{% load contrib_tags %}
+<!-- Modal Fase -->
+<!-- Um modal que permite remanejar audiências -->
+<div id="modal-remanejar-audiencias" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Remanejar Audiências</h3>
+    </div>
+    <!--  Corpo do Modal........... -->
+    <div class="modal-body">
+        <!-- Formulário para remanejar audiências -->
+        <form name="RemanejarAudienciaForm" id="RemanejarAudienciaForm">
+            {% csrf_token %}
+            <p>
+                <b>[[ (registros | filter:{sel:true}).length ]] Audiência(s) Selecionada(s)</b>
+            </p>
+			<!-- Uma linha contendo um campo de entrada para selecionar o defensor -->
+			<div class="row-fluid">
+				<div class="control-group span12">
+					<label class="control-label">Defensor</label>
+					<div class="controls">
+                        <input type="text" class="span12" placeholder="Digite o nome do defensor..." ng-model="defensor_cadastro" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:12" ng-style="(defensor && !defensor.id) ? {'border-color':'#b94a48'} : ''">
+					</div>
+				</div>
+			</div>
+            <p class="text-error">
+                <b>Atenção! Essa ação é irreversível.</b>
+            </p>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <!-- Botão para salvar o remanejamento das audiências -->
+        <button class="btn btn-primary" ng-click="remanejar()" ng-show="!salvando" ng-disabled="!defensor_cadastro.id">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <!-- Botão de salvamento em andamento -->
+        <button class="btn btn-primary" disabled="disabled" ng-show="salvando">
+            <i class="fas fa-save"></i> Salvando...
+        </button>
+        <!-- Botão para cancelar o remanejamento das audiências -->
+        <button class="btn" data-dismiss="modal" ng-disabled="salvando">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- Modal Fase -->

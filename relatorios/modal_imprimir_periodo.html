@@ -1,0 +1,113 @@
+{% load contrib_tags %}
+{% load static %}
+<div id="modal-imprimir-periodo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="ImprimirCtrl">
+    <div class="modal-header">
+        <!-- Cabeçalho do modal -->
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">
+            <i class="fas fa-print"></i> Imprimir
+        </h3>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-body">
+        <form id="ImprimirPeriodoForm" name="ImprimirPeriodoForm" class="form form-horizontal">
+            {% csrf_token %}
+
+            {% for relatorio in relatorios %}
+                <span ng-init="add_relatorio({{ relatorio.to_json }})"></span>
+            {% endfor %}
+
+            <div class="control-group">
+                <label class="control-label">Relatório</label>
+
+                <div class="controls">
+                    <!-- Seleção do relatório -->
+                    <select class="span12" ng-model="fields.relatorio" ng-options="i as i.titulo for i in relatorios" ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group" ng-if="fields.relatorio.fields.ano">
+                <label class="control-label">Ano</label>
+
+                <div class="controls">
+                    <!-- Entrada do ano -->
+                    <input id="id_ano" name="ano" ng-model="fields.ano" ng-pattern="/^[0-9]{4}$/" type="number" min="1900" max="2099" required>
+                </div>
+            </div>
+            <div class="control-group" ng-if="fields.relatorio.fields.mes">
+                <label class="control-label">Mês</label>
+
+                <div class="controls">
+                    <!-- Seleção do mês -->
+                    <select ng-disabled="meses==null" ng-model="fields.mes" ng-options="i.id as i.nome for i in meses" ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todos meses</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group" ng-if="fields.relatorio.fields.data_inicial">
+                <label for="data_inicial" class="control-label"><label for="data_inicial">Data Inicial</label></label>
+                <div class="controls">
+                    <div class="input-append span12">
+                        <!-- Entrada da data inicial -->
+                        <input id="data_inicial" placeholder="Data Inicial" type="text" class="span7" bs-datepicker
+                               data-date-format="dd/mm/yyyy" data-validate="{required:true,date:true}"
+                               name="data_ini" ng-model="fields.data_inicial"
+                               ng-change="relatorio.status=null;" autocomplete="off" required>
+                        <span data-toggle="datepicker" class="add-on">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group" ng-if="fields.relatorio.fields.data_final">
+                <label for="data_final" class="control-label"><label for="data_final">Data Final</label></label>
+                <div class="controls">
+                    <div class="input-append span12">
+                        <!-- Entrada da data final -->
+                        <input id="data_final" placeholder="Data Final" type="text" class="span7" bs-datepicker
+                               data-date-format="dd/mm/yyyy" data-validate="{required:true,date:true}"
+                               name="data_final" ng-model="fields.data_final"
+                               ng-change="relatorio.status=null;" autocomplete="off" required>
+                        <span data-toggle="datepicker" class="add-on">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group" ng-if="fields.relatorio">
+                <label class="control-label">Formato</label>
+                <div class="controls">
+                    <!-- Seleção do formato (PDF ou XLS) -->
+                    <label class="radio">
+                        <input name="formato" type="radio" value="pdf" ng-model="fields.format" ng-change="relatorio.status=null" required> PDF
+                    </label>
+                    <label class="radio">
+                        <input name="formato" type="radio" value="xls" ng-model="fields.format" ng-change="relatorio.status=null" required> XLS
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Rodapé do Modal -->
+    <div class="modal-footer">
+
+        <a href="#" role="button" class="btn" ng-if="fields.relatorio" ng-click="imprimir({user:'{{ request.user.username }}', params:{ano:fields.ano, mes:fields.mes, data_inicial:fields.data_inicial, data_final:fields.datahora_final, defaults:fields.relatorio.defaults, aliases:fields.relatorio.aliases}}, fields.relatorio.name, fields.relatorio.resource, fields.format)">
+            <!-- Botão para gerar o relatório -->
+            <i class="fas fa-print"></i> Gerar
+        </a>
+        <a href="#" role="button" class="btn btn-danger" bs-tooltip="relatorio.status.reason" ng-if="relatorio.status.fail" bs-tooltip="relatorio.status.reason" disabled>
+            <!-- Botão de erro -->
+            <i class="fas fa-exclamation-circle"></i> Erro
+        </a>
+        <a ref="#" role="button" class="btn btn-warning" ng-if="relatorio.status.pending" disabled>
+            <!-- Botão de geração em andamento -->
+            <i class="fas fa-cogs"></i> Gerando...
+        </a>
+        <a class="btn btn-success" title="Baixar Documento" bs-tooltip target='_blank' href="[[ relatorio.status.report ]]" ng-if="relatorio.status.success">
+            <!-- Botão para baixar o documento gerado -->
+            <i class="fas fa-download"></i> Baixar
+        </a>
+
+    </div>
+</div>

@@ -1,0 +1,30 @@
+<!-- modal confirmação para salvar o movimento em processo de criação -->
+<div id="modal-finalizar-movimento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel" class="text-center color-blue">
+            <i class="fas fa-check"></i> Finalizar Movimento
+        </h3>
+    </div>
+    <div class="modal-body">
+        <p class="text-center">
+            <b><i class="fas fa-warning color-red"></i> Não será possível editar ou enviar documentos após a confirmação!</b>
+        </p>
+        <p class="text-center">
+            <b>Deseja realmente finalizar?</b>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <p class="pull-left text-error">Atenção! Essa ação é <b>irreversível</b>.</p>
+        <button id="salvar-movimento-btn" form="form-novo-movimento"
+                type="submit"
+                ng-click="clicou_btn_salvar = true" class="btn btn-success">
+            <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- FIM modal confirmação para salvar o movimento em processo de criação -->

@@ -1,0 +1,261 @@
+{% extends "propac/procedimento_dados.html" %}
+{% load widget_tweaks humanize static %}
+
+{% block cabecalho_pag %}
+    <!-- Cabeçalho da página -->
+    <div class="row-fluid">
+        <div class="page-title">
+            <h3>
+                <span class="pull-left">&nbsp;</span>
+                <small class="pull-right">
+                    <!-- Link para voltar -->
+                    <a href="{% url 'procedimentos:procedimento_uuid' procedimento.uuid %}" class="link">
+                        <i class="fas fa-chevron-left color-blue"></i> Voltar
+                    </a>
+                </small>
+            </h3>
+        </div>
+    </div>
+{% endblock %}
+{% block conteudo_capa_procedimento %}
+<div class="row-fluid well bg_white">
+    <div class="span12">
+        <div class="procedimento"
+             ng-init="init( {
+                            acesso:{{procedimento.acesso}},
+                            defensorias_acesso_ids: {{ defensorias_acesso_ids }},
+                            defensoria_responsavel: {{procedimento.defensoria_responsavel.id}},
+                            defensor_responsavel: {{procedimento.defensor_responsavel.id}} })">
+            <h3>
+                {% if procedimento.tipo == TIPO_PROCEDIMENTO %}
+                    <i class="far fa-file color-blue"></i> Procedimento  {{ procedimento.numero }}
+                        <span class="muted">(Modo edição)</span>
+                    <small class="muted">&nbsp;</small>
+                {% elif procedimento.tipo == TIPO_PROPAC %}
+                    <i class="fas fa-folder-open color-yellow"></i> Propac  {{ procedimento.numero }}
+                        <span class="muted">(Modo edição)</span>
+                    <small class="muted">&nbsp;</small>
+                {% endif %}
+            </h3>
+            <small class="muted">Código:  {{ procedimento.uuid }}</small>
+        </div>
+        <div class="row-fluid">
+            <div class="span12 well">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <form class="form-horizontal" action="." method="POST" id="FormEdicaoProcedimento" name="FormEdicaoProcedimento">
+                            {% csrf_token %}
+                            <div class="control-group">
+                                <label class="control-label"><small>Assunto (Objeto):</small></label>
+                                <div class="controls">
+                                    {% if user_acesso_propac %}
+                                        <!-- Campo de texto para o assunto (objeto) do procedimento -->
+                                        {{ form.assunto|attr:"rows:3"|attr:"maxlength:255"| add_class:"span12" }}
+                                    {% else %}
+                                        <!-- Mostra o assunto (objeto) do procedimento -->
+                                        {{procedimento.assunto}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                {% if config.AREA_NO_CADASTRO_PROCEDIMENTOS %}
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label class="control-label"><small>Área:</small></label>
+                                        <div class="controls">
+                                        {% if user_acesso_propac %}
+                                            <!-- Campo de seleção da área do procedimento -->
+                                            {{ form.area|attr:"required"|add_class:"span12 btn" }}
+                                        {% else %}
+                                        <div class="{% if config.AREA_NO_CADASTRO_PROCEDIMENTOS %} span4 {% else %} span6 {% endif %}">
+                                            <div class="control-group">
+                                                <label class="control-label"><small>Defensoria Responsável:</small></label>
+                                                <div class="controls">
+                                                {% if user_acesso_propac %}
+                                                    <!-- Campo de seleção da defensoria responsável -->
+                                                    {{ form.defensoria_responsavel|attr:"required"|add_class:"span12 btn" }}
+                                                {% else %}
+                                                    <!-- Mostra a defensoria responsável do procedimento -->
+                                                    {{procedimento.defensoria_responsavel}}
+                                                {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="{% if config.AREA_NO_CADASTRO_PROCEDIMENTOS %} span4 {% else %} span6 {% endif %}">
+                                            <div class="control-group">
+                                                <label class="control-label"><small>Defensor Responsável:</small></label>
+                                                <div class="controls">
+                                                {% if user_acesso_propac %}
+                                                    <!-- Campo de seleção do defensor responsável -->
+                                                    <select class="span12 btn" id="id_defensor_responsavel" name="defensor_responsavel"
+                                                            ng-model="defensor_responsavel"
+                                                            ng-options="value.id as value.nome for (key,value) in defensores"
+                                                             required>
+                                                    </select>
+                                                {% else %}
+                                                    <!-- Mostra o defensor responsável do procedimento -->
+                                                    {{procedimento.defensor_responsavel}}
+                                                {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="span6">
+                                            <div class="control-group">
+                                                <label class="control-label"><small>Representante:</small></label>
+                                                <div class="controls">
+                                                {% if user_acesso_propac %}
+                                                    <!-- Campo de texto para o representante -->
+                                                    {{ form.representante|attr:"rows:2"|attr:"maxlength:1024"|add_class:"span12" }}
+                                                {% else %}
+                                                    <!-- Mostra o valor do representante do procedimento, ou uma string vazia se não existir -->
+                                                    {{procedimento.representante | default:""}}
+                                                {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span6">
+                                            <div class="control-group">
+                                                <label class="control-label"><small>Representado:</small></label>
+                                                <div class="controls">
+                                                {% if user_acesso_propac %}
+                                                    <!-- Campo de texto para o representado -->
+                                                    {{ form.representado|attr:"rows:2"|attr:"maxlength:1024"|add_class:"span12" }}
+                                                {% else %}
+                                                    <!-- Mostra o valor do representado do procedimento, ou uma string vazia se não existir -->
+                                                    {{procedimento.representado | default:""}}
+                                                {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        {% if user_acesso_propac %}
+                                        <div class="span12 well bg-white">
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <p><span class="bold">TIPO DE ACESSO: </span>
+                                                        <span>Quais defensorias podem acessar e alterar o
+                                                        {% if procedimento.tipo == TIPO_PROCEDIMENTO %}
+                                                            Procedimento
+                                                        {% elif procedimento.tipo == TIPO_PROPAC %}
+                                                            Propac
+                                                        {% endif %}
+                                                    </span>
+                                                    </p>
+                                                    <label class="radio">
+                                                        <div class="radio" id="uniform-optionsRadios1">
+                                                            <span class="checked">
+                                                                <input type="radio" data-form="uniform" name="acesso" id="optionsRadios1" ng-model="procedimento.acesso" ng-value="30">
+                                                                <span class="label label-important"><i class="fas fa-lock"></i> <b>Privado</b> </span> <small>Somente {{ procedimento.defensoria_responsavel_nome }}</small>
+                                                            </span>
+                                                        </div>
+                                                    </label>
+                                                    <label class="radio">
+                                                        <div class="radio" id="uniform-optionsRadios2">
+                                                            <span class="checked">
+                                                                <input type="radio" data-form="uniform" name="acesso" id="optionsRadios2" ng-model="procedimento.acesso" ng-value="10">
+                                                                <span class="label label-success"><i class="fas fa-unlock"></i> <b>Público</b></span> <small> Todos podem acessar e alterar</small>
+                                                            </span>
+                                                        </div>
+                                                    </label>
+                                                    <label class="radio">
+                                                        <div class="radio" id="uniform-optionsRadios3">
+                                                            <span class="checked">
+                                                                <input type="radio" data-form="uniform" name="acesso" id="optionsRadios3" ng-model="procedimento.acesso" ng-value="20">
+                                                                <span class="label"><i class="fas fa-info-circle"></i> <b>Restrito</b></span> <small> Somente os indicados podem acessar e alterar</small>
+                                                            </span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <div ng-show="procedimento.acesso==20">
+                                                    <fieldset>
+                                                        <legend>Defensorias Participantes</legend>
+                                                    </fieldset>
+                                                    <div class="control-group" ng-hide="carregando_defensorias_acesso">
+                                                        <input type="text" class="span10" placeholder="Digite o nome da defensoria participante..."
+                                                               ng-model="participante"
+                                                               typeahead="i as i.nome for i in defensorias | filter:{nome:$viewValue} | limitTo:12">
+                                                        <button type="button" class="btn" tooltip="Incluir"
+                                                                ng-click="adicionar_participante(participante)" ng-disabled="!participante">
+                                                            <i class="fas fa-plus-circle"></i>
+                                                        </button>
+                                                        <label class="text-error helper-font-small" ng-show="participante && !participante.id">
+                                                            Esta defensoria não existe no banco de dados
+                                                        </label>
+                                                    </div>
+                                                    <table class="table" ng-hide="carregando_defensorias_acesso">
+                                                        <thead>
+                                                            <th class="span9">Defensoria</th>
+                                                            <th class="span3">Ação</th>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr ng-repeat="participante in defensorias_acesso">
+                                                                <td>
+                                                                    <span>[[ participante.nome ]]</span>
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-danger" ng-click="remover_participante(participante)"
+                                                                        tooltip="Remover">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <tr ng-hide="defensorias_acesso.length">
+                                                                <td colspan="2">Nenhuma defensoria participante adicionada!</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <p class="text-center" ng-show="carregando_defensorias_acesso">
+                                                        <img src="{% static "img/loader_16.gif" %}"> Carregando...
+                                                    </p>
+                                                    <input type="hidden" name="defensorias_acesso" value="[[defensoria.id]]" ng-repeat="defensoria in defensorias_acesso">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                            <div class="span12 alert">
+                                                <p>
+                                                    <span class="bold">TIPO DE ACESSO: </span>
+                                                    {% if procedimento.acesso == ACESSO_NIVEL_PRIVADO  %}
+                                                        <span><i class="fas fa-lock color-red"> Privado </i>- Somente {{ procedimento.defensoria_responsavel_nome }} pode acessar e alterar</span>
+                                                    {% elif procedimento.acesso == ACESSO_NIVEL_PUBLICO %}
+                                                        <span><i class="fas fa-unlock color-green"> Público </i>- Todos podem acessar e alterar.</span>
+                                                    {% elif procedimento.acesso == ACESSO_NIVEL_RESTRITO %}
+                                                        <span><i class="fas fa-info-circle color-orange"> Restrito </i>- Somente os indicados podem acessar e alterar</span>
+                                                    {% endif %}
+                                                </p>
+                                                {% for nucleo in procedimento.listar_defensorias_acesso %}
+                                                    &bull; {{ nucleo.nome }} &nbsp;&nbsp;
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    </form>
+                                    </div>
+                                    </div>
+                                    {% if user_acesso_propac %}
+                                        <div class="row-fluid">
+                                            <p class="pull-right">
+                                                <button class="btn btn-success" type="submit" form="FormEdicaoProcedimento" value="Submit" ng-disabled="procedimento.acesso == 20 && !defensorias_acesso.length">
+                                                    <i class="fas fa-check"></i> Salvar
+                                                </button>
+                                                <a href="{% url 'procedimentos:procedimento_uuid' procedimento.uuid %}" class=" btn" for="FormEdicaoProcedimento">
+                                                    <i class="fas fa-ban"></i> Cancelar edições
+                                                </a>
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    
+                                    {% endblock %}
+                                    
+                                    {% block conteudo_pag_nova_movimentacao %}
+                                        <!-- Opção de lançamento de movimentações -->
+                                    
+                                        <!-- Fim Opção de lançamento de movimentações -->
+                                    {% endblock %}

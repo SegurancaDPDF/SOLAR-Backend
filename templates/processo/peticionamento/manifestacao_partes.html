@@ -1,0 +1,129 @@
+<h4>Dados das partes <small>selecione quais deseja vincular ao novo processo</small></h4>
+
+{% if not possui_autor %}
+    <!-- Alerta exibido se não houver pelo menos uma parte autora -->
+    <div class="alert alert-error">
+        <b>Atenção!</b> É necessário adicionar pelo menos uma parte autora.
+    </div>
+{% endif %}
+
+<!-- Alerta exibido se a classe judicial selecionada exige um réu como parte -->
+<div class="alert alert-error alert-reu">
+    <b>Atenção!</b> A classe judicial selecionada exige um réu como parte, para regularização inclua um requerido no atendimento ou selecione outra classe processual que não possua tal exigência.
+</div>
+
+{% if pessoas_sem_documento %}
+    <!-- Alerta exibido se alguma parte não tiver os campos de documento preenchidos -->
+    <div class="alert alert-error">
+        <b>Atenção!</b> É necessário preencher o cadastro das partes em destaque com pelo menos um dos campos: CPF/CNPJ, RG ou Certidão Civil.
+    </div>
+{% endif %}
+
+{% if not requerente_tem_endereco %}
+    <!-- Alerta exibido se o requerente não tiver o cadastro de endereço preenchido -->
+    <div class="alert alert-error">
+        <b>Atenção!</b> O Requerente não possui cadastro de endereço devidamente preenchido!
+    </div>
+{% endif %}
+
+{% if not requerido_tem_endereco %}
+    <!-- Alerta exibido se o requerido não tiver o cadastro de endereço preenchido -->
+    <div class="alert alert-error">
+        <b>Atenção!</b> O Requerido não possui cadastro de endereço devidamente preenchido!
+    </div>
+{% endif %}
+
+<!-- Tabela para exibir os dados das partes -->
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <!-- Cabeçalho da coluna para o número da parte -->
+            <th class="span1">#</th>
+            <!-- Cabeçalho da coluna para o tipo da parte -->
+            <th class="span1">Parte</th>
+            <!-- Cabeçalho da coluna para o nome da parte -->
+            <th class="span4">Nome</th>
+            <!-- Cabeçalho da coluna para o documento da parte -->
+            <th class="span1">Documento</th>
+            <!-- Cabeçalho da coluna para a informação se é parte principal -->
+            <th class="span2">Principal</th>
+            <!-- Cabeçalho da coluna para a representação da parte -->
+            <th class="span2">Representação</th>
+            <!-- Cabeçalho da coluna para o representante da parte -->
+            <th class="span2">Representante</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for parte in pessoas %}
+        <tr {% if parte.sem_documento %} class="error" {% endif %}>
+            <td>
+                <!-- Checkbox para selecionar a parte -->
+                <input type="checkbox" name="partes" value="{{ parte.id }}" {% if parte.selecionado %} checked {% endif %} {% if not pode_peticionar %} disabled {% endif %}>
+            </td>
+            <td>
+                {% if parte.tipo == PessoaAtendimento.TIPO_REQUERENTE %}
+                    <!-- Indicador de parte autora -->
+                    <span class="label label-success">Autor</span>
+                {% else %}
+                    <!-- Indicador de parte réu -->
+                    <span class="label label-important">Réu</span>
+                {% endif %}
+            </td>
+            <td>
+                <!-- Nome da parte -->
+                {{ parte.pessoa.nome }}
+                {% if manifestacao.id and pode_editar %}
+                    <!-- Botão para editar o cadastro da parte -->
+                    <a data-toggle="modal" data-target="#modal-pre-cadastro" class="btn-link btn-small" title="Editar Cadastro" rel="tooltip" ng-click="carregar_pessoa({{ parte.pessoa_id }})">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                {% endif %}
+            </td>
+            <td>
+                {% if parte.pessoa.cpf %}
+                    <!-- Indicador de CPF/CNPJ da parte -->
+                    <span class="label label-success">CPF/CNPJ</span>
+                {% elif parte.pessoa.rg_numero %}
+                    <!-- Indicador de RG da parte -->
+                    <span class="label label-success">RG</span>
+                {% elif parte.pessoa.certidao_numero and parte.pessoa.certidao_tipo %}
+                    <!-- Indicador de Certidão Civil da parte -->
+                    <span class="label label-success" title="Certidão de {{ parte.pessoa.get_certidao_tipo_display }}" rel="tooltip">
+                        {{ parte.pessoa.certidao_tipo }}
+                    </span>
+                {% else %}
+                    <!-- Indicador de parte sem documento -->
+                    <span class="label label-important">Sem documento</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if parte.responsavel %}
+                    <!-- Indicação de parte principal -->
+                    Sim
+                {% else %}
+                    <!-- Indicação de parte não principal -->
+                    Não
+                {% endif %}
+            </td>
+            <td>
+                <!-- Seleção da representação da parte -->
+                <select name="representacao_{{ parte.id }}" class="span12" {% if not pode_editar %}disabled{% endif %}>
+                    <option value="">(Não se aplica)</option>
+                    {% for k, v in PessoaAtendimento.LISTA_REPRESENTACAO %}
+                        <option value="{{ k }}" {% if k == parte.representante_modalidade %}selected{% endif %} >{{ v }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <!-- Seleção do representante da parte -->
+                <select name="representante_{{ parte.id }}" class="span12" {% if not pode_editar %}disabled{% endif %}>
+                    <option value="">(Não se aplica)</option>
+                    {% for representante in atendimento.partes.ativos %}
+                        <option value="{{ representante.id }}" {% if representante.id == parte.representante_id %}selected{% endif %}>{{ representante.pessoa.nome }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

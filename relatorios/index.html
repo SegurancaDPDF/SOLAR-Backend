@@ -1,0 +1,122 @@
+{% extends "relatorios/default.html" %}  <!-- Define o template pai -->
+
+{% load humanize contrib_tags %}  <!-- Carrega os filtros e tags adicionais -->
+
+{% block css_pag %}  <!-- Define o bloco de código CSS específico para a página -->
+{% endblock %}
+
+{% block cabecalho_app %}  <!-- Define o bloco de código para o cabeçalho da aplicação -->
+
+    <h2>
+        <i class="helper-font-24 fas fa-chart-bar"></i> Relatórios  <!-- Título do cabeçalho -->
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}  <!-- Define o bloco de código para o menu da aplicação -->
+
+<div class="navbar navbar-mb0">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                <span class="fas fa-bars"></span>
+                <span class="fas fa-bars"></span>
+                <span class="fas fa-bars"></span>
+            </a>
+            <div class="nav-collapse collapse navbar-responsive-collapse">
+                <form class="navbar-search span11">
+                    <div class="input-icon-append">
+                        <span class="icon"><i class="fas fa-search"></i></span>
+                        <input type="text" id="filtro" name="filtro" class="input-xxlarge" ng-model="filtro" placeholder="Buscar pelo título do relatório">
+                    </div>
+                </form>
+            </div>
+            <!-- /.nav-collapse -->
+        </div>
+    </div>
+    <!-- /navbar-inner -->
+</div>
+
+{% endblock %}
+
+{% block cabecalho_pag %}  <!-- Define o bloco de código para o cabeçalho da página -->
+{% endblock %}
+
+{% block conteudo_pag %}  <!-- Define o bloco de código para o conteúdo da página -->
+
+    <hr/>
+
+    <div ng-init="init({user:'{{ request.user.username }}'})"></div>  <!-- Inicializa o código AngularJS com a variável de usuário -->
+
+    <div class="row-fluid">
+        <!-- Bloco relatorio -->
+        <div class="span8">
+            <div class="box-tab corner-all" ng-repeat="grupo in relatorios" ng-if="(grupo.itens | filter: {titulo:filtro}).length">
+                <div class="box-body">
+                    <fieldset>
+                        <legend>
+                            <i ng-class="grupo.classe_css"></i>
+                            [[ grupo.nome ]]  <!-- Nome do grupo de relatórios -->
+                        </legend>
+                        <div class="span12">
+                            <div ng-repeat="relatorio in grupo.itens | filter: {titulo:filtro}">
+                                <div ng-if="relatorio.tipo==1">  <!-- Se o tipo de relatório for 1 -->
+                                    <i class="fas fa-file-pdf text-error"></i>
+                                    <a href="#modal-imprimir" class="btn-link" role="button" data-toggle="modal" ng-click="set_report(relatorio)">
+                                        [[ relatorio.titulo ]]  <!-- Título do relatório -->
+                                    </a>
+                                    {% if perms.relatorios.add_relatorio %}  <!-- Verifica se o usuário tem permissão para adicionar relatórios -->
+                                        <a href="[[ gerar_link('relatorios:editar', {pk:relatorio.id}) ]]" class="muted">
+                                            <small>
+                                                <i class="fas fa-pencil-alt"></i> Alterar
+                                            </small>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <div ng-if="relatorio.tipo==2">  <!-- Se o tipo de relatório for 2 -->
+                                    <i class="fas fa-chart-pie text-success"></i>
+                                    {% if config.METABASE_DISPLAY_IN_IFRAME %}  <!-- Verifica a configuração de exibição do Metabase em iframe -->
+                                        <a href="[[ gerar_link('relatorios:visualizar', {pk:relatorio.id}) ]]" class="btn-link">
+                                            [[ relatorio.titulo ]]  <!-- Título do relatório -->
+                                        </a>
+                                    {% else %}
+                                        <a href="[[ relatorio.metabase_url ]]" target="_blank" class="btn-link">
+                                            [[ relatorio.titulo ]]  <!-- Título do relatório -->
+                                        </a>
+                                    {% endif %}
+                                    {% if perms.relatorios.add_relatorio %}  <!-- Verifica se o usuário tem permissão para adicionar relatórios -->
+                                        <a href="[[ gerar_link('relatorios:editar', {pk:relatorio.id}) ]]" class="muted">
+                                            <small>
+                                                <i class="fas fa-pencil-alt"></i> Alterar
+                                            </small>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="span4">
+            {% if perms.relatorios.add_relatorio %}  <!-- Verifica se o usuário tem permissão para adicionar relatórios -->
+            <div class="pull-right">
+                <a href="{% url 'relatorios:buscar' %}" class="btn">
+                    <i class="fas fa-cogs"></i><br/>
+                    Gerenciar
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <!-- Fim Bloco relatorio -->
+    </div>
+
+    {% include 'relatorios/index_modal_imprimir.html' %}  <!-- Inclui um arquivo de template -->
+
+{% endblock %}
+
+{% block js_pag %}  <!-- Define o bloco de código JS específico para a página -->
+{% endblock %}
+
+{% block js_ready_pag %}  <!-- Define o bloco de código JS Ready específico para a página -->
+{% endblock %}

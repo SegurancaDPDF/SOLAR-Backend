@@ -1,0 +1,185 @@
+{% extends "processo/honorarios/index.html" %}
+{% load humanize %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <div class="span8 pull-left">
+            <!-- Formulário de pesquisa -->
+            <form method="POST" action="{% url 'honorarios_transitados_e_julgados_defensor' %}">
+                {% csrf_token %}
+                <div class="controls pull-right" style="margin-top:10px;">
+                    <div class="input-icon-append">
+                        <span class="icon"><i class="fas fa-search"></i></span>
+                        <input name="filtro_honorario" class="grd-white" maxlength="30" type="text" placeholder="Número Processo...">
+                    </div>
+                </div>
+            </form>
+            <h4><i class="fas fa-bell"></i> Aguardando Protocolo {% if paginacao.count %}({{ paginacao.count }}) {% endif %}<span class="muted helper-font-small ">(Processos encaminhados aguardando protocolo do defensor)</span></h4>
+            <div class="well well-small">
+                <!-- Tabela de processos -->
+                <table class="table table-hover table-striped responsive">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Processo</th>
+                        <th>Data Status Atual</th>
+                        <th>Status Atual</th>
+                        <th>Valor Estimado | Efetivo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for honorario in processos %}
+
+                        <tr>
+                            <td class="bold">{{ forloop.counter }}</td>
+                            <td>
+                                <a href="{% url 'honorarios_processo' honorario.id %}" class="btn-link">
+                                    <b>{{ honorario.fase.processo.numero }}</b>
+                                </a>
+                                {% if honorario.fase.processo.grau == 1 %}
+                                    <span class="label label-success" title="1º grau" rel="tooltip">1G</span>
+                                {% elif honorario.fase.processo.grau == 2 %}
+                                    <span class="label label-info" title="1º grau" rel="tooltip">2G</span>
+                                {% elif honorario.fase.processo.grau == 3 %}
+                                    <span class="label label-important" >STF/STJ</span>
+                                {% endif %}
+                            <br/><small style="font-size: 8px">Cadastrado em {{ honorario.data_cadastro |date:"d/m/Y H:i:s" }}</small></td>
+                            <td>{{ honorario.lista_movimentos.last.data_cadastro |date:"d/m/Y H:i:s" }}</td>
+                            <td>
+                                {% if honorario.lista_movimentos.last.tipo == 1  %}
+                                    <span class="color-red bold" rel="tooltip" data-placement="bottom" data-original-title="Aguardando Peticionamento">
+                                        <i class="fas fa-clock"></i> Aguardando
+                                    </span>
+                                {% elif honorario.lista_movimentos.last.tipo == 2  %}
+                                    <span class="color-orange bold" rel="tooltip" data-placement="bottom" data-original-title="Peticionados">
+                                        <i class="fas fa-file"></i> Peticionado
+                                    </span>
+                                {% elif honorario.lista_movimentos.last.tipo == 3  %}
+                                    <span class="color-red bold" rel="tooltip" data-placement="bottom" data-original-title="Encaminhado ao Defensor">
+                                        <i class="fas fa-exclamation-circle"></i> Encaminhado
+                                    </span><span class="muted"> - {{ honorario.lista_movimentos.last.defensor }}</span>
+                                {% elif honorario.lista_movimentos.last.tipo == 4  %}
+                                    <span class="color-blue bold" rel="tooltip" data-placement="bottom" data-original-title="Protocolados">
+                                        <i class="far fa-check-square"></i> Protocolado
+                                    </span>
+                                {% elif honorario.lista_movimentos.last.tipo == 5  %}
+                                    <span class="color-green bold" rel="tooltip" data-placement="bottom" data-original-title="Baixados">
+                                        <i class="fas fa-sign-out-alt"></i> Baixado
+                                    </span>
+                                {% endif %}
+                            <td>
+                            <span class=" bold pull-left" rel="tooltip" data-placement="bottom" data-original-title="Valor Estimado">
+                                {% if honorario.has_aguard_peti %}
+                                    R${{ honorario.lista_movimentos.first.valor_estimado}}&nbsp;&nbsp;|&nbsp;&nbsp;
+                                {% else %}
+                                    ---
+                                {% endif %}
+                            </span>
+                            <span class=" bold pull-left" rel="tooltip" data-placement="bottom" data-original-title="Valor Efetivo">
+                                {% if honorario.has_baixa %}
+                                    R${{ honorario.lista_movimentos.last.valor_efetivo }}
+                                {% else %}
+                                    ---
+                                {% endif %}
+                            </span>
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <b><i class="fas fa-exclamation-circle"></i> Nenhum registro encontrado!</b>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <div class="pull-left">
+                        Página {{ processos.number }} de {{ processos.paginator.num_pages }}
+                    </div>
+                    <div class="pagination-right pagination-mini">
+                        <ul>
+                            {% if processos.has_previous %}
+                                <li><a href="?page={{ processos.previous_page_number }}">Anterior</a></li>
+                            {% else %}
+                                <li class="disabled"><a href="#">Anterior</a></li>
+                            {% endif %}
+                            {% for page in processos.paginator.page_range %}
+                                {% if page >= processos.number|add:"-2" and page < processos.number %}
+                                    <li><a href="?page={{ page }}">{{ page }}</a></li>
+                                {% endif %}
+                                {% ifequal processos.number page %}
+                                    <li class="active"><a href="#">{{ processos.number }}</a></li>
+                                {% endifequal %}
+                                {% if page <= processos.number|add:"2" and page > processos.number %}
+                                    <li><a href="?page={{ page }}">{{ page }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if processos.has_next %}
+                                <li><a href="?page={{ processos.next_page_number }}">Próxima</a></li>
+                            {% else %}
+                                <li class="disabled"><a href="#">Próxima</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="span4 pull-right">
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+            <div class="well well-small">
+                <h4>Minhas Alteraçõesde Movimentos </h4>
+
+                <table class="table table-hover table-striped responsive">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for movimeento in movimentos_realizados %}
+                        <tr>
+                            <td class="muted bold">{{ forloop.revcounter }}</td>
+                            <td>
+                                <a href="{% url 'honorarios_processo' movimeento.honorario.id %}" class="btn-link"><small>{{ movimeento.data_cadastro |date:"d/m/Y H:i:s" }}</small></a>
+                            </td>
+                            <td>
+                                <a href="{% url 'honorarios_processo' movimeento.honorario.id %}" class="btn-link"><small>{{ movimeento.get_tipo_display }}</small></a>
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+
+    $(document).on('click','a[href=#modal-excluir-audiencia]', function(){
+    $('#btn-modal-excluir-audiencia').attr(
+    'href','/processo/fase/'+$(this).data('id')+'/excluir/?next={{ request.get_full_path }}');
+    });
+
+    $(document).on('click','a[href=#modal-realizar-audiencia]', function(){
+    $('#RealizarAudienciaForm').attr(
+    'action','/processo/audiencia/'+$(this).data('id')+'/realizar/?next={{ request.get_full_path }}');
+    $('#realizar-audiencia-descricao').html($(this).data('descricao'));
+    });
+
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "processo/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block titulo %}
+    Visualizar Processo
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<!--Página responsável para Visualizar processo-->
+<div class="page-title clearfix">
+    <h3>
+        <span>
+            Visualizar Processo {{ processo_numero | form_numero_processo }}
+        </span>
+        {% if processo_grau == '1' %}
+            <span class="label label-success" title="1º grau" bs-tooltip>1G</span>
+        {% elif processo_grau == '2' %}
+            <span class="label label-info" title="2º grau" bs-tooltip>2G</span>
+        {% elif processo_grau == '3' %}
+            <span class="label label-important" >STF/STJ</span>
+        {% endif %}
+    </h3>
+</div>
+
+{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+<!--STYLE CSS-->
+        <link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+        <style>
+            #popover_pessoa .popover{width: 500px;}
+        </style>
+        <style type="text/css">
+            #cover-spin {
+            position:fixed;
+            width:100%;
+            left:0;right:0;top:0;bottom:0;
+            z-index:9999;
+            display:none;
+            }
+
+            @-webkit-keyframes spin {
+                from {-webkit-transform:rotate(0deg);}
+                to {-webkit-transform:rotate(360deg);}
+            }
+
+            @keyframes spin {
+                from {transform:rotate(0deg);}
+                to {transform:rotate(360deg);}
+            }
+
+            #cover-spin::after {
+                content:'';
+                display:block;
+                position:absolute;
+                left:48%;top:40%;
+                width:40px;height:40px;
+                border-style:solid;
+                border-color:rgba(138, 180, 248,0.8);
+                border-top-color:transparent;
+                border-width: 4px;
+                border-radius:50%;
+                -webkit-animation: spin .8s linear infinite;
+                animation: spin .8s linear infinite;
+            }
+
+            #toggle_eproc {
+                outline: 0;
+                border-radius: 50%; 
+                padding: 6px 8px;
+            }
+
+            #toggle_eproc.active {
+                border-radius: 50%; 
+                padding: 6px 8px;
+                transform:  translate(0px) rotate(-180deg);
+            }
+
+            #sidebar_eproc{
+                transition: 0.5s;
+                margin-left: 0px;
+            }
+
+            #sidebar_eproc.active{
+                transition: 0.5s;
+                margin-left: -300px;
+            }
+        </style>
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+    {% endblock %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    {% include 'processo/visualizar_processo.html' %}
+
+{% endblock %}
+
+{% block js_pag %}
+
+
+<!--Javascript-->
+
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/redactor/redactor.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor.custom.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_pt_br.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_fullscreen.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/datatables/jquery.dataTables.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/datatables/extras/ZeroClipboard.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/datatables/DT_bootstrap.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/responsive-tables/responsive-tables.js" %}"></script>
+    <script type="text/javascript" src="{% static "luzfcb_djdocuments/js/luzfcb_djdocuments.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_propac.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/tours/tour_atendimento_atender.js" %}"></script>
+
+    <script type="text/javascript">
+        function ChangeEmbed(link) {
+            console.log(link)
+            var embed = document.getElementById('embed')
+            embed.setAttribute("src", link)
+            $('#cover-spin').modal('show');
+            embed.addEventListener('load', function(){
+                 $('#cover-spin').modal('hide');
+            });
+        }
+    </script>
+
+{% endblock %}
+
+<script type="text/javascript">
+    {% block js_ready_pag %}
+
+    $('#myTab2 a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
+    if ("{{config.MODO_EXIBICAO_EVENTOS_PROCESSO_TJ}}" == "timeline"){
+        $('#myTab2 a:last').tab('show');
+    }else{
+        $('#myTab2 a:first').tab('show');
+    }
+    
+    {% endblock %}
+</script>

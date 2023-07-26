@@ -1,0 +1,110 @@
+<!-- Modal Cadastrar Tarefa -->
+<div id="modal-cadastrar-tarefa" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="CadastrarTarefaModal">
+            <i class="fas fa-tasks"></i> Nova Tarefa
+        </h3>
+    </div>
+    <div class="modal-body">
+        <!-- Formulário para cadastrar a nova tarefa -->
+        <form name="CadastrarTarefaForm" method="" class="form-horizontal">
+            <!-- Campo para selecionar a defensoria responsável pela tarefa -->
+            <div class="control-group">
+                <label class="control-label">Defensoria Responsável</label>
+                <div class="controls">
+                    <select name="setor_responsavel" class="span12" ng-model="novaTarefa.setor_responsavel" ng-options="i.id as i.nome for i in defensorias | filter:{pode_cadastrar_tarefa:true}" ng-change="carregar_setor_responsavel()" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                    <!-- Exibe a atuação da defensoria selecionada -->
+                    <div ng-if="setor_responsavel.atuacao">
+                        <small class="text-warning">
+                            <b>Atuação:</b> [[ setor_responsavel.atuacao ]]
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <!-- Campo para selecionar o servidor responsável pela tarefa -->
+            <div class="control-group">
+                <label class="control-label">Servidor Responsável</label>
+                <div class="controls">
+                    <select name="responsavel" class="span12" ng-model="novaTarefa.responsavel" ng-options="i.servidor as i.nome for i in responsaveis" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Campo para selecionar a prioridade da tarefa -->
+            <div class="control-group">
+                <label class="control-label">Prioridade</label>
+                <div class="controls">
+                    <select name="prioridade" class="span12" ng-model="novaTarefa.prioridade" ng-options="k as v for (k, v) in prioridades_select" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Campo para inserir o título da tarefa -->
+            <div class="control-group">
+                <label class="control-label">Título</label>
+                <!-- Exibe um campo de texto se a defensoria responsável não possuir qualificações -->
+                <div class="controls" ng-if="!qualificacoes.length">
+                    <input name="titulo" type="text" class="span12" ng-model="novaTarefa.titulo" required>
+                </div>
+                <!-- Exibe uma lista suspensa se a defensoria responsável possuir qualificações -->
+                <div class="controls" ng-if="qualificacoes.length">
+                    <select name="responsavel" class="span12" ng-model="novaTarefa.titulo" ng-options="i.titulo as i.titulo for i in qualificacoes" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Campo para selecionar o tipo da tarefa -->
+            <div class="control-group" ng-if="tipos_tarefas.length">
+                <label class="control-label">Tipo</label>
+                <div class="controls">
+                    <select class="span12" ng-model="novaTarefa.tipo" ng-options="i.id as i.titulo for i in tipos_tarefas" required>                            
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Campos para inserir o prazo da tarefa -->
+            <div class="control-group">
+                <label class="control-label">Prazo (opcional)</label>
+                <div class="controls">
+                    <div class="input-append span5">
+                        <input id="dtInicial" placeholder="Data Início" type="text" class="span10" bs-datepicker data-date-format="dd/mm/yyyy" data-mask="99/99/9999" data-validate="{required:true,date:true}" ng-model="novaTarefa.data_inicial">
+                        <span data-toggle="datepicker" class="add-on">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                    </div>
+                    <div class="input-append span5">
+                        <input id=dtFinal placeholder="Data Término" type="text" class="span10" bs-datepicker data-date-format="dd/mm/yyyy" data-mask="99/99/9999" data-validate="{required:true,date:true}" ng-model="novaTarefa.data_final">
+                        <span data-toggle="datepicker" class="add-on">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- Campo para inserir a descrição da tarefa -->
+            <div class="control-group">
+                <label class="control-label">Descrição</label>
+                <div class="controls">
+                    <textarea cols="40" rows="4" name="descricao" class="span12" ng-model="novaTarefa.descricao"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <!-- Botão para salvar a tarefa -->
+        <button class="btn btn-success" id="btn-modal-cadastrar-tarefa" ng-click="salvar(novaTarefa)" ng-hide="salvando" ng-disabled="!CadastrarTarefaForm.$valid">
+            <i class="fas fa-save"></i> Salvar Tarefa Propac
+        </button>
+        <!-- Botão de feedback para quando a tarefa está sendo salva -->
+        <button class="btn btn-success" ng-show="salvando" disabled>
+            <i class="fas fa-save"></i> Salvando....
+        </button>
+        <!-- Botão para cancelar a criação da tarefa -->
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- Modal Cadastrar Tarefa -->

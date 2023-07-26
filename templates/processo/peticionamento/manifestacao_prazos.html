@@ -1,0 +1,84 @@
+{% load contrib_tags %}
+<!-- Título e descrição dos prazos -->
+<h4>Prazos <small>selecione quais deseja fechar</small></h4>
+
+<!-- Tabela para exibir os prazos -->
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <!-- Cabeçalho da coluna para o número do prazo -->
+            <th class="span1">#</th>
+            <!-- Cabeçalho da coluna para o código do prazo -->
+            <th class="span1">Código</th>
+            <!-- Cabeçalho da coluna para o evento do prazo -->
+            <th class="span1">Evento</th>
+            <!-- Cabeçalho da coluna para o requerente do prazo -->
+            <th class="span3">Requerente</th>
+            <!-- Cabeçalho da coluna para a data do prazo -->
+            <th class="span2">Data</th>
+            <!-- Cabeçalho da coluna para o prazo final -->
+            <th class="span2">Prazo Final</th>
+            <!-- Cabeçalho da coluna para a situação do prazo -->
+            <th class="span2">Situação</th>
+            <!-- Cabeçalho da coluna vazia -->
+            <th class="span2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for prazo in prazos %}
+        <tr>
+            <td>
+                <!-- Checkbox para selecionar o prazo -->
+                <input type="checkbox" name="prazos" value="{{ prazo.numero }}" {% if prazo.selecionado %} checked {% endif %} {% if not pode_peticionar or prazo.esta_fechado %} disabled {% endif %}>
+            </td>
+            <td>
+                <!-- Número do prazo -->
+                {{ prazo.numero }}
+            </td>
+            <td>
+                <!-- Evento do prazo com tooltip para a descrição -->
+                <b title="{{ prazo.outros_parametros.descricaoMovimento }}" rel="tooltip">{{ prazo.outros_parametros.identificadorMovimento }}</b>
+            </td>
+            <td>
+                <!-- Nome do requerente do prazo -->
+                {{ prazo.destinatario.pessoa.nome }}
+            </td>
+            <td>
+                <!-- Data de disponibilização do prazo formatada -->
+                {{ prazo.data_disponibilizacao | form_datahora_json | date:'d/m/Y H:i' }}
+            </td>
+            <td>
+                <!-- Prazo final formatado -->
+                {{ prazo.prazo_final | form_datahora_json | date:'d/m/Y H:i' }}
+            </td>
+            <td>
+                <!-- Situação do prazo -->
+                {{ prazo.situacao }}
+            </td>
+            <td>
+                {% if prazo.comunicacao.documentos %}
+                    <!-- Botão para ver a intimação -->
+                    <a href="{% url 'eproc_consultar_documento' prazo.processo.numero prazo.comunicacao.documentos.0.documento %}" target="_blank" class="btn btn-small" title="Ver Intimação" rel="tooltip">
+                        <i class="far fa-file" aria-hidden="true"></i>
+                    </a>
+                {% elif prazo.evento %}
+                    <!-- Botão para identificar o documento -->
+                    <a href="{% url 'eproc_identificar_documento' prazo.processo.numero %}?evento={{ prazo.evento.numero|default:'' }}" target="_blank" class="btn btn-small" title="Ver Intimação" rel="tooltip">
+                        <i class="far fa-file" aria-hidden="true"></i>
+                    </a>
+                {% else %}
+                    <!-- Botão desabilitado para ver a intimação -->
+                    <a href="#" class="btn btn-small disabled" title="Ver Intimação" rel="tooltip">
+                        <i class="far fa-file" aria-hidden="true"></i>
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <!-- Mensagem exibida quando não há prazos -->
+        <tr>
+            <td colspan="8">Nenhum prazo encontrado</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>S

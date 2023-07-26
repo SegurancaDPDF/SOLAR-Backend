@@ -1,0 +1,119 @@
+{% extends "propac/default_menu.html" %}
+{% load humanize static %}
+
+{% block conteudo_pag_leteral %}
+    <div class="span9">
+        <div>
+            <h3><i class="fas fa-briefcase"></i> Início <small>(Últimos Propacs e Procedimentos movimentados que possuo acesso)</small></h3>
+        </div>
+        <div class="well bg-white">
+            <p>
+                <b>Defensoria(s) que estou lotado(a):</b>
+            </p>
+            {% for defensoria in propacs_acesso.dados %}
+                <i class="fas fa-briefcase"></i> {{ defensoria.nome }}
+                <br/>
+            {% endfor%}
+        </div>
+        <table class="table table-hover responsive">
+            <thead>
+                <tr>
+                    <th class="span5"># Número</th>
+                    <th class="span2">Situação</th>
+                    <th class="span3">Última movimentação</th>
+                    <th class="span2">Atendimento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for procedimento in procedimentos_list %}
+                <tr>
+                    <td>
+                        <small class="muted">#{{forloop.counter}}</small>
+                        {% if procedimento.tipo == 10 %}
+                            &nbsp;&nbsp;<i class="far fa-file color-blue"></i>
+                        {% elif procedimento.tipo == 20 %}
+                            &nbsp;<i class="fas fa-folder-open color-yellow"></i>
+                        {% endif %}
+                        <a href="{% url 'procedimentos:procedimento_uuid' procedimento.uuid %}" class="link">{{ procedimento.numero }}</a>
+                        {% if procedimento.assunto %}
+                            <br/>
+                            <small class="muted">Assunto: {{ procedimento.assunto | truncatechars:50 }}</small>
+                        {% endif %}
+                        <br/>
+                        <small class="muted">Defensoria: {{ procedimento.defensoria_responsavel | truncatechars:50 }}</small>
+                    </td>
+                    <td>
+                        <span class="muted">{{ procedimento.get_situacao_display }}</span>
+                    </td>
+                    <td>
+                        <small class="muted">{{ procedimento.data_ultima_movimentacao | date:'d/m/Y H:i:s' }}</small>
+                    </td>
+                    <td>
+                        {% if procedimento.atendimentos_vinculados %}
+                            <a href="#" class="btn-link" rel="popover" data-trigger="hover" data-placement="top" data-original-title="{{procedimento.atendimentos_vinculados.count}} Atendimento(s)"
+                            data-content="{% for atendimento in procedimento.atendimentos_vinculados %}
+                                            <a class='btn-link' href='{% url 'atendimento_atender' atendimento.numero %}#/propac' >{{atendimento.numero}}</a></br>
+                                          {% endfor %}" data-html="true">
+                                <i class="fas fa-comments"></i>
+                                {{ procedimento.atendimentos_vinculados.count }} Atendimentos
+                            </span>
+                        {% else %}
+                            <span>
+                                Não vinculado
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="span5">#Número</th>
+                    <th class="span2">Situação</th>
+                    <th class="span3">Última movimentação</th>
+                    <th class="span2">Atendimento</th>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="pagination">
+            <div class="pull-left">
+                Página {{ page_obj.number }} de {{ paginator.num_pages }}
+            </div>
+            <div class="pagination-right pagination-mini">
+                <ul>
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                    {% else %}
+                        <li class="disabled"><a href="#">Anterior</a></li>
+                    {% endif %}
+                        {% for page in paginator.page_range %}
+                            {% if page >= page_obj.number|add:"-2" and page < page_obj.number %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li>
+                            {% endif %}
+                            {% ifequal page_obj.number page %}
+                                <li class="active"><a href="#">{{ page_obj.number }}</a></li>
+                            {% endifequal %}
+                            {% if page <= page_obj.number|add:"2" and page > page_obj.number %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+                    {% else %}
+                        <li class="disabled"><a href="#">Próxima</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% include 'propac/procedimento_modal_cadastrar_movimentacao.html' %} <!-- Inclui um modal para cadastrar movimentação -->
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript">
+        // popover de atendimentos
+        $("a[rel=popover]").popover().click(function(e) {
+            e.preventDefault()
+        })
+    </script>
+{% endblock %}

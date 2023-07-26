@@ -1,0 +1,100 @@
+{% extends "propac/default_menu.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block conteudo_pag_leteral %}
+    <div class="span9">
+        <!--Procedimentos-->
+        <div>
+            <h3><i class="fas fa-search"></i> Buscar</h3>
+            <small class=" pull-right">
+                <i class="fas fa-folder-open color-yellow"></i> Propacs -
+                <i class="far fa-file color-blue"></i> Procedimentos
+            </small>
+        </div>
+        <div class="row-fluid">
+            <div class="span10">
+            <form >
+                <div class="input-append span12">
+                    <!-- Campo de input para digitar o filtro de busca -->
+                    <input type="text" autocomplete="off" name="filtro" class="span11" placeholder="Número ou código (Mínimo 5 caracteres)" ng-model="procedimento.filtro"
+                    ng-keypress="buscar_procedimento_key($event)" ng-change="buscar_procedimento_filtro()">
+                    <!-- Botão de busca -->
+                    <button type="submit" class="btn" ng-click="buscar_procedimento_filtro()">
+                        <i class="fas fa-search" ng-hide="procedimento.buscando"></i>
+                        <img src="{% static "img/loading.gif" %}" ng-show="procedimento.buscando"/>
+                    </button>
+                </div>
+            </form>
+        </div>
+        </div>
+
+        <!-- Tabela para exibir os resultados da busca -->
+        <table class="table table-hover responsive" ng-hide="!procedimentos_busca.length">
+            <thead>
+                <tr>
+                    <th class="span5">#Número</th>
+                    <th class="span2">Situação</th>
+                    <th class="span3">Última movimentação</th>
+                    <th class="span2">#</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Linhas da tabela para cada procedimento encontrado -->
+                <tr ng-repeat="proc in procedimentos_busca" ng-show="procedimentos_busca" ng-style="(procedimento.selecionado==proc) ? {'background-color': 'rgb(255, 237, 202)'} : ''">
+                    <td>
+                        <!-- Número e tipo de procedimento -->
+                        <small class="muted">#[[$index+1]]</small>
+                        <i ng-show="[[ proc.tipo ]]==20" class="fas fa-folder-open color-yellow"></i>
+                        <i ng-show="[[ proc.tipo ]]==10" class="far fa-file color-blue"></i>
+                        <a href="/nucleo/procedimento/codigo/[[ proc.uuid ]]" class="btn-link">
+                            <!-- Link para acessar o procedimento -->
+                            <span ng-show="[[ proc.tipo ]]==20" rel="tooltip" title="Código: [[proc.uuid]]">
+                                [[proc.numero]] - Propac
+                            </span>
+                            <span ng-show="[[ proc.tipo ]]==10" rel="tooltip" title="Código: [[proc.uuid]]">
+                                [[proc.numero]] - Procedimento Preparatorio
+                            </span>
+                        </a>
+                        <br/>
+                        <!-- Assunto do procedimento -->
+                        <small ng-show="proc.assunto" rel="tooltip" title="[[proc.assunto ]]" class="muted">
+                            Assunto: [[ proc.assunto | limitTo:50 ]]...
+                        </small>
+                    </td>
+                    <!-- Situação do procedimento -->
+                    <td ng-show="[[ proc.situacao ]]==10">Movimento</td>
+                    <td ng-show="[[ proc.situacao ]]==20">Encerrado</td>
+                    <td ng-show="[[ proc.situacao ]]==30">Arquivado</td>
+                    <td ng-show="[[ proc.situacao ]]==40">Desarquivado</td>
+                    <!-- Data da última movimentação do procedimento -->
+                    <td>[[ proc.data_ultima_movimentacao | date:'dd/MM/yyyy H:m:s']]</td>
+                    <td>
+                        <!-- Link para acessar o procedimento -->
+                        <a href="/nucleo/procedimento/codigo/[[ proc.uuid ]]" class="btn-link">
+                            <b>Acessar <i class="fas fa-share"></i></b>
+                        </a>
+                    </td>
+                </tr>
+                <!-- Mensagem exibida quando não há registros encontrados -->
+                <h5 class="bold text-center" ng-show="!procedimentos_busca.length && !procedimento.buscando">
+                    Nenhum registro encontrado
+                </h5>
+                <!-- Mensagem exibida durante a busca -->
+                <h5 class="bold text-center" ng-show="procedimento.buscando">
+                    <img src="{% static "img/loading.gif" %}"/> Buscando...
+                </h5>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="span5">#Número</th>
+                    <th class="span2">Situação</th>
+                    <th class="span3">Última movimentação</th>
+                    <th class="span2">#</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- Inclusão de um modal para cadastrar movimentações -->
+    {% include 'propac/procedimento_modal_cadastrar_movimentacao.html' %}
+{% endblock %}

@@ -1,0 +1,24 @@
+<!-- modal Remover documento do movimento em processo de criação -->
+<div id="modal-remover-movimento-por-completo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel" class="text-center color-red">
+            <i class="fas fa-trash color-red"></i> Excluir Movimento
+        </h3>
+    </div>
+    <div class="modal-body">
+        <form action="{{ cancelar_movimento_form_action }}" id="FormRemoveMovimento" method="POST">
+            {% csrf_token %}
+            <p class="text-center">
+                <b><i class="fas fa-warning color-red"></i> Todo o movimento e seus documentos serão excluídos permanentemente!</b>
+            </p>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <p class="pull-left text-error">Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        <input type="submit" class="btn btn-danger" form="FormRemoveMovimento" value="Excluir" />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>
+<!-- FIM modal Remover documento do movimento em processo de criação -->

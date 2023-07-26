@@ -1,0 +1,358 @@
+{% extends "propac/default.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+{% load static %}
+
+{% block conteudo_app %}
+
+<div class="row-fluid" ng-controller="PropacTarefaCtrl"
+    ng-init="init({servidor_id:{{ request.user.servidor.id }},
+                   tarefa_id: $routeParams.tarefaId,
+                   movimento: '{{ movimento }}',
+                   propac: '{{ propac }}'})">
+
+    <!-- Botões -->
+    <div class="span4">
+        <div>
+            {% if atendimento_permissao %}
+            <h4>Tarefas</h4>
+            <!-- Botão para adicionar nova tarefa -->
+            <button class="btn" data-target="#modal-cadastrar-tarefa" data-placement="left" data-toggle="modal"
+                ng-click="nova(2)">
+                <b class="text-success">
+                    <i class="fas fa-plus-circle"></i> Nova Tarefa
+                </b>
+                <br />
+                <small class="muted">para servidores do setor</small>
+            </button>
+            {% endif %}
+            <!-- Botão para voltar para o movimento -->
+            <button class="btn" onclick="location.href='{% url 'procedimentos:editar_movimento' uuid=propac pk=movimento %}';">
+                <b class="text-info">
+                    <i class="fa fa-clone"></i> Movimento
+                </b>
+                <br />
+                <small class="muted">voltar para o movimento</small>
+            </button>
+        </div>
+        <br>
+        <div class="accordion">
+            <!-- Documentos de atendimento -->
+            <div class="accordion-group" ng-repeat="prateleira in prateleiras" ng-if="prateleira.tarefas || (tarefas | filter: prateleira.filtro).length">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle more bg-silver color-black" data-toggle="collapse"
+                        data-parent="#collapse_pessoais[[prateleira.id]]" data-target="#collapse_atendimento"
+                        style="text-align: left;">
+                        <!-- Ícones para expandir e recolher a seção -->
+                        <i class="helper-font-18 fas fa-folder-open color-yellow"></i>
+                        <i class="helper-font-18 fas fa-folder color-yellow"></i>
+                        <span>
+                            <b>[[ prateleira.nome ]]</b>
+                        </span>
+                        <!-- Contador de tarefas não finalizadas -->
+                        <span class="badge badge-warning" ng-if="(tarefas | filter: prateleira.filtro | filter: {finalizado:null}).length">
+                            [[ (tarefas | filter: prateleira.filtro | filter: {finalizado:null}).length ]]
+                        </span>
+                    </a>
+                </div>
+                <div id="collapse_pessoais[[prateleira.id]]" class="accordion-body collapse in">
+                    <div class="accordion-inner">
+                        <table class="table table-hover responsive">
+                            <tbody>
+                                <!-- Lista de tarefas -->
+                                <tr style="cursor: pointer;" ng-repeat="obj in tarefas | filter: prateleira.filtro"
+                                    ng-class="{'warning':(tarefa.id==obj.id), 'muted':obj.finalizado}">
+                                    <td ng-click="abrir(obj);">
+                                        <div>
+                                            <!-- Indicadores de prioridade, finalização e status -->
+                                            <span class="label" bs-tooltip="prioridades[obj.prioridade].nome" data-placement="right"
+                                                ng-if="!obj.finalizado" ng-class="prioridades[obj.prioridade].class">
+                                                &nbsp;
+                                            </span>
+                                            <span class="label label-success" ng-if="obj.finalizado" title="Finalizada" bs-tooltip data-placement="right">&nbsp;</span>
+                                            <span class="label label-warning" title="Aguardando resposta de terceiros"
+                                                bs-tooltip
+                                                ng-if="obj.respostas_total && !obj.finalizado && obj.status == 1">
+                                                &nbsp;
+                                            </span>
+                                            <span class="label label-info" title="Aguardando resposta do defensor"
+                                                bs-tooltip
+                                                ng-if="obj.respostas_total.length && !obj.finalizado && obj.status == 2">
+                                                &nbsp;
+                                            </span>
+                                            <!-- Título da tarefa -->
+                                            <strong>[[ obj.titulo ]]</strong>
+                                        </div>
+                                        <ul>
+                                            <!-- Responsável pela tarefa -->
+                                            <li ng-if="obj.setor_responsavel && !obj.responsavel">
+                                                <small>
+                                                    <b>Responsável:</b> [[ obj.setor_responsavel.nome ]]
+                                                </small>
+                                            </li>
+                                            <li ng-if="obj.setor_responsavel && obj.responsavel">
+                                                <small>
+                                                    <b>Responsável:</b> [[ obj.responsavel.nome ]]
+                                                </small>
+                                            </li>
+                                            <!-- Prazo da tarefa -->
+                                            <li>
+                                                <small>
+                                                    <b>Prazo:</b> [[ obj.data_inicial|utc|date ]] - [[
+                                                    obj.data_final|utc|date ]]
+                                                    <b class="text-error" ng-if="obj.atrasado">(atrasada)</b>
+                                                </small>
+                                            </li>
+                                            <!-- Núcleo associado à tarefa -->
+                                            <li ng-if="obj.atendimento.nucleo">
+                                                <small>
+                                                    <b>Núcleo:</b> [[ obj.atendimento.nucleo.nome ]]
+                                                </small>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <!-- Ícone para indicar tarefa selecionada -->
+                                    <td class="span1">
+                                        <i class="fas fa-chevron-right" style="vertical-align: middle;"
+                                            ng-if="tarefa.id==obj.id"></i>
+                                    </td>
+                                </tr>
+                                <!-- Mensagem de lista vazia -->
+                                <tr ng-hide="tarefas.length">
+                                    <td colspan="2" ng-hide="carregando_tarefas">
+                                        <p class="text-center">
+                                            <b>Nenhum registro adicionado</b>
+                                        </p>
+                                    </td>
+                                    <td colspan="2" ng-show="carregando_tarefas">
+                                        <p class="text-center">
+                                            <img src="{% static "img/loader_16.gif" %}"> Carregando...
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="span8">
+    <br>
+    <div class="well well-large" ng-if="tarefa.id">
+        <div class="clearfix">
+            <div class="pull-left">
+                <h4 class="" style="margin: 0;">
+                    {% if request.user.is_superuser %}
+                    <a href="/admin/atendimento/tarefa/[[ tarefa.id ]]/" target="_blank" class="text-info">
+                        <i class="fas fa-link"></i>
+                    </a>
+                    {% endif %}
+                    <span class="label" ng-if="!tarefa.finalizado" ng-class="prioridades[tarefa.prioridade].class">
+                        [[ prioridades[tarefa.prioridade].nome ]]
+                    </span>
+                    <span class="label label-success" ng-if="tarefa.finalizado">Finalizada</span>
+                    <span class="label label-warning" title="Aguardando resposta de terceiros" bs-tooltip
+                        ng-if="tarefa.respostas.length && !tarefa.finalizado && tarefa.status == 1">
+                        C/ Pendência
+                    </span>
+                    <span class="label label-info" title="Aguardando resposta do defensor" bs-tooltip
+                        ng-if="tarefa.respostas.length && !tarefa.finalizado && tarefa.status == 2">
+                        Cumprida
+                    </span>
+                </h4>
+                <div>
+                    <ul>
+                        <li ng-if="tarefa.resposta_para" class="muted">
+                            <b>Defensoria Cadastro:</b> [[ tarefa.resposta_para.nome ]]
+                        </li>
+                        <li ng-if="tarefa.setor_responsavel" class="muted">
+                            <b>Defensoria Responsável:</b> [[ tarefa.setor_responsavel.nome ]]
+                        </li>
+                        <li ng-if="tarefa.responsavel" class="muted">
+                            <b>Servidor Responsável:</b> [[ tarefa.responsavel.nome ]]
+                        </li>
+                        <li class="muted">
+                            <b>Prazo:</b> [[ tarefa.data_inicial|utc|date ]] - [[ tarefa.data_final|utc|date ]]
+                            <b class="text-error" ng-if="tarefa.atrasado">(atrasada)</b>
+                        </li>
+                        <li ng-if="tarefa.tipo" class="muted">
+                            <b>Tipo:</b> [[ tarefa.tipo.nome ]]
+                        </li>
+                        <li class="muted" ng-show="tarefa.finalizado">
+                            <b>Finalizado por:</b> [[ tarefa.finalizado.nome ]] <b>em</b> [[ tarefa.data_finalizado|date:'dd/MM/yyyy HH:mm' ]]
+                            <b class="text-error" ng-if="tarefa.atrasado">(atrasada)</b>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pull-right">
+                {% if atendimento_permissao %}
+                <div ng-hide="tarefa.finalizado">
+                    {% if request.user.is_superuser or atendimento.defensor == request.user.servidor.defensor or atendimento.defensoria in request.user.servidor.defensor.defensorias and request.user.servidor.defensor.eh_defensor %}
+                    <a data-target="#modal-excluir-tarefa" class="btn btn-danger" data-toggle="modal" title="Excluir"
+                        bs-tooltip ng-click="excluir(tarefa)" ng-if="tarefa.prioridade!=4">
+                        <i class="fas fa-trash"></i>
+                        <br>
+                        <small>Excluir</small>
+                    </a>
+                    {% else %}
+                    <a data-target="#modal-excluir-tarefa" class="btn btn-danger" data-toggle="modal" title="Excluir"
+                        bs-tooltip ng-click="excluir(tarefa)" ng-if="tarefa.cadastrado_por.id==servidor_id && tarefa.prioridade!=4">
+                        <i class="fas fa-trash"></i>
+                        <br>
+                        <small>Excluir</small>
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+        <blockquote>
+            <p>
+                <b>Descrição:</b>
+                <br>
+                {% if request.user.is_superuser %}
+                <a href="/admin/atendimento/tarefa/[[ tarefa.id ]]/" target="_blank" class="text-info">
+                    <i class="fas fa-link"></i>
+                </a>
+                {% endif %}
+                [[ tarefa.descricao || tarefa.titulo ]]
+            </p>
+            <p ng-if="tarefa.processo">
+                <strong>Processo:</strong>
+                <br>
+                [[ tarefa.processo.numero ]] - [[ tarefa.processo.acao ]]
+            </p>
+            <small>
+                Registrado por [[ tarefa.cadastrado_por.nome ]]
+                em [[ tarefa.data_cadastro|date:'dd/MM/yyyy HH:mm' ]]
+            </small>
+        </blockquote>
+        <blockquote ng-repeat="resposta in tarefa.respostas"
+            ng-class="{0: 'bq-error', 1: 'bq-alert', 2: 'bq-info'}[resposta.status]">
+            <span class="text-error" ng-if="resposta.status==0">
+                <b>Devolvida por [[ resposta.setor_responsavel.nome | default: tarefa.setor_responsavel.nome
+                    ]]</b>
+            </span>
+            <span class="text-warning" ng-if="resposta.status==1">
+                <b>Cumprida (com pendências) por [[ resposta.setor_responsavel.nome | default:
+                    tarefa.setor_responsavel.nome ]]</b>
+            </span>
+            <span class="text-info" ng-if="resposta.status==2">
+                <b>Cumprida por [[ resposta.setor_responsavel.nome | default: tarefa.setor_responsavel.nome
+                    ]]</b>
+            </span>
+            <p>
+                {% if request.user.is_superuser %}
+                <a href="/admin/atendimento/tarefa/[[ resposta.id ]]/" target="_blank" class="text-info">
+                    <i class="fas fa-link"></i>
+                </a>
+                {% endif %}
+                [[ resposta.descricao ]]
+            </p>
+            <p ng-if="resposta.documento">
+                <a href="[[ resposta.documento.arquivo ]]" target="_blank" class="text-info">
+                    <i class="fas fa-file-alt"></i>
+                    [[ resposta.documento.nome && resposta.documento.nome || '[Documento sem nome]' ]]
+                </a>
+            </p>
+            <p ng-repeat="documento in resposta.documentos">
+                <a href="[[ documento.get_absolute_url ]]" target="_blank" class="text-info">
+                    <i class="fas fa-cloud"></i>
+                    [[ documento.assunto ]] ([[ documento.identificador_versao ]])
+                </a>
+            </p>
+            <small>
+                Registrado por [[ resposta.finalizado.nome ]]
+                em [[ resposta.data_finalizado|date:'dd/MM/yyyy HH:mm' ]]
+            </small>
+        </blockquote>
+        <blockquote ng-if="!tarefa.finalizado && tarefa.prioridade!=4">
+            <p>
+                <strong>Responder:</strong>
+            </p>
+            <br>
+            <form id="ResponderTarefaForm" enctype="multipart/form-data" method="POST"
+                action="{% url 'procedimentos:propac_tarefa_responder' %}">
+                {% csrf_token %}
+                <input type="hidden" name="tarefa" ng-value="tarefa.id">
+                <input type="hidden" name="next"
+                    ng-value="'{% url 'procedimentos:movimento_tarefas' propac movimento%}' + '#/?tarefa=' + tarefa_id">
+                <div class="control-group">
+                    <div class="controls">
+                        <select name="status" ng-model="tarefa.novo_status" class="span12">
+                            <option value="2" ng-if="tarefa.status==0">{{ config.NOME_STATUS_TAREFA_2 }}</option>
+                            <option value="1" ng-if="tarefa.status==0">{{ config.NOME_STATUS_TAREFA_1 }}</option>
+                            <option value="0" ng-if="tarefa.status!=0">{{ config.NOME_STATUS_TAREFA_0 }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <textarea name="resposta" rows="5" class="span12" placeholder="Digite uma resposta..."
+                            ng-model="tarefa.resposta"></textarea>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="text-success">
+                        <i class="fas fa-paperclip"></i>
+                        <strong>Deseja enviar arquivo do computador?</strong>
+                    </label>
+                    <div class="controls">
+                        <input type="text" id="documento" name="nome" class="span6"
+                            placeholder="Insira o nome do documento" data-provide="typeahead" autocomplete="off"
+                            ng-disabled="!tarefa.resposta">
+                        <div class="fileupload fileupload-new" data-provides="fileupload"
+                            style="float:left; margin:0 5px 0 0;">
+                            <div class="input-append">
+                                <div class="uneditable-input span3">
+                                    <i class="fas fa-file-upload"></i>
+                                    <span class="fileupload-preview">Enviar arquivo</span>
+                                </div>
+                                <span class="btn btn-file" ng-disabled="!tarefa.resposta">
+                                    <span class="fileupload-new"><i class="fas fa-search"></i> Procurar</span>
+                                    <span class="fileupload-exists"><i class="fas fa-search"></i> Procurar</span>
+                                    <input type="file" name="arquivo" id="arquivo" ng-disabled="!tarefa.resposta">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>                    
+            </form>
+        </blockquote>
+    </div>
+    <div class="form-actions" ng-if="tarefa.id && !tarefa.finalizado">
+        <div class="pull-right">
+            <button type="submit" form="ResponderTarefaForm" class="btn btn-info" ng-if="tarefa.finalizado || tarefa.prioridade != 4"
+                ng-disabled="!tarefa.resposta">
+                <i class="fas fa-undo"></i> Responder
+            </button>
+            <button class="btn btn-success" ng-click="finalizar(tarefa)" ng-if="!tarefa.finalizado && tarefa.pode_finalizar" ng-disabled="tarefa.resposta">
+                <i class="fas fa-check"></i> Finalizar
+            </button>
+        </div>
+    </div>
+</div>
+<!--Pendencias do atendimento-->
+<div>
+
+    <!-- Modal Cadastrar Tarefa -->
+    {% include 'propac/propac_modal_tarefa_cadastrar.html' %}
+    <!-- Modal Cadastrar Tarefa -->
+
+    <!-- Modal Excluir Tarefa -->
+    {% include 'propac/propac_modal_tarefa_excluir.html' %}
+    <!-- Modal Excluir Tarefa -->
+
+</div>
+<!--/Pendencias do atendimento-->
+</div>
+
+{% endblock %}
+{% block css_pag %}
+<link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+
+{% endblock %}

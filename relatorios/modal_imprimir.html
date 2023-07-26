@@ -1,0 +1,30 @@
+{% load static %}
+<div id="modal-imprimir" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <!-- Cabeçalho do modal -->
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Imprimir</h3>
+    </div>
+    <div class="modal-body">
+        <!-- Corpo do modal -->
+        <div class="text-center">
+            <!-- Exibição de informações de status do relatório -->
+            <span ng-show="relatorio.status.pending">
+                <img src="{% static "img/loader_16.gif" %}"/> Processando...
+            </span>
+            <div class="alert alert-danger" ng-show="relatorio.status.fail">
+                <!-- Exibição de mensagem de erro -->
+                <b>Erro!</b>
+                <p>[[ relatorio.status.reason ]]</p>
+            </div>
+            <a class="btn btn-large btn-primary" target='_blank' href="[[ relatorio.status.report ]]" ng-show="relatorio.status.success">
+                <!-- Botão para baixar o documento -->
+                <i class="fas fa-download"></i> Baixar Documento
+            </a>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <!-- Rodapé do modal -->
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Fechar</button>
+    </div>
+</div>

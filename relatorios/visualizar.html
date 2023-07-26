@@ -1,0 +1,41 @@
+{% extends "relatorios/default.html" %}
+{% load humanize contrib_tags %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_app %}
+    <!-- Div do cabeçalho do aplicativo -->
+    <h2>
+        <i class="helper-font-24 fas fa-chart-bar"></i> Relatórios
+    </h2>
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <!-- Div do cabeçalho da página -->
+    <h3>
+        <small>
+            <!-- Link para abrir o conteúdo em uma nova aba -->
+            <a href="{{iframeUrl}}" class="btn-link">
+                Abrir em uma nova aba <i class="fas fa-external-link-square-alt"></i> 
+            </a>
+        </small>
+    </h3>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <!-- Div do conteúdo da página -->
+    <div class="row-fluid">
+        <!-- Div do iframe para exibir o conteúdo do relatório -->
+        <iframe class="span12" height="1200" src="{{iframeUrl}}" frameborder="0" allowtransparency></iframe>
+    </div>
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}
