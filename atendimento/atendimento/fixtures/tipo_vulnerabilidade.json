@@ -1,0 +1,122 @@
+[
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 1,
+  "fields": {
+    "nome": "Conflitos no poder familiar sobre acesso e navegação no mundo digital",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 2,
+  "fields": {
+    "nome": "Criança/adolescente sendo excessivamente exposta no mundo virtual",
+    "descricao": "redes sociais, por exemplo"
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 3,
+  "fields": {
+    "nome": "Superexposição às telas",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 4,
+  "fields": {
+    "nome": "Vítima de golpe digital",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 5,
+  "fields": {
+    "nome": "Problemas decorrentes da desinformação fake news, por exemplo",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 6,
+  "fields": {
+    "nome": "Vítima de perseguição",
+    "descricao": "digital cyberstalking, cyberbullying"
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 7,
+  "fields": {
+    "nome": "Não sabe manusear tecnologias (falta de literacia digital)",
+    "descricao": "whatsapp, telegram, apps"
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 8,
+  "fields": {
+    "nome": "Não tem acesso a dispositivo eletrônico ou à internet",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 9,
+  "fields": {
+    "nome": "Discurso de ódio",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 10,
+  "fields": {
+    "nome": "Pessoa com deficiência e dificuldades de acesso às tecnologias",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 11,
+  "fields": {
+    "nome": "Divulgação de imagem íntima no mundo virtual",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 12,
+  "fields": {
+    "nome": "Obtenção, exposição, venda e compartilhamento de dados sem autorização do titular",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 13,
+  "fields": {
+    "nome": "Vítima de discriminação digital",
+    "descricao": "racismo, sexismo, etc."
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 14,
+  "fields": {
+    "nome": "Furto de identidade",
+    "descricao": ""
+  }
+},
+{
+  "model": "atendimento.tipovulnerabilidade",
+  "pk": 15,
+  "fields": {
+    "nome": "Área não coberta por serviço de internet",
+    "descricao": ""
+  }
+}
+]
