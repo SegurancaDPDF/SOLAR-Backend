@@ -1,0 +1,44 @@
+[
+  {
+    "fields": {
+      "nome": "Esgoto"
+    },
+    "model": "assistido.estruturamoradia",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "nome": "Fossa"
+    },
+    "model": "assistido.estruturamoradia",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "nome": "Instala\u00e7\u00e3o Sanit\u00e1ria"
+    },
+    "model": "assistido.estruturamoradia",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "nome": "Energia El\u00e9trica"
+    },
+    "model": "assistido.estruturamoradia",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "nome": "\u00c1gua Encadana"
+    },
+    "model": "assistido.estruturamoradia",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "nome": "Internet"
+    },
+    "model": "assistido.estruturamoradia",
+    "pk": 6
+  }
+]

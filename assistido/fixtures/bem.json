@@ -1,0 +1,16 @@
+[
+  {
+    "fields": {
+      "nome": "Moto"
+    },
+    "model": "assistido.bem",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "nome": "Carro"
+    },
+    "model": "assistido.bem",
+    "pk": 2
+  }
+]
