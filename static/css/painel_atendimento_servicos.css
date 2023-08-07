@@ -1,0 +1,212 @@
+:root{
+    --white: #fff;
+    --gray-100: #d8d8d8;
+    --green: #66af62;
+    --cyan: #064150;
+    --black: #091915;
+    --red: #b72a2a;
+
+    --font-sm: 1.5rem;
+    --font-md: 2rem;
+    --font-lg: 3rem;
+    --font-xl: 4rem;
+    --font-2xl: 8rem;
+  }
+
+  *{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .font-sm{
+    font-size: var(--font-sm);
+  }
+
+  .font-md{
+    font-size: var(--font-md);
+  }
+
+  .font-lg{
+    font-size: var(--font-lg);
+  }
+
+  .font-xl{
+    font-size: var(--font-xl);
+  }
+
+  .font-2xl{
+    font-size: var(--font-2xl);
+  }
+
+  body{
+    color: var(--cyan);
+    font-family: sans-serif;
+    font-weight: 700;
+    background-color: var(--white);
+    font-size: var(--font-md);
+  }
+  .container{
+    display: grid;
+    grid-template-columns: 7fr 3fr;
+    grid-template-rows: 20vh 50vh 30vh;
+    grid-template-areas:
+      'h h'
+      'l r'
+      'f f';
+    gap: 0.1rem;
+  }
+
+  /****************HEADER*********************************/
+  header {
+    grid-area: h;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--gray-100);
+    padding: 0 3rem;
+  }
+
+  /* HEADER RELOGIO */
+  header .relogio {
+    display: flex;
+    flex-direction: column;
+    color: var(--cyan);
+  }
+
+  /* HEADER CORREGEDORIA */
+  header .corregedoria{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: none;
+    background-color: var(--cyan);
+    color: var(--white);
+    padding: 2rem 3rem;
+    border-radius: 4px;
+    gap:0.5rem;
+  }
+
+  /* IMAGEM */
+  header img {
+    max-height: 12vh;
+    max-width: 30vw;
+    height: auto;
+    width: auto;
+  }
+  /*********************************************************/
+
+  .left {
+    grid-area: l;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    justify-content: center;
+    padding: 0 3rem;
+  }
+
+  .left #nomeAssistido{
+    color: var(--cyan);
+  }
+
+  .left #nomeDefensoria{
+    color: var(--cyan);
+  }
+
+  .right{
+    grid-area: r;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .right .card {
+    display: flex;
+    width: 23rem;
+    align-items: center;
+    justify-content: center;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 3rem;
+    background-color: var(--cyan);
+    color: var(--white);
+    padding: 2rem 0;
+  }
+
+  .right #prioridadeStatus{
+    display: flex;
+    width: 23rem;
+    height: 3.5rem;
+    background-color: var(--green);
+    align-items: center;
+    justify-content: center;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    color: var(--white);
+  }
+
+  /* FOOTER */
+  footer {
+    grid-area: f;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* CHAMADAS ANTERIORES */
+  footer > span{
+    color: var(--cyan);
+  }
+
+  footer .wrapperChamadasAnteriores {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    gap: 2px;
+  }
+
+  footer .wrapperChamadasAnteriores > div {
+    display: flex;
+    flex-direction: column;
+    /* gap no texto do footer*/
+    gap: 0.5rem;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--gray-100);
+    text-align: center;
+    background-color: var(-gray-100);
+    color: var(--cyan);
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+  }
+
+@media only screen and (max-width: 1280px){
+  .font-sm{
+    font-size: var(--font-sm);
+  }
+
+  .font-md{
+    font-size: var(--font-sm);
+  }
+
+  .font-lg{
+    font-size: var(--font-md);
+  }
+
+  .font-xl{
+    font-size: var(--font-lg);
+  }
+
+  .font-2xl{
+    font-size: var(--font-xl);
+  }
+}
