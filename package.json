@@ -1,0 +1,29 @@
+{
+  "name": "solar",
+  "version": "20.05.3.2",
+  "description": "Solução Avançada em Atendimento de Referência",
+  "main": "app.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "protractor conf.protractor.js",
+    "test-headless": "protractor .\\conf.protractor.js --capabilities.chromeOptions.args=--headless --capabilities.chromeOptions.args=--disable-gpu --capabilities.chromeOptions.args=--window-size='1366x728'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://dpe.ro@gitlab.defensoria.to.def.br/defensoria/sisat.git"
+  },
+  "keywords": [
+    "solar"
+  ],
+  "author": "Defensoria do Estado do Tocantins",
+  "license": "ISC",
+  "devDependencies": {
+    "leite": "0.2.0",
+    "moment": "2.17.0"
+  },
+  "dependencies": {
+  }
+}

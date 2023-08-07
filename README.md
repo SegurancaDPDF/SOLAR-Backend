@@ -1,3 +1,3 @@
-# SOLAR-Backend
+# SOLAR - Solução Avançada de Atendimento de Referência
 
-Repositório destinado aos códigos comentados do Sistema Solar antes de fazer sua documentação.
+Acesse a [WIKI](https://gitlab.defensoria.to.def.br/defensoria/sisat/-/wikis/home) para instruções de instalação e configuração
