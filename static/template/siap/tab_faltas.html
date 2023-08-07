@@ -1,0 +1,150 @@
+<div class="text-center" ng-if="faltas==undefined">
+    <img src="/static/img/loader_16.gif">
+    <b>Carregando...</b>
+</div>
+
+<div class="tabbable tabs-left">
+    <ul class="nav nav-tabs">
+        <li ng-repeat="falta in faltas">
+            <a data-toggle="tab" ng-click="carregar_falta(falta)">
+                <b class="text-error">[[ falta.numero_pad ]]</b>
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab">
+                <b class="text-error" data-target="#modal-cadastrar-falta" data-toggle="modal" rel="tooltip"
+                   title="Nova Falta" ng-click="btnNovo_click()">
+                    <i class="fas fa-plus-circle"></i> Nova Falta
+                </b>
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content" ng-if="!falta">
+        <h4>
+            <i class="fas fa-thumbs-down"></i> Criar/Selecionar Falta
+        </h4>
+
+        <p ng-hide="processos.length" class="ng-hide">Nenhuma falta vinculada a esse assistido.</p>
+
+        <p ng-show="processos.length" class="">Selecione uma falta ao lado para ver suas informações.</p>
+
+        <p>Clique em "Nova Falta" para criar uma nova falta do assistido.</p>
+    </div>
+    <div class="tab-content" ng-if="falta">
+        <div>
+            <div class="pull-right">
+                <div class="btn-group">
+                    <button data-target="#modal-cadastrar-falta" data-toggle="modal" class="btn btn-small"
+                            bs-tooltip data-placement="left" title="Editar dados da falta"
+                            ng-click="btnAlterar_click(falta)">
+                        <i class="fas fa-pencil-alt"></i> Editar
+                    </button>
+                    <button data-target="#modal-excluir-falta" data-toggle="modal" class="btn btn-small btn-danger"
+                            bs-tooltip data-placement="left" title="Excluir falta"
+                            ng-disabled="falta.movimentos.length" ng-click="btnExcluir_click(falta)">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+        <h5>Dados da Falta</h5>
+        <table id="faltas_dados" class="table table-bordered table-striped table-hover responsive">
+            <thead>
+            <tr>
+                <th class="span1">Data</th>
+                <th class="span1">PAD</th>
+                <th class="span3">Estabelecimento Penal</th>
+                <th class="span3">Observação</th>
+                <th class="span2">Situação</th>
+                <th class="span2">Registrado por</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>[[ falta.data_fato|date:'dd/MM/yyyy HH:mm' ]]</td>
+                <td><b>[[ falta.numero_pad ]]</b></td>
+                <td>[[ falta.estabelecimento_penal_nome ]]</td>
+                <td>[[ falta.observacao ]]</td>
+                <td>
+                    <span class="label" ng-class="{1: 'label-important', 2: 'label-warning'}[falta.resultado]">
+                        [[ LISTA.RESULTADO[falta.resultado] ]]
+                    </span>
+                </td>
+                <td>
+                    <small>[[ falta.cadastrado_por ]] em [[ falta.data_cadastro|date:'dd/MM/yyyy HH:mm' ]]</small>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div ng-if="falta.processo_id">
+            <div class="pull-right">
+                <button data-target="#modal-cadastrar-movimento-pad" data-toggle="modal"
+                        class="btn btn-small btn-primary" rel="tooltip" title="Nova Movimentação"
+                        ng-click="btnNovoMovimento_click()">
+                    <span class="fas fa-plus-circle"></span> Movimentação
+                </button>
+            </div>
+            <h5>Movimentações do Processo Administrativo Disciplinar (PAD)</h5>
+
+            <div class="text-center" ng-if="falta.movimentos==undefined">
+                <img src="/static/img/loader_16.gif">
+                <b>Carregando...</b>
+            </div>
+            <table id="falta_movimentos" class="table table-bordered table-striped table-hover responsive"
+                   ng-if="falta.movimentos!=undefined">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Fase</th>
+                    <th>Defensor</th>
+                    <th>Protocolo/Cadastro</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="fase in falta.movimentos">
+                    <td>[[ falta.movimentos.length - $index ]]</td>
+                    <td>[[ fase.tipo.nome ]]</td>
+                    <td>[[ fase.defensor_cadastro.nome ]]</td>
+                    <td>
+                        <small>
+                            [[ fase.data_protocolo | utc | date:"dd/MM/yyyy HH:mm:ss" ]]<br/>
+                            <span class="muted">[[ fase.data_cadastro | utc | date:"dd/MM/yyyy HH:mm:ss" ]]</span>
+                        </small>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <button data-target="#modal-cadastrar-movimento-pad" data-toggle="modal" class="btn btn-small"
+                                    bs-tooltip data-placement="left" title="Editar movimento"
+                                    ng-click="btnAlterarMovimento_click(fase)">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button data-target="#modal-excluir-movimento-pad" data-toggle="modal" class="btn btn-small btn-danger"
+                                    bs-tooltip data-placement="left" title="Excluir movimento"
+                                    ng-disabled="fase.bloqueado"
+                                    ng-click="btnExcluirMovimento_click(fase)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <!--
+                            <button data-target="#modal-excluir-falta" data-toggle="modal" class="btn btn-small"
+                                    rel="tooltip" data-placement="left" data-original-title="Excluir falta"
+                                    ng-disabled="falta.movimentos.length" ng-click="btnExcluir_click(falta)">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                            -->
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="!falta.movimentos.length">
+                    <td colspan="5">Nenhum registro encontrado</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div ng-include="'/static/template/siap/modal_cadastrar_falta.html'"></div>
+<div ng-include="'/static/template/siap/modal_cadastrar_movimento_pad.html'"></div>
+<div ng-include="modalExcluirFaltaUrl" onload="showModalExcluirFalta()"></div>
+<div ng-include="modalExcluirMovimentoUrl" onload="showModalExcluirMovimento()"></div>

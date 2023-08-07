@@ -1,0 +1,23 @@
+<div ng-init="p = (prisao.origem ? prisoes_inativas[prisao.origem] : prisoes[prisao.originada])" >
+    <dl ng-if="p">
+        <dt ng-if="p.processo.numero">Número</dt>
+        <dd ng-if="p.processo.numero">[[ p.processo.numero ]]</dd>
+        <dt ng-if="p.processo.classe">Classe</dt>
+        <dd ng-if="p.processo.classe">[[ p.processo.classe ]]</dd>
+        <dt ng-if="p.processo.assuntos.length">Assuntos</dt>
+        <dd ng-if="p.processo.assuntos.length">
+            <ul ng-if="p.processo.assuntos">
+                <li ng-repeat="assunto in p.processo.assuntos">[[ assunto ]]</li>
+            </ul>
+        </dd>
+        <dt>Estabelecimento</dt>
+        <dd>[[ p.estabelecimento_penal ]]</dd>
+        <dt ng-if="p.tipo">Regime</dt>
+        <dd ng-if="p.tipo">[[ LISTA.REGIME[p.regime_inicial] ]]</dd>
+        <dt ng-if="p.tipo && p.pena">Pena Restritiva</dt>
+        <dd ng-if="p.tipo && p.pena">[[ p.duracao_pena.horas ]] horas</dd>
+        <dt ng-if="p.tipo && !p.pena">Pena Privativa</dt>
+        <dd ng-if="p.tipo && !p.pena">[[ get_amd(p.duracao_pena) ]]</dd>
+    </dl>
+    <p ng-if="!p"><i>Nenhuma prisão relacionada</i></p>
+</div>

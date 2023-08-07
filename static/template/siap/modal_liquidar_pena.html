@@ -1,0 +1,48 @@
+<!-- Modal Liquidar Pena -->
+<div id="modal-liquidar-pena" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="LiquidarPenaCtrl">
+    <div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Liquidar Pena</h3>
+	</div>
+	<!--  Corpo do Modal........... -->
+	<div class="modal-body">
+		<form id="LiquidarPenaForm" name="LiquidarPenaForm">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Processo</th>
+						<th>Data Sentença</th>
+						<th>Pena</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="prisao in preso.prisoes">
+						<td>&nbsp;</td>
+						<td>[[ prisao.processo.numero ]]</td>
+						<td>[[ prisao.data_sentenca_condenatoria|date:'dd/MM/yyyy' ]]</td>
+						<td>[[ get_amd(preso.duracao_total_pena) ]]</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="well">
+				<div class="row-fluid">
+					<div class="control-group span12">
+						<label class="control-label">Informe a data de liquidação da pena</label>
+						<div class="controls">
+							<input class="span4" maxlength="50" type="text" data-date-format="dd/mm/yyyy" ui-mask="99/99/9999" ng-model="data_liquidacao" required>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Corpo do Modal -->
+	<div class="modal-footer">
+		<span class="text-error pull-left"><b>Atenção!</b> Essa ação é irreversível!</span>
+		<button class="btn btn-primary" ng-if="!salvando" ng-click="salvar()" ng-disabled="!LiquidarPenaForm.$valid">Salvar</button>
+		<button class="btn btn-primary" ng-if="salvando" disabled>Salvando...</button>
+		<a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+	</div>
+</div>
+<!-- Modal Alterar Regime -->

@@ -1,0 +1,24 @@
+<div>
+    <dl class="dl-horizontal">
+        <dt>Data-base (DB)</dt>
+        <dd>[[ calculo.data_base | date:'dd/MM/yyyy' ]]</dd>
+        <dt>Pena Cumprida até DB</dt>
+        <dd>[[ get_amd(calculo.progressao.pena_cumprida) ]]</dd>
+        <dt>Cálculo Fração</dt>
+        <dd><small>(Pena Imposta - Pena Cumprida) * Fração</small></dd>
+        <div ng-repeat="fracao in calculo.progressao.fracoes | orderBy:'fracao'">
+            <dt>Cálculo Fração [[ fracao.fracao ]]</dt>
+            <dd>([[ get_amd(fracao.pena_imposta) ]] - [[ get_amd(fracao.pena_cumprida) ]]) * [[ fracao.fracao ]] = [[ get_amd(fracao.calculo) ]] </dd>
+        </div>
+        <dt>Soma Penas Impostas</dt>
+        <dd>[[ get_amd(calculo.progressao.soma_pena_imposta) ]]</dd>
+        <dt>Soma Penas Cumpridas</dt>
+        <dd>[[ get_amd(calculo.progressao.soma_pena_cumprida) ]]</dd>
+        <dt>Fórmula PR</dt>
+        <dd><small>Data-base + Soma Frações + Interrupção* - Detração* - Remissão* - 1 dia</small></dd>
+        <dt>Cálculo PR</dt>
+        <dd>[[ calculo.data_base | date:'dd/MM/yyyy' ]] + [[ get_amd(calculo.progressao.soma_fracoes) ]] + [[ get_amd() ]] - [[ get_amd(calculo.detracoes) ]] - [[ calculo.progressao.remissoes ]]d - 1d</dd>
+        <dt class="text-warning">Data PR</dt>
+        <dd class="text-warning bold">[[ calculo.data_progressao_regime | date:'dd/MM/yyyy' ]]</dd>
+    </dl>
+</div>

@@ -1,0 +1,18 @@
+<div>
+    <dl>
+        <dt>CPF / CNPJ</dt>
+        <dd ng-if="pessoa.documento_principal">[[ pessoa.documento_principal | cpf_cnpj ]]</dd>
+        <dd ng-if="!pessoa.documento_principal">Não informado</dd>
+        <dt>Nascimento</dt>
+        <dd ng-if="pessoa.data_nascimento">[[ pessoa.data_nascimento|utc|date:'dd/MM/yyyy' ]]</dd>
+        <dd ng-if="!pessoa.data_nascimento">Não informado</dd>
+        <dt>Filiação</dt>
+        <dd ng-if="pessoa.nome_genitor">[[ pessoa.nome_genitor ]]</dd>
+        <dd ng-if="pessoa.nome_genitora">[[ pessoa.nome_genitora ]]</dd>
+        <dd ng-if="!pessoa.nome_genitor && !pessoa.nome_genitora">Não informado</dd>
+        <dt>Endereço</dt>
+        <dd>[[ pessoa.endereco.logradouro ]], [[ pessoa.endereco.numero ]]</dd>
+        <dt>Município/UF</dt>
+        <dd>[[ pessoa.endereco.cidade ]]/[[ pessoa.endereco.estado ]]</dd>
+    </dl>
+</div>

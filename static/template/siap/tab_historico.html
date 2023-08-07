@@ -1,0 +1,46 @@
+<style>
+    .circle30 {
+        height: 30px;
+        width: 30px;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+        text-align: center;
+        left: 50%;
+        margin: 0 auto;
+    }
+    .circle30 i {
+        vertical-align: sub;
+        color: #fff;
+    }
+</style>
+<div class="span8 offset2">
+    <!-- Tabela para exibir o histórico se houver eventos -->
+    <table class="row-fluid" ng-if="historico.length">
+        <tbody>
+            <!-- Loop para cada evento no histórico -->
+            <tr ng-repeat="evento in historico">
+                <td class="span2 text-center">
+                    <div class="circle30" ng-class="'grd-'+evento.class_color">
+                        <i ng-class="evento.class_icon"></i>
+                    </div>
+                    <small class="bold" ng-class="'color-'+evento.class_color">[[ evento.data_registro | date:'dd/MM/yyyy' ]]</small>
+                </td>
+                <td class="span10">
+                    <!-- Informações detalhadas do evento -->
+                    <small class="muted pull-right">Registrado por <b bs-tooltip="evento.cadastrado_por.nome">[[ evento.cadastrado_por.username ]]</b> em <b>[[ evento.data_cadastro | date:'dd/MM/yyyy HH:mm' ]]</b></small>
+                    <h6 style="margin-top: 0;">[[ LISTA.EVENTO[evento.evento] ]]</h6>
+                    <p ng-if="evento.historico" ng-bind-html="evento.historico">&nbsp;</p>
+                    <p ng-if="!evento.historico" class="muted italic">Nenhuma observação preenchida para esse evento</p>
+                    <hr/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- Mensagem exibida se não houver eventos no histórico -->
+    <div class="text-center" ng-if="!historico.length">
+        <div class="circle30 grd-orange">
+            <i class="fas fa-warning"></i>
+        </div>
+        <small class="bold color-orange">Nenhum evento cadastrado para esse assistido</small>
+    </div>
+</div>

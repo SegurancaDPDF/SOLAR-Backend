@@ -1,0 +1,69 @@
+<!-- CARREGANDO -->
+<div ng-show="atendimento_popover==null">
+    <img src="/static/img/loading.gif">
+    <i>Carregando...</i>
+</div>
+<!-- FIM CARREGANDO -->
+<div ng-hide="atendimento_popover==null">
+    <ul>
+        <li>
+            <b>Número: <a href="/atendimento/[[atendimento_popover.numero]]/" class="btn-link">[[atendimento_popover.numero | atendimento ]]</a></b>
+        </li>
+        <li>
+            <b>Tipo: </b>[[atendimento_popover.tipo]]
+            <b ng-if="atendimento_popover.nucleo">Núcleo: </b>[[atendimento_popover.nucleo]]
+        </li>
+        <li>
+            <b>Requerente: </b>[[atendimento_popover.requerente]]
+        </li>
+        <li>
+            <b>Requerido(a): </b>[[atendimento_popover.requerido]]
+        </li>
+        <li>
+            <b>Defensor(a): </b>[[atendimento_popover.defensor]]
+        </li>
+        <li ng-if="atendimento_popover.substituto">
+            <b>Substituto(a): </b>[[atendimento_popover.substituto]]
+        </li>
+        <li>
+            <b>Comarca: </b>[[atendimento_popover.comarca]]
+        </li>
+        <li>
+            <b>Defensoria: </b>[[atendimento_popover.defensoria]] <small class="muted">([[ atendimento_popover.agenda ]])</small>
+        </li>
+        <li>
+            <b>Área: </b>[[atendimento_popover.area]]
+        </li>
+        <li>
+            <b>Pedido: </b>[[atendimento_popover.pedido]]
+        </li>
+        <li ng-if="atendimento_popover.especializado">
+            <b>Especializado: </b>[[atendimento_popover.especializado]]
+        </li>
+        <li ng-if="atendimento_popover.agendado_por">
+            <b>Agendado por: </b>[[atendimento_popover.agendado_por]]
+            <b>em</b> [[atendimento_popover.data_agendado|date:'dd/MM/yyyy HH:mm']]
+        </li>
+        <li ng-if="atendimento_popover.cadastrado_por">
+            <b>Liberado por: </b>[[atendimento_popover.cadastrado_por]]
+            <b>em</b> [[atendimento_popover.data_cadastro|date:'dd/MM/yyyy HH:mm']]
+        </li>
+        <li ng-if="atendimento_popover.atendido_por">
+            <b>Atendido por: </b>[[atendimento_popover.atendido_por]]
+            <b>em</b> [[atendimento_popover.data_atendimento|date:'dd/MM/yyyy HH:mm']]
+        </li>
+        <li ng-if="atendimento_popover.modificado_por">
+            <b>Modificado por: </b>[[atendimento_popover.modificado_por]]
+            <b>em</b> [[atendimento_popover.data_modificacao|date:'dd/MM/yyyy HH:mm']]
+        </li>
+        <li ng-if="atendimento_popover.remarcado" class="text-error">
+            <b>Remarcado: </b>[[atendimento_popover.remarcado]] Vez(es)
+        </li>
+        <li ng-if="atendimento_popover.motivo_exclusao_nome" class="text-error">
+            <b>Motivo Exclusão: </b>[[atendimento_popover.motivo_exclusao_nome]]
+        </li>
+        <li ng-if="atendimento_popover.motivo_exclusao" class="text-error">
+            <b>Descrição Exclusão: </b>[[atendimento_popover.motivo_exclusao]]
+        </li>
+    </ul>
+</div>

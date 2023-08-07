@@ -1,0 +1,350 @@
+<style>
+    #popover_calculo .popover{width: 600px;}
+    #popover_calculo dl{font-size: 10px;}
+</style>
+<div class="text-center" ng-if="preso==undefined">
+    <img src="/static/img/loader_16.gif">
+    <b>Carregando...</b>
+</div>
+<div id="condenacoes" class="row-fluid" ng-if="preso!=undefined && !preso.prisoes.length">
+    <!--span-->
+    <div class="span12">
+        <!--box-->
+        <div class="box corner-all">
+            <!--box header-->
+            <div class="box-header grd-white color-silver-dark corner-top">
+                <div class="header-control">
+                    <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                </div>
+                <span>Informações das Condenações</span>
+            </div>
+            <!--/box header-->
+            <!--box body-->
+            <div class="box-body">
+                <div class="text-center">
+                    <h1><i class="fas fa-warning"></i></h1>
+                    <h3>Nenhuma Guia de Condenação Registrada</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="condenacoes" class="row-fluid" ng-if="preso!=undefined && preso.prisoes.length">
+    <!--span-->
+    <div class="span12">
+        <!--box-->
+        <div class="box corner-all">
+            <!--box header-->
+            <div class="box-header grd-white color-silver-dark corner-top">
+                <div class="header-control">
+                    <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                </div>
+                <span>Informações das Condenações</span>
+            </div>
+            <!--/box header-->
+            <!--box body-->
+            <div class="box-body">
+                <table class="table table-striped table-hover" ng-if="(preso.prisoes | filter:{pena:0}).length">
+                    <thead>
+                    <tr>
+                        <th>Pena</th>
+                        <th>Data Fato</th>
+                        <th>Data Prisão</th>
+                        <th>Data Sentença</th>
+                        <th>Fração PR</th>
+                        <th>Fração LC</th>
+                        <th>Processo</th>
+                        <th>Tipificação</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="prisao in preso.prisoes">
+                            <td class="bold">
+                                [[ get_amd(prisao.duracao_pena) ]]
+                            </td>
+                            <td>[[ prisao.data_fato|date:'dd/MM/yyyy' ]]</td>
+                            <td>[[ prisao.data_prisao|date:'dd/MM/yyyy' ]]</td>
+                            <td>[[ prisao.data_sentenca_condenatoria|date:'dd/MM/yyyy' ]]</td>
+                            <td>[[ prisao.fracao_pr ]]</td>
+                            <td>[[ prisao.fracao_lc ]]</td>
+                            <td>
+                                [[ prisao.processo.numero ]]
+                                <a href="/nucleo/nadep/prisao/editar/[[ prisao.id ]]/#guia" class="btn-link" ng-if="!prisao.processo.numero">Incluir Número</a>
+                                <a href="[[ get_url_processo_tj(config.URL_PROCESSO_TJ, prisao.processo.numero_puro, prisao.processo.grau, prisao.processo.chave) ]]" target="_blank" bs-tooltip="'Abrir no ' + config.NOME_PROCESSO_TJ" ng-if="prisao.processo.numero"><i class="fas fa-share-square"></i></a>
+                            </td>
+                            <td>
+                                <span class="label" bs-tooltip="LISTA.TENTADO_CONSUMADO[prisao.tentado_consumado]" >[[ LISTA.TENTADO_CONSUMADO[prisao.tentado_consumado][0] ]]</span>
+                                [[ prisao.tipificacao ]]
+                            </td>
+                        </tr>
+                        <tr ng-if="!preso.prisoes.length">
+                            <td colspan="8">Nenhum registro encontrado</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="8">[[ get_amd(preso.duracao_total_pena) ]]</th>
+                    </tr>
+                    </tfoot>
+                </table>
+                <table class="table table-striped table-hover" ng-if="(preso.prisoes | filter:{pena:1}).length">
+                    <thead>
+                    <tr>
+                        <th>Data Fato</th>
+                        <th>Data Prisão</th>
+                        <th>Data Sentença</th>
+                        <th>Restrições</th>
+                        <th>Processo</th>
+                        <th>Tipificação</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="prisao in preso.prisoes">
+                            <td>[[ prisao.data_fato|date:'dd/MM/yyyy' ]]</td>
+                            <td>[[ prisao.data_prisao|date:'dd/MM/yyyy' ]]</td>
+                            <td>[[ prisao.data_sentenca_condenatoria|date:'dd/MM/yyyy' ]]</td>
+                            <td>
+                                <ul ng-repeat="restricao in prisao.restricoes">
+                                    <li><b>[[ LISTA.RESTRICAO[restricao] ]]</b>
+                                        <ul>
+                                            <li ng-if="restricao==1">R$ [[ prisao.prestacao_pecuniaria ]]</li>
+                                            <li ng-if="restricao==4">[[ prisao.duracao_pena.horas ]] horas</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td>
+                                [[ prisao.processo.numero ]]
+                                <a href="/nucleo/nadep/prisao/editar/[[ prisao.id ]]/#guia" class="btn-link" ng-if="!prisao.processo.numero">Incluir Número</a>
+                                <a href="[[ get_url_processo_tj('{{ config.URL_PROCESSO_TJ }}', prisao.processo.numero_puro, prisao.processo.grau, prisao.processo.chave) ]]" target="_blank" title="Abrir no {{ config.NOME_PROCESSO_TJ }}" bs-tooltip ng-if="prisao.processo.numero"><i class="fas fa-share-square"></i></a>
+                            </td>
+                            <td>
+                                [[ prisao.tipificacao ]]
+                            </td>
+                        </tr>
+                        <tr ng-if="!preso.prisoes.length">
+                            <td colspan="8">Nenhum registro encontrado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PENA PRIVATIVA -->
+<div id="extra" class="row-fluid" ng-if="preso!=undefined && (preso.prisoes | filter:{pena:0}).length">
+    <!--span-->
+    <div class="span6">
+        <!--box-->
+        <div class="box corner-all">
+            <!--box header-->
+            <div class="box-header grd-white color-silver-dark corner-top">
+                <span>Cálculo de Execução Penal</span>
+            </div>
+            <!--/box header-->
+            <!--box body-->
+            <div class="box-body">
+                <dl class="dl-horizontal">
+                    <dt>Execução nº</dt>
+                    <dd class="bold">
+                        [[ calculo.execucao.numero ]]
+                        <span class="italic" ng-if="!calculo.execucao.numero">Não Informado</span>
+                    </dd>
+                    <dt>Data Prisão Definitiva</dt>
+                    <dd>
+                        [[ calculo.pena_cumprida.data_ini | date:'dd/MM/yyyy' ]]
+                        <span class="italic" ng-if="!calculo.pena_cumprida.data_ini">Não Informado</span>
+                    </dd>
+                    <dt>Data-Base</dt>
+                    <dd>
+                        <b>[[ calculo.data_base | date:'dd/MM/yyyy' ]]</b>
+                        <span class="italic" ng-if="!calculo.data_base">Não Informado</span>
+                        <i class="fas fa-calendar-alt" title="Alterar data das atividades" rel="tooltip" data-toggle="datepicker" bs-datepicker data-date-format="dd/mm/yyyy" data-validate="{required:false,date:true}" ng-model="params.dia" ng-change="carregar()"></i>
+                    </dd>
+                    <dt>Pena Total</dt>
+                    <dd>[[ get_amd(calculo.pena_total) ]]</dd>
+                    <dt>Detrações</dt>
+                    <dd>[[ get_amd(calculo.detracoes) ]]</dd>
+                    <dt>Interrupções</dt>
+                    <dd>[[ get_amd(calculo.interrupcoes) ]]</dd>
+                    <dt>Remições</dt>
+                    <dd>[[ calculo.remissoes ]]d</dd>
+                    <dt>Regime Atual</dt>
+                    <dd>
+                        [[ LISTA.REGIME[calculo.regime_atual] ]]
+                        <span class="italic" ng-if="calculo.regime_atual==null">Não Informado</span>
+                    </dd>
+                    <dt>Condição de Aprisionamento</dt>
+                    <dd>
+                        [[ LISTA.REGIME[calculo.regime_atual] ]]
+                        <span class="italic" ng-if="calculo.regime_atual==null">Não Informado</span>
+                    </dd>
+                    <dt class="text-warning">Progressão de Regime</dt>
+                    <dd class="text-warning">
+                        [[ calculo.data_progressao_regime | date:'dd/MM/yyyy' ]]
+                        <span class="italic" ng-if="!calculo.data_progressao_regime">Não Informado</span>
+                        <i class="fas fa-calendar-alt" data-title="Cálculo para Progressão de Regime (PR)" data-trigger="click" data-container="#popover_calculo" data-unique="1" bs-popover="'/static/template/siap/popover_calculo_pr.html'"></i>
+                    </dd>
+                    <dt class="text-warning">Livramento Condicional</dt>
+                    <dd class="text-warning">
+                        [[ calculo.data_livramento_condicional | date:'dd/MM/yyyy' ]]
+                        <span class="italic" ng-if="!calculo.data_livramento_condicional">Não Informado</span>
+                        <i class="fas fa-calendar-alt" data-title="Cálculo para Livramento Condicial (LC)" data-trigger="click" data-container="#popover_calculo" data-unique="1" bs-popover="'/static/template/siap/popover_calculo_lc.html'"></i>
+                    </dd>
+                    <dt class="text-success">Pena Cumprida</dt>
+                    <dd class="text-success">[[ get_amd(calculo.pena_cumprida) ]]</dd>
+                    <dt class="text-success">Pena Restante</dt>
+                    <dd class="text-success">[[ get_amd(calculo.pena_restante) ]]</dd>
+                    <dt class="text-success">Data Término da Pena</dt>
+                    <dd class="text-success">
+                        [[ calculo.data_termino | date:'dd/MM/yyyy' ]]
+                        <span class="italic" ng-if="!calculo.data_termino">Não Informado</span>
+                    </dd>
+                    <dt>Consultado por</dt>
+                    <dd><span bs-tooltip="calculo.cadastrado_por.nome">[[ calculo.cadastrado_por.username ]]</span> <b>em</b> [[ calculo.data_cadastro | date:'dd/MM/yyyy HH:mm' ]]</dd>
+                </dl>
+                <!--extending form controls-->
+                <form class="">
+                    <div class="form-actions">
+                        <button data-target="#modal-alterar-regime" data-toggle="modal" class="btn" ng-click="btnRegressao_click()" ng-disabled="calculo.regime_atual==0">
+                            <i class="fas fa-backward"></i> Regressão
+                        </button>
+                        <button data-target="#modal-alterar-regime" data-toggle="modal" class="btn" ng-click="btnProgressao_click()" ng-disabled="calculo.regime_atual==2">
+                            <i class="fas fa-forward"></i> Progressão
+                        </button>
+                        <button data-target="#modal-liquidar-pena" data-toggle="modal" class="btn" ng-click="btnLiquidar_click()">
+                            <i class="fas fa-leaf"></i> Liquidar Pena
+                        </button>
+                    </div>
+                </form>
+                <!--/extending form controls-->
+            </div>
+            <!--/box body-->
+        </div>
+        <!--/box-->
+    </div>
+    <!--/span-->
+</div>
+<!-- PENA PRIVATIVA -->
+
+<!-- PENA RESTRITIVA -->
+<div id="extra" class="row-fluid" ng-repeat="prisao in preso.prisoes | filter:{pena:1}" ng-init="carregar_horas(prisao.id)" ng-show="horas.success">
+    <!--span-->
+    <div class="span12">
+        <!--box-->
+        <div class="box corner-all">
+            <!--box header-->
+            <div class="box-header grd-white color-silver-dark corner-top">
+                <span>Cálculo de Horas [[ano_atual]]</span>
+            </div>
+            <!--/box header-->
+            <!--box body-->
+            <div class="box-body">
+                <!--extending form controls-->
+                <div class="row-fluid">
+                    <div class="span7">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th class="span6">Mês</th>
+                                <th class="span3">Horas</th>
+                                <th class="span3">Ações</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="hora in horas.horas">
+                                <td>[[ meses[hora.mes-1] ]]/[[ hora.ano ]]</td>
+                                <td>[[ hora.horas ]]</td>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-small" data-target="#modal-cadastrar-horas" data-toggle="modal" ng-click="carregar_hora(hora)">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <button class="btn btn-small btn-danger" data-target="#modal-excluir-horas" data-toggle="modal" ng-click="carregar_hora(hora)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr ng-if="!horas.horas.length">
+                                <td colspan="3">Nenhum registro encontrado</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="span5">
+                        <dl class="dl-horizontal">
+                            <dt>Execução nº</dt>
+                            <dd class="bold">
+                                [[ horas.resumo.processo ]]
+                                <span class="italic" ng-if="!horas.resumo.processo">Não Informado</span>
+                            </dd>
+                            <dt>Pena Total</dt>
+                            <dd>[[ horas.resumo.pena_total ]]</dd>
+                            <dt>Horas Cumpridas</dt>
+                            <dd>[[ horas.resumo.horas_cumpridas ]]</dd>
+                            <dt>Horas Restantes</dt>
+                            <dd>[[ horas.resumo.horas_restantes ]]</dd>
+                            <dt>Horas Excedidas</dt>
+                            <dd>[[ horas.resumo.horas_excedidas ]]</dd>
+                            <dt class="text-error">% Pena Cumprida</dt>
+                            <dd class="text-error">[[ horas.resumo.porcentagem ]]</dd>
+                            <dt>Pena Cumprida (dias)</dt>
+                            <dd>[[ get_amd(horas.resumo.pena_cumprida_dias) ]] <small class="muted">([[ horas.resumo.pena_cumprida_dias.anos ]]*365 + [[ horas.resumo.pena_cumprida_dias.meses ]]*30 + [[  horas.resumo.pena_cumprida_dias.dias ]] = [[ horas.resumo.horas_cumpridas ]])</small></dd>
+                            <dt>Pena Restante (dias)</dt>
+                            <dd>[[ get_amd(horas.resumo.pena_restante_dias) ]] <small class="muted">([[ horas.resumo.pena_restante_dias.anos ]]*365 + [[ horas.resumo.pena_restante_dias.meses ]]*30 + [[  horas.resumo.pena_restante_dias.dias ]] = [[ horas.resumo.horas_restantes ]])</small></dd>
+                            <dt>Consultado por</dt>
+                            <dd><span bs-tooltip="horas.consultado_por.nome">[[ horas.consultado_por.username ]]</span> <b>em</b> [[ horas.data_consulta | date:'dd/MM/yyyy HH:mm' ]]</dd>
+                        </dl>
+                    </div>
+
+                </div>
+
+                <!--/extending form controls-->
+                <form>
+                    <div class="form-actions" ng-controller="ImprimirCtrl" ng-init="init()">
+
+                        <button class="btn" data-target="#modal-cadastrar-horas" data-toggle="modal" ng-click="carregar_hora({prisao:prisao.id, ano:ano_atual})">
+                            <i class="fas fa-plus-circle"></i> Novo
+                        </button>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-hide="relatorio.status">
+                                <i class="fas fa-file-alt"></i>
+                                Imprimir
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="relatorio in horas.relatorios">
+                                    <a class="text-left" ng-click="imprimir({user:horas.consultado_por.username, params:{servidor_id:horas.consultado_por.id, prisao_id:prisao.id, defaults:relatorio.defaults, aliases:relatorio.aliases}}, relatorio.name, relatorio.resource)">[[ relatorio.titulo ]]</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-primary" ng-show="relatorio.status.pending" disabled>
+                            <i class="fas fa-cogs"></i> Gerando...
+                        </button>
+                        <button type="button" class="btn btn-danger" ng-show="relatorio.status.fail"
+                                bs-tooltip="relatorio.status.reason">Erro!
+                        </button>
+                        <a class='btn btn-success' target='_blank' href="[[ relatorio.status.report ]]"
+                           ng-show="relatorio.status.success">
+                           <i class="fas fa-download"></i> Baixar
+                        </a>
+
+                    </div>
+                </form>
+            </div>
+            <!--/box body-->
+        </div>
+        <!--/box-->
+    </div>
+    <!--/span-->
+</div>
+<!-- PENA RESTRITIVA -->
+
+<div ng-include="'/static/template/siap/modal_cadastrar_horas.html'"></div>
+<div ng-include="'/static/template/siap/modal_excluir_horas.html'"></div>
+<div ng-include="'/static/template/siap/modal_alterar_regime.html'"></div>
+<div ng-include="'/static/template/siap/modal_liquidar_pena.html'"></div>
+<div id="popover_calculo"></div>

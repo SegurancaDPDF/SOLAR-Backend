@@ -1,0 +1,79 @@
+<div id="modal-cadastrar-movimento-pad" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="CadastroMovimentoPADCtrl">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Movimentação PAD</h3>
+    </div>
+    <!--  Corpo do Modal........... -->
+    <div class="modal-body">
+        <form name="CadastroMovimentoPAD" id="CadastroMovimentoPAD">
+            <div class="row-fluid">
+                <div class="control-group" ng-class="{true:'error'}[!defensor.id]">
+                    <label class="control-label">Defensor</label>
+                    <div class="controls">
+                        <input type="text" class="span12" placeholder="Digite o nome do defensor" ng-model="defensor" ng-disabled="movimento.bloqueado" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:8">
+                        <label class="text-error helper-font-small" ng-show="defensor && !defensor.id">Este defensor não existe no banco de dados</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="control-group span12" ng-class="{true:'error'}[!tipo.id]">
+                    <label class="control-label">Tipo</label>
+                    <div class="controls">
+                        <input type="text" class="span12" placeholder="Digite o tipo da movimentação" ng-model="tipo" ng-disabled="movimento.bloqueado" typeahead="i as i.nome for i in tipos | filter:{nome:$viewValue} | startsWith:$viewValue | limitTo:8">
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="control-group span3" ng-class="{error: (errors | filter:{field:'data_protocolo'}).length}">
+                    <label class="control-label">Data</label>
+                    <div class="controls">
+                        <input class="span12" maxlength="10" type="text" data-date-format="dd/mm/yyyy" ui-mask="99/99/9999" ng-model="data_protocolo" ng-disabled="movimento.bloqueado" required>
+                        <small class="text-error" ng-repeat="erro in (errors | filter:{field:'data_protocolo'})">[[ erro.message ]]</small>
+                    </div>
+                </div>
+                <div class="control-group span3" ng-class="{true:'error'}[CadastroMovimentoPAD.hora_protocolo.$error.pattern]">
+                    <label class="control-label">Horário</label>
+                    <div class="controls">
+                        <input class="span6" maxlength="5" type="text" ui-mask="99:99" ng-model="hora_protocolo" ng-disabled="movimento.bloqueado" required>
+                    </div>
+                </div>
+                <div class="control-group span5" ng-show="tipo.audiencia">
+                    <label class="control-label">Audiência</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <label class="radio span6">
+                                <input name="audiencia_status" type="radio" ng-value="0"
+                                       ng-model="movimento.audiencia_status"
+                                       ng-change="movimento.audiencia_realizada=false"
+                                       ng-disabled="movimento.bloqueado"> Marcada
+                            </label>
+                            <label class="radio span6">
+                                <input name="audiencia_status" type="radio" ng-value="1"
+                                       ng-model="movimento.audiencia_status"
+                                       ng-change="movimento.audiencia_realizada=true"
+                                       ng-disabled="movimento.bloqueado"> Realizada
+                            </label>
+                            <label class="radio span6" style="margin-left: 0">
+                                <input name="audiencia_status" type="radio" ng-value="2"
+                                       ng-model="movimento.audiencia_status"
+                                       ng-change="movimento.audiencia_realizada=false"
+                                       ng-disabled="movimento.bloqueado"> Cancelada
+                            </label>
+                            <input type="hidden" name="audiencia_realizada" ng-value="movimento.audiencia_realizada"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span12">
+                    <label>Descrição</label>
+                    <textarea class="span12" name="descricao" rows="3" ng-model="movimento.descricao" ng-disabled="movimento.bloqueado" required></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="salvar()" ng-if="!movimento.bloqueado" ng-disabled="!CadastroMovimentoPAD.$valid">Salvar</button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+    </div>
+</div>

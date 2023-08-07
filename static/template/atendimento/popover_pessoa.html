@@ -1,0 +1,35 @@
+<div>
+    <dl ng-if="assistido">
+        <dt>CPF / CNPJ</dt>
+        <dd ng-if="assistido.cpf">[[ assistido.cpf | cpf_cnpj ]]</dd>
+        <dd ng-if="!assistido.cpf">Não informado</dd>
+        <dt>Nascimento</dt>
+        <dd ng-if="assistido.data_nascimento">[[ assistido.data_nascimento|utc|date:'dd/MM/yyyy' ]]</dd>
+        <dd ng-if="!assistido.data_nascimento">Não informado</dd>
+        <dt>Telefone</dt>
+        <dd ng-repeat="telefone in assistido.telefones" ng-class="{4:'color-green'}[telefone.tipo]">
+            ([[ telefone.ddd ]]) [[ telefone.numero | telefone ]] <i class="fab fa-whatsapp color-green" aria-hidden="true" ng-if="telefone.tipo==4"></i> - [[ telefone.nome ]]
+        </dd>
+        <dd ng-if="!assistido.telefones.length"><i>Não informado</i></dd>
+        <dt>Filiação</dt>
+        <dd ng-repeat="filiacao in assistido.filiacao">
+            [[ filiacao.nome ]]
+        </dd>
+        <dd ng-if="!assistido.filiacao.length"><i>Não informado</i></dd>
+        <dt>Endereço</dt>
+        <dd>[[ assistido.logradouro ]], [[ assistido.numero ]]</dd>
+        <dt>Município/UF</dt>
+        <dd>[[ assistido.municipio_nome ]]/[[ assistido.estado_nome ]]</dd>
+
+        <div>
+            <dt class="muted">Auditoria</dt>
+            <dd ng-if="assistido.cadastrado_por_nome" class="muted">Cadastrado por [[ assistido.cadastrado_por_nome ]] em [[ assistido.cadastrado_em |date:'dd/MM/yyyy HH:mm' ]]</dd>
+            <dd ng-if="assistido.modificado_por_nome" class="muted">Alterado por [[ assistido.modificado_por_nome ]] em [[ assistido.modificado_em |date:'dd/MM/yyyy HH:mm' ]]</dd>
+        </div>
+    </dl>
+
+    <p ng-if="!assistido.id">
+        <img src="/static/img/loading.gif">
+        <i>Carregando...</i>
+    </p>
+</div>

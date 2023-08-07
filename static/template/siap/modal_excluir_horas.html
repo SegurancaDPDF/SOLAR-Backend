@@ -1,0 +1,22 @@
+<!-- Modal Excluir Horas Trabalhadas -->
+<div id="modal-excluir-horas" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="ExcluirHorasModal">Excluir Horas Trabalhadas</h3>
+    </div>
+    <div class="modal-body">
+        <p>Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        <dl class="dl-horizontal">
+            <dt>Mês/Ano</dt>
+            <dd>[[ meses[hora.mes-1] ]]/[[ hora.ano ]]</dd>
+            <dt>Horas</dt>
+            <dd>[[ hora.horas ]]</dd>
+        </dl>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" id="btn-modal-excluir-falta" ng-click="excluir_horas(hora)">Excluir</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>
+<!-- Modal Excluir Horas Trabalhadas -->

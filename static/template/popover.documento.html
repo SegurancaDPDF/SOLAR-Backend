@@ -1,0 +1,41 @@
+<div ng-if="documento.documento_online_id">
+<!-- Verifica se o documento possui um identificador online e mostra informações específicas para documentos online -->
+    <p>
+        <b>Número: [[ solar_identificador_doc(documento.documento_online_id, documento.documento_online_versao ) ]]</b>
+    </p>
+    <p>
+        <b>Assunto: [[documento.documento_online_assunto]]</b>
+    </p>
+    <p>Criado em: [[documento.documento_online_criado_em|date:'dd/MM/yyyy HH:mm']]</p>
+    <p>Criado por: [[ documento.documento_online_criado_por_nome_servidor ]]</p>
+    <p>Modificado em: [[documento.documento_online_modificado_em|date:'dd/MM/yyyy HH:mm']]</p>
+    <p>Modificado por: [[ documento.documento_online_modificado_por_nome_servidor ]]</p>
+    <p class="text-success" ng-if="documento.documento_online_esta_assinado">
+        <b>Assinado? Sim</b>
+    </p>
+    <p class="text-error" ng-if="!documento.documento_online_esta_assinado">
+        <b>Assinado? Não</b>
+    </p>
+    <div ng-if="documento.documento_online_esta_assinado">
+        <p>Assinado em: [[documento.documento_online_assinado_em|date:'dd/MM/yyyy HH:mm']]</p>
+        <p id="[[ documento.documento_online_assinado_por_pk ]]">Assinado por: [[ documento.documento_online_assinado_por_nome_servidor ]]</p>
+    </div>
+</div>
+<!-- Caso o documento não possua identificador online, exibe informações básicas do documento -->
+<div ng-if="!documento.documento_online_id">
+    <p>
+        <b>Número: [[ documento.pk ]]</b>
+    </p>
+    <p ng-if="documento.data_cadastro">
+        Criado em: [[ documento.data_cadastro|date:'dd/MM/yyyy HH:mm' ]]
+    </p>
+    <p ng-if="documento.data_cadastro">
+        Criado por: [[ documento.cadastrado_por_nome ]]
+    </p>
+    <p ng-if="documento.arquivo && documento.data_enviado">
+        Enviado em: [[ documento.data_enviado|date:'dd/MM/yyyy HH:mm' ]]
+    </p>
+    <p ng-if="documento.arquivo && documento.data_enviado">
+        Enviado por: [[ documento.enviado_por_nome ]]
+    </p>
+</div>

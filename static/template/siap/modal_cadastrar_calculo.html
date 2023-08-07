@@ -1,0 +1,97 @@
+<!-- Modal Cadastrar Falta -->
+<div id="modal-cadastrar-calculo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Novo Cálculo [[ pessoaId ]]</h3>
+    </div>
+    <!--  Corpo do Modal........... -->
+    <div class="modal-body">
+        <form id="CadastroCalculoForm" action="" method="" class="form form-horizontal">
+            {% csrf_token %}
+            <div class="control-group">
+                <label class="control-label">Tipo</label>
+
+                <div class="controls">
+                    <input type="text" placeholder=""
+                           value="Provisório">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Data Prisão Definitiva</label>
+
+                <div class="controls">
+                    <input type="text" placeholder=""
+                           value="{{ preso.pena_cumprida.data_ini | date:'d/m/Y' }}">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Pena Total</label>
+
+                <div class="controls">
+                    <input type="text" placeholder="" value="{{ preso.duracao_total_pena.anos|default:'0' }}a{{ preso.duracao_total_pena.meses|default:'0' }}m{{ preso.duracao_total_pena.dias|default:'0' }}d">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Pena Cumprida</label>
+
+                <div class="controls">
+                    <input type="text" placeholder="" value="{{ preso.pena_cumprida.anos|default:'0' }}a{{ preso.pena_cumprida.meses|default:'0' }}m{{ preso.pena_cumprida.dias|default:'0' }}d">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Pena Restante</label>
+
+                <div class="controls">
+                    <input type="text" placeholder="" value="{{ preso.pena_cumprida.anos|default:'0' }}a{{ preso.pena_cumprida.meses|default:'0' }}m{{ preso.pena_cumprida.dias|default:'0' }}d">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Data-Base</label>
+
+                <div class="controls">
+                    <input type="text" placeholder=""
+                           value="{{ preso.pena_cumprida.data_fim | date:'d/m/Y' }}">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Regime Atual</label>
+
+                <div class="controls">
+                    <input type="text" placeholder=""
+                           value="{{ preso.prisoes_condenado.0.get_regime_atual_display }}">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Remissões</label>
+
+                <div class="controls">
+                    <input type="text" placeholder="Quantidade de dias">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Detrações</label>
+
+                <div class="controls">
+                    <input type="text" placeholder="Quantidade de dias">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Condição</label>
+
+                <div class="controls">
+                    <input type="text" placeholder=""
+                           value="{{ preso.prisoes_condenado.0.get_regime_atual_display }}">
+                </div>
+            </div>
+            <!-- Corpo do Modal -->
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" form="CadastroVisitaForm" ng-disabled="visita.id"
+                ng-click="salvar_visita()">Salvar
+        </button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+    </div>
+</div>
+<!-- Modal Cadastrar Falta -->

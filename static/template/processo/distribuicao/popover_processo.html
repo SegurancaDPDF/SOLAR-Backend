@@ -1,0 +1,16 @@
+<div>
+    <div ng-if="processo">
+        <ul>
+            <li ng-repeat="evento in processo.eventos | orderBy:'-numero' | limitTo: 5 ">
+                [[ evento.usuario ]]<br><small class="muted">([[ evento.numero ]] - [[ evento.descricao ]])</small>
+            </li>            
+        </ul>
+        <i class="text-error" ng-if="!processo.eventos.length">
+            Nenhum evento vinculado à defensoria
+        </i>
+    </div>
+    <div ng-if="!processo">
+        <img src="/static/img/loading.gif">
+        <i>Carregando...</i>
+    </div>
+</div>

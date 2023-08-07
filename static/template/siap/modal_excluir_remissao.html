@@ -1,0 +1,26 @@
+<!-- Modal Excluir Remissao -->
+<div id="modal-excluir-remissao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="ExcluirFaltaModal">Excluir Remissão</h3>
+    </div>
+    <div class="modal-body">
+        <p>Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        <dl class="dl-horizontal">
+            <dt>Período</dt>
+            <dd>[[ remissao.data_inicial | date:"dd/MM/yyyy" ]] a [[ remissao.data_final | date:"dd/MM/yyyy" ]]</dd>
+            <dt>Tipo</dt>
+            <dd>[[ LISTA.TIPO[remissao.tipo] ]]</dd>
+            <dt>Dias Registro</dt>
+            <dd>[[ remissao.dias_registro ]]</dd>
+            <dt>Dias Remissão</dt>
+            <dd>[[ remissao.dias_remissao ]]</dd>
+        </dl>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" id="btn-modal-excluir-remissao" ng-click="excluir()">Excluir</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>
+<!-- Modal Excluir Remissao -->

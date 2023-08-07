@@ -1,0 +1,95 @@
+<!-- Modal Cadastrar Falta -->
+<div id="modal-cadastrar-falta" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="CadastroFaltaCtrl">
+    <div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Cadastrar Falta</h3>
+	</div>
+	<!--  Corpo do Modal........... -->
+	<div class="modal-body">
+		<form id="CadastroFaltaForm" name="CadastroFaltaForm">
+			<div class="row-fluid">
+				<div class="control-group span3">
+					<label class="control-label">Data</label>
+					<div class="controls">
+						<input class="span12" maxlength="10" type="text" data-date-format="dd/mm/yyyy" ui-mask="99/99/9999" ng-model="data_fato" required>
+					</div>
+				</div>
+				<div class="control-group span3">
+					<label class="control-label">Horário</label>
+					<div class="controls">
+                        <input class="span6" maxlength="5" type="text" ui-mask="99:99" ng-model="hora_fato" required>
+					</div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="control-group span12">
+					<label class="control-label">Estabelecimento Penal</label>
+					<div class="controls">
+						<select class="span12" ng-model="falta.estabelecimento_penal" ng-options="local.id as local.nome for local in lista_estabelecimentos" required>
+                            <option value="">Selecione...</option>
+                        </select>
+					</div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="control-group span6">
+					<label class="control-label">Número PAD</label>
+					<div class="controls">
+						<input type="text" class="span12" ng-model="falta.numero_pad" required>
+					</div>
+				</div>
+				<div class="control-group span6">
+					<label class="control-label">Resultado</label>
+					<div class="controls">
+						<select class="span12" ng-model="falta.resultado" ng-options="index as value for (index, value) in lista_resultado" required>
+                            <option value="">Selecione...</option>
+                        </select>
+					</div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span12">
+					<label>Observação</label>
+					<textarea class="span12" name="observacao" rows="2" ng-model="falta.observacao" required></textarea>
+				</div>
+			</div>
+			<div ng-show="falta.remissoes.length && falta.resultado==1">
+				<div class="row-fluid" ng-repeat="item in falta.remissoes">
+					<div class="control-group span3">
+						<label class="control-label">Remições <small class="muted">(total)</small></label>
+						<div class="controls">
+							<input class="span12" maxlength="50" type="text" ng-model="item.total" readonly>
+						</div>
+					</div>
+					<div class="control-group span3">
+						<label class="control-label">Desconto <small class="muted">(dias)</small></label>
+						<div class="controls">
+							<input class="span12" maxlength="50" type="number" min="1" ng-model="item.desconto" ng-change="recalcular_remissao(item)" required>
+						</div>
+					</div>
+					<div class="control-group span3">
+						<label class="control-label">Restante <small class="muted">(dias)</small></label>
+						<div class="controls">
+							<input class="span12" maxlength="50" type="text" ng-model="item.restante" readonly>
+						</div>
+					</div>
+					<div class="control-group span3">
+						<label class="control-label">P/ Progressão?</label>
+						<div class="controls">
+							<span class="label" ng-class="{true:'label-success', false:'label-important'}[item.para_progressao]">[[ item.para_progressao ? 'Sim' : 'Não' ]]</span>
+						</div>
+					</div>
+				</div>
+				<div class="text-info">
+					<b>Atenção!</b> Constam apenas remições anteriores a [[ falta.data_fato ]]
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Corpo do Modal -->
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="salvar()" ng-disabled="!CadastroFaltaForm.$valid">Salvar</button>
+		<a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+	</div>
+</div>
+<!-- Modal Cadastrar Falta -->

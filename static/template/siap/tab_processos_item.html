@@ -1,0 +1,18 @@
+<div ng-if="autor.atendimento.requerente">
+    <span class="label label-inverse" rel="tooltip" title="Sem atendimento vinculado" ng-if="autor.atendimento.tipo==6">
+        <i class="fas fa-folder"></i>
+    </span>
+    <span class="label label-info" rel="tooltip" title="Vinculado a um atendimento" ng-if="autor.atendimento.tipo!=6">
+        <i class="fas fa-comment"></i>
+    </span>
+    <a href="/atendimento/[[ autor.atendimento.numero ]]/#/processo/[[ parte.processo.numero_puro ]]/grau/[[ parte.processo.grau ]]" class="btn-link">[[ autor.atendimento.requerente ]]</a><br>
+</div>
+<div ng-if="!autor.atendimento.requerente">
+    <span class="label label-important" rel="tooltip">
+        <i class="fas fa-exclamation-circle"></i>
+    </span>
+    <a href="/atendimento/recepcao/marcados/[[ autor.atendimento.numero ]]/?tab=1" class="">
+        <span class="text-error">Incluir assistido</span>
+    </a><br>
+</div>
+<small>[[ autor.defensor ]]</small>

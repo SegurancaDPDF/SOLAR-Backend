@@ -1,0 +1,56 @@
+<!-- Modal Cadastrar Horas Trabalhadas -->
+<div id="modal-cadastrar-horas" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Horas Trabalhadas</h3>
+	</div>
+	<!--  Corpo do Modal........... -->
+	<div class="modal-body">
+		<form id="CadastroHorasForm" name="CadastroHorasForm">
+			<div class="row-fluid">
+				<div class="control-group span3">
+					<label class="control-label">Ano</label>
+					<div class="controls">
+						<input name="ano" type="text" class="span12" ng-model="hora.ano" ng-pattern="/[0-9]{4}/" ng-change="calcular(remissao)" required>
+					</div>
+				</div>
+
+				<div class="control-group span6">
+					<label class="control-label">Mês</label>
+					<div class="controls">
+						<select name="mes" class="span12" ng-model="hora.mes" required>
+                            <option value="">Selecione...</option>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+					</div>
+				</div>
+
+				<div class="control-group span3">
+					<label class="control-label">Horas</label>
+					<div class="controls">
+						<input name="horas" type="text" class="span12" placeholder="HH:mm" ng-model="hora.horas" ng-pattern="/(\d+):[0-5][0-9]/" required>
+					</div>
+				</div>
+
+
+			</div>
+		</form>
+	</div>
+	<!-- Corpo do Modal -->
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="salvar_horas(hora)" ng-disabled="!CadastroHorasForm.$valid">Salvar</button>
+		<a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+	</div>
+</div>
+<!-- Modal Cadastrar Horas Trabalhadas -->

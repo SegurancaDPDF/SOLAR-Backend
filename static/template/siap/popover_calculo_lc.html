@@ -1,0 +1,20 @@
+<div>
+    <dl class="dl-horizontal">
+        <dt>Data-base (DB)</dt>
+        <dd>[[ calculo.livramento.data_base | date:'dd/MM/yyyy' ]]</dd>
+        <dt>Cálculo Fração</dt>
+        <dd><small>Pena Imposta * Fração</small></dd>
+        <div ng-repeat="fracao in calculo.livramento.fracoes | orderBy:'fracao'">
+            <dt>Cálculo Fração [[ fracao.fracao ]]</dt>
+            <dd>[[ get_amd(fracao.pena_imposta) ]] * [[ fracao.fracao ]] = [[ get_amd(fracao.calculo) ]] </dd>
+        </div>
+        <dt>Soma Penas Impostas</dt>
+        <dd>[[ get_amd(calculo.pena_total) ]]</dd>
+        <dt>Fórmula LC</dt>
+        <dd><small>Data-base + Soma Frações + Interrupção - Detração - Remissão - 1 dia</small></dd>
+        <dt>Cálculo LC</dt>
+        <dd>[[ calculo.livramento.data_base | date:'dd/MM/yyyy' ]] + [[ get_amd(calculo.livramento.soma_fracoes) ]] + [[ get_amd(calculo.interrupcoes) ]] - [[ get_amd(calculo.detracoes) ]] - [[ calculo.remissoes ]] - 1</dd>
+        <dt class="text-warning">Data LC</dt>
+        <dd class="text-warning bold">[[ calculo.data_livramento_condicional | date:'dd/MM/yyyy' ]]</dd>
+    </dl>
+</div>

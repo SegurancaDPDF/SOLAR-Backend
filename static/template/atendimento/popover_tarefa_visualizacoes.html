@@ -1,0 +1,13 @@
+<div>
+    <span ng-repeat="v in tarefa.visualizacoes" style="display:block;">
+        [[ v.visualizada_por ]]
+        <small>[[ v.visualizada_em|date:'dd/MM/yyyy HH:mm' ]]</small>
+    </span>
+    <p ng-if="!tarefa.visualizacoes.length">
+        <i>Nenhuma visualização até o momento</i>
+    </p>
+    <p ng-if="!tarefa">
+        <img src="/static/img/loading.gif">
+        <i>Carregando...</i>
+    </p>
+</div>
