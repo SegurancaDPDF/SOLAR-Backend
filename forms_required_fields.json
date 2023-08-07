@@ -1,0 +1,65 @@
+{
+	"CadastrarPessoa":
+	[
+		{
+			"filter_name": "Atendimento Requerente",
+			"filter_requerente": true,
+			"cpf": false,
+			"apelido": false,
+			"email": false,
+			"nome_social": false,
+			"identidade_genero": false,
+			"orientacao_sexual": false,
+			"rg_numero": false,
+			"rg_orgao": false
+		},
+		{
+			"filter_name": "Atendimento Requerido",
+			"filter_requerente": false
+		}
+	],
+	"CadastrarEndereco":
+	[
+		{
+			"filter_name": "Atendimento Requerente",
+			"filter_requerente": true
+		},
+		{
+			"filter_name": "Atendimento Requerido",
+			"filter_requerente": false
+		}
+	],
+	"CadastrarMoradia":
+	[
+		{
+			"filter_name": "Atendimento Requerente",
+			"filter_requerente": true
+		},
+		{
+			"filter_name": "Atendimento Requerido",
+			"filter_requerente": false
+		}
+	],
+	"CadastrarTelefone":
+	[
+		{
+			"filter_name": "Atendimento Requerente",
+			"filter_requerente": true
+		},
+		{
+			"filter_name": "Atendimento Requerido",
+			"filter_requerente": false
+		}
+	],
+	"RendaForm":
+	[
+		{
+			"filter_name": "Atendimento Requerente",
+			"filter_requerente": true
+		},
+		{
+			"filter_name": "Atendimento Requerido",
+			"filter_requerente": false
+		}
+	]
+}
