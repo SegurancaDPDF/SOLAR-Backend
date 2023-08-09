@@ -1,0 +1,18 @@
+<!-- Modal Alterar Regime -->
+<div id='modal-termo-aceite' class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true" ng-controller="TermoAceiteCtrl" ng-init="init({{ servidor.pk }})">
+    <div class="modal-header">
+    <h4 class="text-center">[[currentTermo.titulo]]</h4>
+    </div>
+    <!--  Corpo do Modal -->
+    <div class="modal-body">
+        <div class="text-justify" ng-if="currentTermo.tipo_descricao=='html'" ng-bind-html="currentTermo.descricao"></div>
+        <pre class="text-justify" ng-if="currentTermo.tipo_descricao=='txt'" ng-bind="currentTermo.descricao"></pre>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-footer text-center">
+        <button class="btn btn-large btn-primary" ng-if="currentTermo.tipo_resposta=='un'" ng-disabled="salvando" ng-click="aceitar(currentTermo, {{ servidor.pk }}, '{{ csrf_token }}', true)">Aceito</button>
+        <button class="btn btn-large btn-danger" ng-if="currentTermo.tipo_resposta=='mu'" ng-disabled="salvando" ng-click="aceitar(currentTermo, {{ servidor.pk }}, '{{ csrf_token }}', false)">Não</button>
+        <button class="btn btn-large btn-success" ng-if="currentTermo.tipo_resposta=='mu'" ng-disabled="salvando" ng-click="aceitar(currentTermo, {{ servidor.pk }}, '{{ csrf_token }}', true)">Sim</button>
+    </div>
+</div>
+<!-- Modal Alterar Regime -->
