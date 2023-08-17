@@ -1,0 +1,19 @@
+<!-- modal conflito de guichê  -->
+<div id="modal-guiche-conflito" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 >Conflito de Guichê</h3>
+    </div>
+    <!--Mensagem de conflito "O usuário já está ocupando este guichê"-->
+    <div class="modal-body">
+        <p>
+            O usuário <strong><span id="servidorConflito"></span></strong> já está ocupando este guichê
+        </p>
+    </div>
+    <!--Botões responsáveis pela alteração ou cancelamento do guichê-->
+    <div class="modal-footer">
+        <button class="btn btn-danger" id="btn-guiche-conflito" onclick="salvarGuiche(true)" >Trocar mesmo assim</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>

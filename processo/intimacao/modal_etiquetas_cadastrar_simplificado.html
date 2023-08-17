@@ -1,0 +1,75 @@
+{% load static %}
+<div id="modal-cadastrar-etiqueta-simplificado" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="GerenciarEtiquetasCtrl">
+    {% csrf_token %}
+
+    <!-- Cabeçalho do modal -->
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Gerenciar Etiquetas</h3>
+    </div>
+
+    <!-- Corpo do modal -->
+    <div class="modal-body">
+        <form name="CadastrarEtiquetaSimplificadoForm" class="form-horizontal">
+
+            <!-- Grupo de controle (Seleção de defensoria) -->
+            <div class="control-group">
+                <select id="defensoria" name="defensoria" class="span12"
+                    data-validate="{required:true}" ng-model="etiqueta.defensoria" ng-change="carregar_etiquetas()"
+                    ng-options="obj.defensoria.id as obj.defensoria.nome for obj in atuacoes"></select>
+            </div>
+
+            <!-- Grupo de controle (Entrada de dados da nova etiqueta) -->
+            <div class="control-group">
+                <input type="color" class="span1" ng-model="etiqueta.cor">
+                <input type="text" class="span9 noupper" placeholder="Digite o nome da nova etiqueta" ng-model="etiqueta.nome">
+                <button class="btn" ng-click="salvar_etiqueta()" ng-disabled="salvando">
+                    <i class="fas fa-plus-circle"></i> Salvar
+                </button>
+            </div>
+
+            <!-- Tabela de etiquetas existentes -->
+            <table class="table">
+                <thead>
+                    <th class="span9">Etiqueta</th>
+                    <th class="span3">Ações</th>
+                </thead>
+                <tbody>
+                    <!-- Repetição de etiquetas -->
+                    <tr ng-repeat="e in etiquetas">
+                        <td>
+                            <span class="label" ng-style="{'background-color':e.cor}">
+                                <i class="fas fa-tag"></i> [[ e.nome ]]
+                            </span>
+                        </td>
+                        <td>
+                            <!-- Link para alterar etiqueta (se permissão concedida) -->
+                            {% if perms.contrib.change_etiqueta %}
+                            <a href="#" class="text-info" ng-click="selecionar_etiqueta(e)">
+                                Alterar
+                            </a>
+                            {% endif %}
+
+                            <!-- Link para remover etiqueta (se permissão concedida) -->
+                            {% if perms.contrib.delete_etiqueta %}
+                            <a href="#" class="text-error" ng-click="remover_etiqueta(e.id)">
+                                Remover
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- Mensagem de nenhum registro cadastrado -->
+                    <tr ng-hide="etiquetas.length">
+                        <td colspan="2">Nenhum registro cadastrado</td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+    <!-- Rodapé do modal -->
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Fechar</button>
+    </div>
+</div>

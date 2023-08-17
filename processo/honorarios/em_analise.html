@@ -1,0 +1,226 @@
+<div class="row-fluid">
+    <!-- Contém os elementos que formam a linha da página -->
+    <div class="span12 pull-left">
+        <!-- Contém o título da página -->
+        <h4><i class="fas fa-clock"></i> Análise {% if paginacao.count %}({{ paginacao.count }}) {% endif %}<span class="muted helper-font-small ">(Sentenças para analisar possibilidade de honorários)</span></h4>
+        <div class="well well-small">
+            <!-- Contém a barra de navegação e formulário de busca -->
+            <div class="navbar navbar-mb0">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <form method="GET" class="navbar-form" action="{% url 'honorarios_analise_index' %}">
+                            {{ form.data_ini }}
+                            {{ form.data_fim }}
+                            {{ form.area }}
+                            {{ form.comarca }}
+                            {{ form.numero }}
+                            <!-- Botão de busca -->
+                            <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar atendimento">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <!-- Botão para gerar PDF (desabilitado) -->
+                            <button type="submit" class="btn btn-info pull-right disabled" rel="tooltip" data-placement="bottom" data-original-title="Gerar Pdf">
+                                <i class="fas fa-print"></i> Gerar Pdf
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <!-- Tabela com os processos em análise -->
+            <table id="em_analise" class="table table-hover table-striped responsive">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Processo</th>
+                        <th>Área/Classe</th>
+                        <th>Data Cadastro</th>
+                        <th>Defensor</th>
+                        <th>Comarca</th>
+                        <th></th>
+                        <th>Honorário</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Loop sobre os processos em análise -->
+                    {% for honorario in processos %}
+                        <tr>
+                            <td class="bold">{{ forloop.counter }}</td>
+                            <td>
+                                <!-- Verifica se há um link de atendimento ou processo -->
+                                {% if honorario.14 %}
+                                    <a href="{% url 'atendimento_atender' honorario.14 %}#/eproc/{{ honorario.3 }}/grau/{{ honorario.4 }}" class="btn-link" target="_blank">
+                                        <b>{{ honorario.1 }}</b>
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'processo_listar' %}?filtro={{ honorario.3 }}" class="btn-link" target="_blank">
+                                        <b>{{ honorario.1 }}</b>
+                                    </a>
+                                {% endif %}
+                                <!-- Exibe a classe do processo com base no número do grau -->
+                                {% if honorario.4 == 1 %}
+                                    <span class="label label-success" title="1º grau" rel="tooltip">1G</span>
+                                {% elif honorario.4 == 2 %}
+                                    <span class="label label-info" title="1º grau" rel="tooltip">2G</span>
+                                {% elif honorario.4 == 3 %}
+                                    <span class="label label-important" >STF/STJ</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="muted">{{ honorario.5 | default:"Não informada" }}</small><br/>
+                                <a href="?numero={{ honorario.13 }}">
+                                    {{ honorario.13 | default:"Não informada" }}
+                                </a>
+                            </td>
+                            <td><small>{{ honorario.7 |date:"d/m/Y H:i:s" }}</small></td>
+                            <td><small>{{ honorario.8 | default:'' }}</small></td>
+                            <td><small>{{ honorario.6 }}</small></td>
+                            <td>
+                                <!-- Exibe uma pop-up de pendência se existir -->
+                                {% if honorario.11 %}
+                                    <a href="#" title="Pendência registrada" data-toggle="popover" data-placement="left" data-content="{{honorario.11}}<br/><small style='font-size:9px'>Data: {{ honorario.9 |date:"d/m/Y H:i:s" }}<br/>Por: {{ honorario.10 }}</small>" data-trigger="hover" data-html="true">
+                                        <small style="color: #faa732" class="bold"><i class="fas fa-exclamation-circle"></i> Pendência</small>
+                                    </a>
+                                {% else %}
+                                    ---
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Botões para marcar impossibilidade ou possibilidade de honorários -->
+                                <a class="btn btn-small btn-danger" href="#modal-honorario-impossivel" rel="tooltip" data-original-title="Impossibilidade" data-toggle="modal" data-id="{{ honorario.12 }}">
+                                    <i class="fas fa-times-circle"></i>
+                                </a>
+                                &nbsp;
+                                <a class="btn btn-small btn-success" href="#modal-honorario-possivel" rel="tooltip" data-original-title="Possibilidade" data-toggle="modal" data-id="{{ honorario.12 }}" ng-click="carregar({{ honorario.12 }})">
+                                    <i class="fas fa-check-circle"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <b><i class="fas fa-exclamation-circle"></i> Nenhum registro encontrado!</b>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>#</th>
+                        <th>Processo</th>
+                        <th class="text-center">Área</th>
+                        <th>Data Cadastro</th>
+                        <th>Defensor</th>
+                        <th>Comarca</th>
+                        <th></th>
+                        <th>Honorário</th>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="pagination">
+                <!-- Exibe informações sobre a página atual e o número total de páginas -->
+                <div class="pull-left">
+                    Página {{ processos.number }} de {{ processos.paginator.num_pages }}
+                </div>
+                <!-- Navegação entre as páginas -->
+                <div class="pagination-right pagination-mini">
+                    <ul>
+                        {% if processos.has_previous %}
+                            <li><a href="?page={{ processos.previous_page_number }}">Anterior</a></li>
+                        {% else %}
+                            <li class="disabled"><a href="#">Anterior</a></li>
+                        {% endif %}
+                        <!-- Loop sobre as páginas disponíveis -->
+                        {% for page in processos.paginator.page_range %}
+                            {% if page >= processos.number|add:"-2" and page < processos.number %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li>
+                            {% endif %}
+                            {% ifequal processos.number page %}
+                                <li class="active"><a href="#">{{ processos.number }}</a></li>
+                            {% endifequal %}
+                            {% if page <= processos.number|add:"2" and page > processos.number %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if processos.has_next %}
+                            <li><a href="?page={{ processos.next_page_number }}">Próxima</a></li>
+                        {% else %}
+                            <li class="disabled"><a href="#">Próxima</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal-honorario-impossivel -->
+<div id="modal-honorario-impossivel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <!-- Modal para confirmar a impossibilidade de honorários -->
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel"><i class="fas fa-times-circle color-red"></i> Impossibilidade de honorários</h3>
+    </div>
+    <div class="modal-body">
+        <p><b>Atenção!</b> Confirmar a impossibilidade de Honorários ao processo selecionado?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="?" class="btn btn-danger" id="btn-modal-honorario-impossivel">Confirmar</a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+    </div>
+</div>
+<!-- modal-honorario-impossivel -->
+
+<!-- modal-honorario-possivel -->
+<div id="modal-honorario-possivel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-init="init({{ atuacao.defensoria_id|default:"0" }}, {{ config.HONORARIO_VINCULAR_AO_TITULAR_DO_SETOR|lower }})">
+    <!-- Modal para confirmar a possibilidade de honorários -->
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Possibilidade de honorários</h3>
+    </div>
+    <div class="modal-body">
+        <form id="HonorarioPossivelForm" action="{% url 'honorarios_possivel' %}" method="POST">
+            <!-- Campos ocultos com dados do honorário -->
+            <div class="hidden">
+                <input type="text" name="honorario-defensor" ng-model="audiencia.honorario.defensor.id">
+                <input type="text" name="honorario-valor_estimado" ng-model="audiencia.honorario.valor_estimado">
+                <input type="text" name="honorario-fase" id="fase-id" value="">
+                <input type="text" name="honorario-possivel" value="1">
+            </div>
+            {% csrf_token %}
+            <h5><b>Atenção! Confirmar a possibilidade de Honorários ao processo selecionado?</b></h5>
+            <div class="row-fluid">
+                <div class="span12">
+                    <div>
+                        <!-- Valor estimado de honorário -->
+                        <div class="control-group span12 pull-left" ng-class="{true:'error'}[!audiencia.honorario.valor_estimado]">
+                            <label class="control-label"><b>Valor Estimado:</b></label>
+                            <div class="controls">
+                                <div class="row-fluid">
+                                    <input type="text" class="span12" maxlength="22" ng-model="audiencia.honorario.valor_estimado" ng-disabled="audiencia.bloqueado" ng-required="audiencia.honorario.possivel==1" mask-money mm-options="{prefix:'R$ ', allowZero: true, thousands:'.', decimal:',', affixesStay: false}">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fim do valor estimado de honorário -->
+                        <!-- Defensor responsável pelo honorário -->
+                        <div class="control-group" ng-class="{true:'error'}[!audiencia.honorario.defensor]">
+                            <label for="id_parte-defensor" class="control-label"><label for="id_parte-defensor">Defensor Resp. Honorário</label></label>
+                            <div class="controls">
+                                <input type="text" class="span12" placeholder="Digite o nome do defensor" ng-model="audiencia.honorario.defensor" ng-disabled="audiencia.bloqueado" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:8" ng-required="audiencia.honorario.possivel==1">
+                                <label class="text-error helper-font-small" ng-show="audiencia.honorario.defensor && !audiencia.honorario.defensor.id">Este defensor não existe no banco de dados</label>
+                            </div>
+                        </div>
+                        <!-- Fim do defensor responsável pelo honorário -->
+                    </div>
+                    <!-- Fim da div que mostra os dados do honorário -->
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <!-- Botão para salvar a possibilidade de honorário -->
+        <button class="btn btn-success" type="submit" form="HonorarioPossivelForm" ng-disabled="!audiencia.honorario.valor_estimado || !audiencia.honorario.defensor.id || HonorarioPossivelForm.$invalid">Salvar</button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+    </div>
+</div>
+<!-- modal-honorario-possivel -->

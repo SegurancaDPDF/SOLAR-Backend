@@ -1,0 +1,118 @@
+{% load contrib_tags %}
+
+<!-- Modal Fase -->
+<div id="modal-alterar-audiencia" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <!-- Cabeçalho do modal com o botão de fechar e o título "Alterar/Remarcar Audiência" -->
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Alterar/Remarcar Audiência</h3>
+    </div>
+    <!-- Corpo do modal -->
+    <div class="modal-body">
+        <!-- Formulário de alteração da audiência -->
+        <form name="AlterarAudienciaForm" id="CadastroFaseForm">
+            {% csrf_token %}
+            <p>
+                Processo: <b>[[audiencia.processo__numero]]</b><br/>
+                Requerente: <b>[[audiencia.pessoas[0].pessoa__nome]]</b><br/>
+                Área: <b>[[audiencia.processo__area__nome]]</b><br/>
+                Comarca: <b>[[audiencia.processo__comarca__nome]]</b><br/>
+            </p>
+            <!-- Div para selecionar o defensor -->
+            <div class="row-fluid">
+                <div class="control-group" ng-class="{true:'error'}[!defensor_cadastro.id]">
+                    <label class="control-label">Defensor</label>
+                    <div class="controls">
+                        <select class="span12" ng-disabled="audiencia.bloqueado" ng-model="defensor_cadastro" ng-options="i as i.nome for i in defensores">
+                            <option value="" selected="selected">Selecione um defensor...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Div para selecionar a defensoria -->
+            <div class="row-fluid">
+                <div class="control-group" ng-class="{true:'error'}[!defensoria_cadastro.id]">
+                    <label for="id_parte-defensor" class="control-label">Defensoria</label>
+                    <div class="controls">
+                        <select class="span12" ng-disabled="audiencia.bloqueado" ng-model="defensoria_cadastro" ng-options="i as i.nome for i in defensorias">
+                            <option value="" selected="selected">Selecione uma defensoria...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Div para selecionar o tipo -->
+            <div class="row-fluid">
+                <div class="control-group span12" ng-class="{true:'error'}[!tipo.id]">
+                    <label class="control-label">Tipo</label>
+                    <div class="controls">
+                        <select class="span12" ng-disabled="audiencia.bloqueado" ng-model="tipo" ng-options="i as i.nome for i in fases | filter:{audiencia:true}">
+                            <option value="" selected="selected">Selecione um tipo...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Div para inserir a data e o horário da audiência -->
+            <div class="row-fluid">
+                <div class="control-group span3" ng-class="{error: (errors | filter:{field:'data_protocolo'}).length}">
+                    <label class="control-label">Data</label>
+                    <div class="controls">
+                        <input class="span12" maxlength="10" type="text" data-date-format="dd/mm/yyyy" ui-mask="99/99/9999" ng-model="data_protocolo" required>
+                    </div>
+                </div>
+                <div class="control-group span3">
+                    <label class="control-label">Horário</label>
+                    <div class="controls">
+                        <input class="span6" maxlength="5" type="text" ui-mask="99:99" ng-model="hora_protocolo" required>
+                    </div>
+                </div>
+                <div class="control-group span6">
+                    <label for="id_tipo" class="control-label">Audiência:</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <select class="span12" name="audiencia_status" ng-model="audiencia.audiencia_status" ng-change="realizada()">
+                                <option value="0">Marcada</option>
+                                <option value="1">Realizada</option>
+                                <option value="2">Cancelada</option>
+                                <option value="3">Não realizada/Advogado constituído</option>
+                            </select>
+                            <input type="hidden" name="audiencia_realizada" ng-value="audiencia.audiencia_realizada">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Div para inserir a data e o horário de término da audiência -->
+            <div class="row-fluid">
+                <div class="control-group span3" ng-class="{error: (errors | filter:{field:'data_termino_protocolo'}).length}">
+                    <label class="control-label">Data Término</label>
+                    <div class="controls">
+                        <input class="span12" maxlength="10" type="text" data-date-format="dd/mm/yyyy" ui-mask="99/99/9999" ng-model="data_termino">
+                    </div>
+                </div>
+                <div class="control-group span3">
+                    <label class="control-label">Horário Término</label>
+                    <div class="controls">
+                        <input class="span6" maxlength="5" type="text" ui-mask="99:99" ng-model="hora_termino">
+                    </div>
+                </div>
+            </div>
+            <!-- Div para selecionar se a audiência é de custódia -->
+            <div class="row-fluid" ng-show="audiencia.audiencia_realizada">
+                <div class="control-group">
+                    <label class="control-label">Audiência de custódia?</label>
+                    <div class="controls">
+                        <select class="span12" name="custodia" ng-model="audiencia.custodia">
+                            <option value="0">Não se aplica</option>
+                            <option value="10">1. Relaxamento de Flagrante</option>
+                            <option value="21">2.1. Liberdade Provisória - Com Fiança</option>
+                            <option value="22">2.2. Liberdade Provisória - Sem Fiança</option>
+                            <option value="23">2.3. Liberdade Provisória - Com medida cautelar</option>
+                            <option value="24">2.4. Liberdade Provisória - Sem medida cautelar</option>
+                            <option value="30">3. Manteve a Prisão</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+

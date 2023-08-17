@@ -1,0 +1,418 @@
+{% extends "processo/honorarios/index.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+
+{% block conteudo_pag %}
+
+
+    <div class="row-fluid">
+        <div class="span12 pull-left">
+            <h4><i class="fas fa-filter"></i> Pré-análise {% if paginacao.count %}({{ paginacao.count|intcomma }}) {% endif %}<span class="muted helper-font-small ">(Sentenças para analisar possibilidade de honorários)</span></h4>
+            <div class="well well-small">
+                <div class="navbar navbar-mb0">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <form method="GET" class="navbar-form" action="{% url 'honorarios_preanalise_index' %}">
+                                {{ form.data_ini }}
+                                {{ form.data_fim }}
+                                {{ form.area }}
+                                {{ form.comarca }}
+                                {{ form.numero }}
+                                <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button type="submit" class="btn btn-info pull-right disabled" rel="tooltip" data-placement="bottom" data-original-title="Gerar PDF">
+                                    <i class="fas fa-print"></i> Gerar PDF
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <table id="em_analise" class="table table-hover table-striped responsive">
+                    <form id="HonorarioListForm" method="post" action="{% url 'honorarios_analise_check' %}">
+                        {% csrf_token %}
+                        <thead>
+                        <tr>
+                            <th>
+                                <div id="checks_counter" style="display: none">#</div>
+                                <div class="btn-group" id="checks_proc">
+                                    <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                        <li class="text-center"><small><input style="margin: -1px 0 0 !important;" type="checkbox" id="selecctall"/> Selecionar todos</small></li>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#modal-honorario-impossivel-confirmacao-list" data-toggle="modal">
+                                                <i class="fas fa-times-circle"></i> Impossibilidade
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#modal-honorario-analise-confirmacao-list" data-toggle="modal">
+                                                <i class="fas fa-clock color-purple-dark"></i> Análise
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </th>
+                            <th>Processo</th>
+                            <th>Área/Classe</th>
+                            <th>Data Cadastro</th>
+                            <th>Defensor</th>
+                            <th>Comarca</th>
+                            <th>Honorário</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for honorario in processos %}
+                            <tr>
+                                <td class="bold">
+                                    <small><input style="margin: -1px 0 0 !important;" type="checkbox" class="checkbox1" name="honorario-checkbox" value="{{ honorario.0 }}"> {{ forloop.counter }}</small>
+                                </td>
+                                <td>
+                                    {% if honorario.10 %}
+                                        <a href="{% url 'atendimento_atender' honorario.10 %}#/eproc/{{ honorario.3 }}/grau/{{ honorario.4 }}" class="btn-link" target="_blank">
+                                            <b>{{ honorario.1 }}</b>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'processo_listar' %}?filtro={{ honorario.3 }}" class="btn-link" target="_blank">
+                                            <b>{{ honorario.1 }}</b>
+                                        </a>
+                                    {% endif %}
+                                    {% if honorario.4 == 1 %}
+                                        <span class="label label-success" title="1º grau" rel="tooltip">1G</span>
+                                    {% elif honorario.4 == 2 %}
+                                        <span class="label label-info" title="1º grau" rel="tooltip">2G</span>
+                                    {% elif honorario.4 == 3 %}
+                                        <span class="label label-important" >STF/STJ</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="muted">{{ honorario.5 | default:"Não informada" }}</small><br/>
+                                    <a href="?numero={{ honorario.9 }}">
+                                        {{ honorario.9 | default:"Não informada" }}
+                                    </a>
+                                </td>
+                                <td><small>{{ honorario.7 |date:"d/m/Y H:i:s" }}</small></td>
+                                <td><small>{{ honorario.8 | default:'' }}</small></td>
+                                <td><small>{{ honorario.6 }}</small></td>
+                                <td>
+                                    <a class="btn btn-small btn-danger" href="#modal-honorario-impossivel" rel="tooltip"
+                                       data-original-title="Impossibilidade" data-toggle="modal" data-id="{{ honorario.0 }}">
+                                        <i class="fas fa-times-circle"></i>
+                                    </a>
+                                    &nbsp;
+                                    <div class="btn-group">
+                                        <a class="btn btn-small btn-warning" href="#modal-honorario-analise-pendencia" rel="tooltip"
+                                           data-original-title="Pendência" data-toggle="modal" data-id="{{ honorario.0 }}">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </a>
+                                        <a class="btn btn-small" href="#modal-honorario-analise" rel="tooltip"
+                                           data-original-title="Análise" data-toggle="modal" data-id="{{ honorario.0 }}" >
+                                            <i class="fas fa-clock color-purple-dark"></i>
+                                        </a>
+                                    </div>
+                                    &nbsp;
+                                    <a class="btn btn-small btn-success" href="#modal-honorario-possivel" rel="tooltip"
+                                       data-original-title="Possibilidade" data-toggle="modal" data-id="{{ honorario.0 }}" ng-click="carregar({{ honorario.0 }})">
+                                        <i class="fas fa-check-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <b><i class="fas fa-exclamation-circle"></i> Nenhum registro encontrado!</b>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>#</th>
+                            <th>Processo</th>
+                            <th class="text-center">Área</th>
+                            <th>Data Cadastro</th>
+                            <th>Defensor</th>
+                            <th>Comarca</th>
+                            <th>Ações</th>
+                        </tr>
+                        </tfoot>
+                    </form>
+                </table>
+                <div class="pagination">
+                    <div class="pull-left">
+                        Página {{ processos.number }} de {{ processos.paginator.num_pages }}
+                    </div>
+                    <div class="pagination-right pagination-mini">
+                        <ul>
+                            {% if processos.has_previous %}
+                                <li><a href="?page={{ processos.previous_page_number }}">Anterior</a></li>
+                            {% else %}
+                                <li class="disabled"><a href="#">Anterior</a></li>
+                            {% endif %}
+                            {% for page in processos.paginator.page_range %}
+                                {% if page >= processos.number|add:"-2" and page < processos.number %}
+                                    <li><a href="?page={{ page }}">{{ page }}</a></li>
+                                {% endif %}
+                                {% ifequal processos.number page %}
+                                    <li class="active"><a href="#">{{ processos.number }}</a></li>
+                                {% endifequal %}
+                                {% if page <= processos.number|add:"2" and page > processos.number %}
+                                    <li><a href="?page={{ page }}">{{ page }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if processos.has_next %}
+                                <li><a href="?page={{ processos.next_page_number }}">Próxima</a></li>
+                            {% else %}
+                                <li class="disabled"><a href="#">Próxima</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+     <!-- modal-honorario-possivel -->
+    <div id="modal-honorario-possivel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-init="init({{ atuacao.defensoria_id|default:"0" }}, {{ config.HONORARIO_VINCULAR_AO_TITULAR_DO_SETOR|lower }})">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Possibilidade de honorários</h3>
+        </div>
+        <div class="modal-body">
+            <form id="HonorarioPossivelForm" action="{% url 'honorarios_possivel' %}" method="POST">
+                <div class="hidden">
+                    <input type="text" name="honorario-defensor" ng-model="audiencia.honorario.defensor.id">
+                    <input type="text" name="honorario-valor_estimado" ng-model="audiencia.honorario.valor_estimado">
+                    <input type="text" name="honorario-fase" id="fase-id" value="">
+                    <input type="text" name="honorario-possivel" value="1">
+                </div>
+
+                {% csrf_token %}
+                <h5><b>Atenção! Confirmar a possibilidade de Honorários ao processo selecionado?</b></h5>
+
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div>
+                            <!--  Valor estimado honorario-->
+                            <div class="control-group span12 pull-left" ng-class="{true:'error'}[!audiencia.honorario.valor_estimado]">
+                                <label class="control-label"><b>Valor Estimado:</b></label>
+                                <div class="controls">
+                                    <div class="row-fluid">
+                                        <input type="text" class="span12" maxlength="22"
+                                               ng-model="audiencia.honorario.valor_estimado" ng-disabled="audiencia.bloqueado"
+                                               ng-required="audiencia.honorario.possivel==1"
+                                               mask-money mm-options="{prefix:'R$ ', allowZero: true, thousands:'.', decimal:',', affixesStay: false}">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--  Fim Valor estimado honorario-->
+                            <!--  Defensor resp honorario-->
+                            <div class="control-group" ng-class="{true:'error'}[!audiencia.honorario.defensor]">
+                                <label for="id_parte-defensor" class="control-label"><label
+                                    for="id_parte-defensor">Defensor Resp. Honorário</label></label>
+
+                                <div class="controls">
+                                    <input type="text" class="span12" placeholder="Digite o nome do defensor"
+                                           ng-model="audiencia.honorario.defensor" ng-disabled="audiencia.bloqueado"
+                                           typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:8"
+                                           ng-required="audiencia.honorario.possivel==1">
+                                    <label class="text-error helper-font-small"
+                                           ng-show="audiencia.honorario.defensor && !audiencia.honorario.defensor.id">Este defensor não existe
+                                        no banco de dados</label>
+                                </div>
+                            </div>
+                            <!-- Fim  Defensor resp honorario-->
+                        </div>
+                        <!-- Fim Div show dados honorarios-->
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+             <button class="btn btn-success" type="submit" form="HonorarioPossivelForm"
+                ng-disabled="!audiencia.honorario.valor_estimado || !audiencia.honorario.defensor.id || HonorarioPossivelForm.$invalid">Salvar
+            </button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-possivel -->
+
+    <!-- modal-honorario-impossivel -->
+    <div id="modal-honorario-impossivel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><i class="fas fa-times-circle color-red"></i> Impossibilidade de honorários</h3>
+        </div>
+        <div class="modal-body">
+            <p><b>Atenção!</b> Confirmar a impossibilidade de Honorários ao processo selecionado?</p>
+        </div>
+        <div class="modal-footer">
+            <a href="?" class="btn btn-danger" id="btn-modal-honorario-impossivel">Confirmar</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-impossivel -->
+
+    <!-- modal-honorario-impossivel-confirmacao-list -->
+    <div id="modal-honorario-impossivel-confirmacao-list" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><i class="fas fa-times-circle color-red"></i> Impossibilidade de honorários</h3>
+        </div>
+        <div class="modal-body">
+            <p><b>Atenção!</b> Confirmar a impossibilidade de Honorários aos <span class="value_checked_count"></span> processos selecionados?</p>
+        </div>
+        <div class="modal-footer">
+            <button formaction="{% url 'honorarios_impossivel_check' %}" class="btn btn-danger" type="submit" form="HonorarioListForm" ><i class="fas fa-times-circle"></i> Confirmar</button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-impossivel-confirmacao-list -->
+
+    <!-- modal-honorario-analise -->
+    <div id="modal-honorario-analise" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><i class="fas fa-clock color-purple-dark"></i> Enviar para Análise</h3>
+        </div>
+        <div class="modal-body">
+            <form id="HonorarioAnaliseForm" action="{% url 'honorarios_criar_pendencia' %}" method="POST">
+                <div class="hidden">
+                    <input type="text" name="honorario-fase" id="fase-id-analise" value="">
+                </div>
+                {% csrf_token %}
+                <p><b>Atenção!</b> Confirmar o envio do Honorário selecionado para análise?</p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" type="submit" form="HonorarioAnaliseForm">Enviar</button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-analise -->
+
+    <!-- modal-honorario-analise-confirmacao-list -->
+    <div id="modal-honorario-analise-confirmacao-list" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><i class="fas fa-clock color-purple-dark"></i> Enviar para Análise</h3>
+        </div>
+        <div class="modal-body">
+            <form id="HonorarioAnaliseForm" action="{% url 'honorarios_criar_pendencia' %}" method="POST">
+                <div class="hidden">
+                    <input type="text" name="honorario-fase" id="fase-id-analise" value="">
+                </div>
+                {% csrf_token %}
+                <p><b>Atenção!</b> Confirmar o envio dos <span class="value_checked_count"></span> Honorários selecionados para análise?</p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button formaction="{% url 'honorarios_analise_check' %}" class="btn btn-success" type="submit" form="HonorarioListForm" ><i class="fas fa-check-circle"></i> Enviar</button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-analise-confirmacao-list -->
+
+    <!-- modal-honorario-pendencia -->
+    <div id="modal-honorario-analise-pendencia" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><i class="fas fa-exclamation-circle" style="color: #faa732;"></i> Análise com pendência</h3>
+        </div>
+        <div class="modal-body">
+            <form id="HonorarioPendenciaForm" action="{% url 'honorarios_criar_pendencia' %}" method="POST">
+                <div class="hidden">
+                    <input type="text" name="honorario-fase" id="fase-id-pendencia" value="">
+                </div>
+                {% csrf_token %}
+                <p><b>Atenção!</b> Confirmar a pendência para análise do Honorário selecionado?</p>
+
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div>
+                            <!--  Valor estimado honorario-->
+                            <div class="control-group span12 pull-left" ng-class="{true:'error'}[!audiencia.motivo]">
+                                <label class="control-label"><b>Motivo da pendência:</b></label>
+                                <div class="controls">
+                                    <div class="row-fluid">
+                                        <textarea class="span12" name="honorario-motivo" id="honorario-motivo" rows="3" ng-model="audiencia.motivo" maxlength="254"  required=""></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--  Fim Valor estimado honorario-->
+                        </div>
+                        <!-- Fim Div show dados honorarios-->
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" type="submit" form="HonorarioPendenciaForm"
+                    ng-disabled="!audiencia.motivo || HonorarioPendenciaForm.$invalid">Salvar
+            </button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-pendencia -->
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript">
+    function count_checked(){
+        var numberChecked = $('#em_analise input[name="honorario-checkbox"]:checked').length
+        $('.value_checked_count').html(numberChecked);
+    }
+    </script>
+
+{% endblock %}
+
+{% block js_ready_pag %}
+    $('.datepicker').datepicker();
+
+    $(document).on('click','a[href=#modal-honorario-impossivel]', function(){
+        $('#btn-modal-honorario-impossivel').attr(
+            'href','/processo/honorarios/fase/'+$(this).data('id')+'/impossibilidade/?next={{ request.get_full_path }}');
+    });
+
+    $(document).on('click','a[href=#modal-honorario-possivel]', function(){
+        $('#fase-id').attr('value',$(this).data('id'));
+    });
+
+    $(document).on('click','a[href=#modal-honorario-analise-pendencia]', function(){
+        $('#fase-id-pendencia').attr('value',$(this).data('id'));
+    });
+
+    $(document).on('click','a[href=#modal-honorario-analise]', function(){
+        $('#fase-id-analise').attr('value',$(this).data('id'));
+    });
+
+    $('#em_analise a').click(function(){
+        $('#em_analise tr').removeClass('warning');
+        $(this).parent().parent().addClass('warning');
+    });
+
+
+    $('#selecctall').click(function(event) {
+        if(this.checked) {
+            $('.checkbox1').each(function() {
+                this.checked = true;
+            });
+        }else{
+            $('.checkbox1').each(function() {
+                this.checked = false;
+            });
+        }
+
+        count_checked();
+
+    });
+
+    $('#em_analise input[name="honorario-checkbox"]').click(function(event) {
+        count_checked();
+    });
+
+{% endblock %}
+

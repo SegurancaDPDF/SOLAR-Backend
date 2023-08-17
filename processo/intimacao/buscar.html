@@ -1,0 +1,361 @@
+{% extends "processo/intimacao/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block css_pag %}
+<!-- Inclusão de arquivo CSS específico da página -->
+<link rel="stylesheet" type="text/css" href="{% static "css/signer-animation.css" %}?v={{ config.JSVERSION }}">
+{% endblock %}
+
+{% block menu_app %}
+    <!-- Menu do aplicativo -->
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <!-- Formulário de busca -->
+                <form class="navbar-form" action="{% url 'intimacao:buscar' %}" method="GET">
+                    <!-- Campos do formulário -->
+                    {{ form.sistema_webservice }}
+                    {{ form.setor_responsavel }}
+                    {{ form.responsavel }}
+                    {{ form.tipo }}
+                    {{ form.situacao }}
+                    <!-- Botão de busca -->
+                    <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <!-- Cabeçalho da página -->
+    <div class="page-title clearfix">
+        <h3>
+            <span class="pull-left">
+                Buscar Avisos Pendentes ({{ object_list | length }})
+            </span>
+        </h3>
+        <span class="pull-right">
+            {% if pode_abrir_prazo %}
+            <!-- Botão para abrir prazos -->
+            <button type="submit" form="AbrirPrazosForm" class="btn btn-warning" title="Abrir Prazo" rel="tooltip">
+                <i class="fas fa-clock" aria-hidden="true"></i> Abrir Prazos
+            </button>
+            {% endif %}
+            {% if config.ATIVAR_ETIQUETA_SIMPLIFICADA and perms.contrib.add_etiqueta %}
+                <!-- Botão para gerenciar etiquetas (simplificado) -->
+                <a data-target="#modal-cadastrar-etiqueta-simplificado" data-toggle="modal" class="btn" title="Gerenciar Etiquetas" rel="tooltip" ng-click="btnCadastrarEtiquetaSimplificado_click({{ request.user.servidor.defensor.id }})">
+                    <i class="fas fa-tags" aria-hidden="true"></i> Etiquetas
+                </a>
+            {% elif perms.contrib.add_etiqueta or perms.contrib.add_defensoriaetiqueta %}
+                <!-- Botão para gerenciar etiquetas -->
+                <div class="btn-group">
+                    <button class="btn dropdown-toogle" data-toggle="dropdown">
+                        <i class="fas fa-tags" aria-hidden="true"></i> Etiquetas
+                    </button>
+                    <ul class="dropdown-menu pull-right">
+                        {% if perms.contrib.add_etiqueta %}
+                        <li class="text-left">
+                            <!-- Opção para cadastrar etiquetas -->
+                            <a data-target="#modal-cadastrar-etiqueta" data-toggle="modal" ng-click="btnCadastrarEtiqueta_click({{ request.user.servidor.defensor.id }})">
+                                Cadastrar
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if perms.contrib.add_defensoriaetiqueta %}
+                        <li class="text-left">
+                            <!-- Opção para vincular etiquetas a defensorias -->
+                            <a data-target="#modal-associar-etiqueta-defensorias" data-toggle="modal" ng-click="btnVincularDefensoriaEtiqueta_click({{ request.user.servidor.defensor.id }})">
+                                Vincular Defensorias
+                            </a>
+                        </li>
+                        <li class="text-left">
+                            <!-- Opção para vincular etiquetas a usuários -->
+                            <a data-target="#modal-associar-etiqueta-usuarios" data-toggle="modal" ng-click="btnVincularEtiquetaServidor_click({{ request.user.servidor.defensor.id }})">
+                                Vincular Servidores
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <!-- Inclusão do painel de box de totais -->
+    {% include 'atendimento/acompanhamento/painel_box_totais.html' %}
+
+    <h4><i class="fas fa-users"></i> Buscar por Perfil:</h4>
+    <div>
+        <a href="?curadoria=" class="label label-inverse">
+            <i class="fas fa-users"></i> Todos
+        </a>
+        <a href="?curadoria=false" class="label">
+            <i class="fas fa-user"></i> Defensoria
+        </a>
+        <a href="?curadoria=true" class="label">
+            <i class="fas fa-user"></i> Curadoria
+        </a>
+    </div>
+    <h4><i class="fas fa-tags"></i> Buscar por Etiqueta:</h4>
+    <div>
+        {% if pode_ver_todas_etiquetas %}
+        <a href="?{% url_replace_tarefas etiqueta='' %}" class="label label-inverse">
+            <i class="fas fa-tags"></i> Todas Etiquetas
+        </a>
+        <a href="?{% url_replace_tarefas etiqueta='false' %}" class="label">
+            <i class="fas fa-tag"></i> Sem Etiqueta
+        </a>
+        {% endif %}
+        {% for key, value in etiquetas.items %}
+            <a href="?{% url_replace_tarefas etiqueta=key %}" class="label" style="background-color:{{ etiquetas_cor | get_value_by_key:key }}">
+                <i classclass="fas fa-tag"></i> {{ value }}
+            </a>
+        {% endfor %}
+    </div>
+    <h4><i class="fas fa-flag"></i> Buscar por Prioridade:</h4>
+    <div>
+        <a href="?{% url_replace_tarefas prioridade='' %}" class="label label-inverse">
+            <i class="fas fa-flag"></i> Todas Prioridades
+        </a>
+        <a href="?{% url_replace_tarefas prioridade='false' %}" class="label">
+            <i class="fas fa-flag"></i> Sem Prioridade
+        </a>
+        {% for key in prioridades %}
+            <a href="?{% url_replace_tarefas prioridade=key %}" class="label label-important">
+                <i class="fas fa-flag"></i> {{ key }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <form id="AbrirPrazosForm" name="AbrirPrazosForm">
+        <!-- CSRF token -->
+        {% csrf_token %}
+        <!-- Campos ocultos para envio de dados -->
+        <input type="hidden" name="responsavel" value="{{ form.responsavel.value | default:'' }}" />
+        <!-- Tabela de avisos -->
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <!-- Checkbox para seleção de todos os avisos -->
+                    <input type="checkbox" class="selecionar_todos">
+                </th>
+                <th>Processo/Classe</th>
+                <th>Vara</th>
+                <th>Requerente</th>
+                <th>Evento</th>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Prazo</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for registro in object_list %}
+                    <tr>
+                        <td>
+                            <!-- Checkbox para seleção de um aviso específico -->
+                            <input type="checkbox" name="avisos" value="{{ registro.processo.numero }},{{ registro.numero }}">
+                        </td>
+                        <td>
+                            <!-- Número do aviso e link para consultar o processo -->
+                            <small class="muted" title="Número do aviso" rel="tooltip">
+                                <i class="fas fas fa-bell"></i>
+                                {{ registro.numero }}
+                            </small>
+                            <div>
+                                <a href="{% url 'processo_identificar' %}?numero={{ registro.processo.numero }}&grau={{ registro.grau }}&cpf={{ registro.destinatario.pessoa.numeroDocumentoPrincipal|default:'' }}" target="_blank" class="btn-link" title="Clique para consultar o processo" rel="tooltip">
+                                    <b>{{ registro.processo.numero | form_numero_processo }}</b>
+                                </a>
+                            {% if registro.grau == 1 %}
+                                <!-- Label para indicar o grau do processo (1º grau) -->
+                                <span class="label label-success" title="1º grau" bs-tooltip>1G</span>
+                            {% elif registro.grau == 2 %}
+                                <!-- Label para indicar o grau do processo (2º grau) -->
+                                <span class="label label-info" title="2º grau" bs-tooltip>2G</span>
+                            {% elif registro.grau == 3 %}
+                                <!-- Label para indicar o grau do processo (STF/STJ) -->
+                                <span class="label label-important" >STF/STJ</span>
+                            {% endif %}
+                            </div>
+                            <small class="muted">
+                                {{ registro.processo.classe.nome }}
+                            </small>
+                            <div>
+                                {% if registro.distribuido_defensoria %}
+                                    <!-- Label para indicar a defensoria responsável pelo processo -->
+                                    <a href="?{% url_replace_tarefas setor_responsavel=registro.distribuido_defensoria %}" class="label" title="{{ defensorias_nomes | get_value_by_key:registro.distribuido_defensoria }}" rel="tooltip">
+                                        <i class="fas fa-house-user"></i> {{ defensorias_codigos | get_value_by_key:registro.distribuido_defensoria }}
+                                    </a>
+                                {% endif %}
+                                {% for etiqueta in registro.etiquetas %}
+                                    <!-- Etiquetas associadas ao aviso -->
+                                    <a href="?{% url_replace_tarefas etiqueta=etiqueta %}" class="label" style="background-color:{{ etiquetas_cor | get_value_by_key:etiqueta }}">
+                                        <i class="fas fa-tag"></i> {{ etiquetas | get_value_by_key:etiqueta }}
+                                    </a>
+                                {% endfor %}
+                                {% for prioridade in registro.prioridades %}
+                                    <!-- Prioridades do aviso -->
+                                    <a href="?{% url_replace_tarefas prioridade=prioridade %}" class="label label-important">
+                                        <i class="fas fa-flag"></i> {{ prioridade }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if registro.curadoria %}<span class="label label-alert">Curadoria</span>{% endif %}
+                            <div>
+                                {{ registro.processo.orgaoJulgador.nomeOrgao }}
+                            </div>
+                        </td>
+                        <td>
+                            {{ registro.destinatario.pessoa.nome }}
+                        </td>
+                        <td>
+                            {% if registro.evento %}
+                                <!-- Informações do evento -->
+                                <small class="muted">
+                                    {{ registro.evento.data_protocolo | form_datahora_json | date:'d/m/Y H:i'}}
+                                </small>
+                                <div>
+                                    ({{ registro.evento.numero }}) {{ registro.evento.descricao }}
+                                </div>
+                            {% else %}
+                                Evento não disponível
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ registro.tipo }}
+                        </td>
+                        <td>
+                            {{ registro.data_disponibilizacao | form_datahora_json | date:'d/m/Y H:i' }}
+                        </td>
+                        <td>
+                            <div>
+                                {% if registro.prazo_final %}
+                                    <!-- Prazo final para resposta -->
+                                    <span class="text-error" title="Prazo final para resposta" rel="tooltip">
+                                        {{ registro.prazo_final | date:'d/m/Y H:i' }}
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                    {% if registro.prazo_final > agora %}
+                                        <!-- Tempo restante para o prazo final -->
+                                        <small class="muted">
+                                            {{ registro.prazo_final | timeuntil }}
+                                        </small>
+                                    {% else %}
+                                        <!-- Indicação de que o prazo expirou -->
+                                        <small class="text-error">
+                                            Expirado!
+                                        </small>
+                                    {% endif %}
+                                {% elif registro.prazo_ciencia %}
+                                    <!-- Prazo final para ciência -->
+                                    <span class="text-warning" title="Prazo final para ciência" rel="tooltip">
+                                        {{ registro.prazo_ciencia | date:'d/m/Y H:i' }}
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                    {% if registro.prazo_ciencia > agora %}
+                                        <!-- Tempo restante para o prazo de ciência -->
+                                        <small class="muted">
+                                            {{ registro.prazo_ciencia | timeuntil }}
+                                        </small>
+                                    {% else %}
+                                        <!-- Indicação de que o prazo expirou -->
+                                        <small class="text-error">
+                                            Expirado!
+                                        </small>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            {% if registro.prazo %}
+                                <!-- Duração do prazo -->
+                                <small class="muted">
+                                {{ registro.prazo }} dia(s)
+                                </small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ registro.situacao }}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <!-- Botões de ação -->
+                                <a href="{% url 'processo_identificar' %}?grau={{registro.grau}}&numero={{ registro.processo.numero }}&cpf={{ registro.destinatario.pessoa.numeroDocumentoPrincipal|default:'' }}&tab=processo" target="_blank" class="btn btn-small" title="Ver Processo" rel="tooltip">
+                                    <i class="fas fa-folder" aria-hidden="true"></i>
+                                </a>
+
+                                {% if registro.comunicacao.documentos %}
+                                    <a href="{% url 'eproc_consultar_documento' registro.processo.numero registro.comunicacao.documentos.0.documento %}?atualizar_documento=true" target="_blank" class="btn btn-small" title="Ver Intimação" rel="tooltip">
+                                        <i class="far fa-file" aria-hidden="true"></i>
+                                    </a>
+                                {% elif registro.evento %}
+                                    <a href="{% url 'eproc_identificar_documento' registro.processo.numero %}?evento={{ registro.evento.numero|default:'' }}" target="_blank" class="btn btn-small" title="Ver Intimação" rel="tooltip">
+                                        <i class="far fa-file" aria-hidden="true"></i>
+                                    </a>
+                                {% endif %}
+
+                                {% if not registro.esta_fechado %}
+                                    <a data-target="#modal-redistribuir-aviso" data-toggle="modal" class="btn btn-small" title="Redistribuir" rel="tooltip" onclick="document.getElementById('id_aviso_redistribuir').value='{{ registro.numero }}'">
+                                        <i class="fas fa-share" aria-hidden="true"></i>
+                                    </a>
+                                    {% if perms.contrib.view_etiqueta %}
+                                        <a data-target="#modal-etiquetar-aviso" data-toggle="modal" class="btn btn-small" title="Etiquetar" rel="tooltip" ng-click="etiquetar('{{ registro.numero }}', '{{ registro.distribuido_defensoria|default:'' }}', {{ request.user.servidor.defensor.id }})">
+                                            <i class="fas fa-tags" aria-hidden="true"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'processo_identificar' %}?numero={{ registro.processo.numero }}&grau={{ registro.grau }}&cpf={{ registro.destinatario.pessoa.numeroDocumentoPrincipal|default:'' }}&tab=documentos&aviso={{ registro.numero }}" target="_blank" class="btn btn-small" title="Peticionamento" rel="tooltip">
+                                        <i class="fas fa-university" aria-hidden="true"></i>
+                                    </a>
+                                    {% if not registro.esta_aberto and pode_abrir_prazo %}
+                                        <!-- Botão para abrir prazo -->
+                                        <button type="submit" name="aviso" value="{{ registro.processo.numero }},{{ registro.numero }}" class="btn btn-small btn-warning" title="Abrir Prazo" rel="tooltip">
+                                            <i class="fas fa-clock" aria-hidden="true"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}        
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10">Nenhum registro encontrado</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>
+                    <!-- Checkbox para seleção de todos os avisos (rodapé da tabela) -->
+                    <input type="checkbox" class="selecionar_todos">
+                </th>
+                <th>Processo/Classe</th>
+                <th>Vara</th>
+                <th>Requerente</th>
+                <th>Evento</th>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Prazo</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+            </tfoot>
+        </table>
+    </form>
+
+    {% if config.ATIVAR_ETIQUETA_SIMPLIFICADA and perms.contrib.add_etiqueta %}
+        {% include 'processo/intimacao/modal_etiquetas_cadastrar_simplificado.html' %}
+    {% elif perms.contrib.add_etiqueta or perms.contrib.add_defensoriaetiqueta %}
+        {% include 'processo/intimacao/modal_etiquetas_cadastraretiqueta.html' %}
+    {% endif %}
+
+    {% include 'processo/intimacao/modal_redistribuir_aviso.html' %}
+
+{% endblock %}

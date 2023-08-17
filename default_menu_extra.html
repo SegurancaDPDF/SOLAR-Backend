@@ -1,0 +1,13 @@
+{% load contrib_tags %}
+{% for menu in menus %}
+<!--Menu-->
+    <li>
+        <a href="{{ menu.url }}" target="_blank" rel="tooltip" data-placement="right" title="{{ menu.descricao }}" >
+            <div class="helper-font-24">
+                <i class="{{ menu.icone }}"></i>
+            </div>
+            <span class="sidebar-text">{{ menu.nome }}</span>
+        </a>
+    </li>
+{% endfor %}
+

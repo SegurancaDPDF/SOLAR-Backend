@@ -1,0 +1,70 @@
+{% load contrib_tags %}
+{% if nucleos %}
+    {% for nucleo in nucleos %}
+    <!--Menu Nucleos-->
+    <li class="">
+        <a href="{% url 'nucleo_index' nucleo.id %}">
+            <div class="helper-font-24">
+                {% if nucleo.diligencia %}
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                {% else %}
+                    <i class="fas fa-briefcase"></i>
+                {% endif %}
+            </div>
+            <span class="sidebar-text">{{ nucleo.nome }}</span>
+        </a>
+        {% if nucleo.agendamento and nucleo.indeferimento %}
+        <ul class="sub-sidebar corner-top shadow-silver-dark">
+            <li>
+                <a href="{% url 'nucleo_index' nucleo.id %}" rel="tooltip" data-placement="top" title="Atendimentos" >
+                    <div class="helper-font-24">
+                        <i class="fas fa-comments" aria-hidden="true"></i>
+                    </div>
+                    <span class="sidebar-text">Atendimentos</span>
+                </a>
+            </li>
+            <li class="divider"></li>
+            <li>
+                <a href="{% url 'indeferimento:index' nucleo_id=nucleo.id %}" rel="tooltip" data-placement="top" title="Indeferimentos" >
+                    <div class="helper-font-24">
+                        <i class="fas fa-life-ring" aria-hidden="true"></i>
+                    </div>
+                    <span class="sidebar-text">Indeferimentos</span>
+                </a>
+            </li>
+        </ul>
+        {% endif %}
+    </li>
+    {% endfor %}
+    <li class="">
+        <a href="{% url 'atendimento_perfil' %}" title="">
+            <div class="helper-font-24">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <span class="sidebar-text">Núcleos</span>
+        </a>
+        <ul class="sub-sidebar corner-top shadow-silver-dark">
+            {% if perms.atendimento.view_distribuicao %}
+            <li>
+                <a href="{% url 'atendimento_distribuir' %}" rel="tooltip" data-placement="top" title="Distribuir Atendimentos" >
+                    <div class="helper-font-24">
+                        <i class="fas fa-share-alt" aria-hidden="true"></i>
+                    </div>
+                    <span class="sidebar-text">Distribuir</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if perms.atendimento.add_assunto and perms.atendimento.change_assunto and perms.atendimento.delete_assunto %}
+            <li class="divider"></li>
+            <li>
+                <a href="{% url 'atendimento_assuntos_listar' %}" rel="tooltip" data-placement="top" title="Gerenciar assuntos de Atend." >
+                    <div class="helper-font-24">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <span class="sidebar-text">Assuntos</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </li>
+{% endif %}

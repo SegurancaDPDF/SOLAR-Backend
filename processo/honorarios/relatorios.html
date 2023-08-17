@@ -1,0 +1,180 @@
+{% extends "processo/honorarios/index.html" %}
+{% load humanize %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <div class="span12 pull-left">
+            <h4><i class="fas fa-file-alt"></i> Relatórios {% if paginacao.count %}({{ paginacao.count }}){% endif %}</h4>
+            <div class="well well-small">
+                <!-- Barra de navegação -->
+                <div class="navbar navbar-mb0">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <!-- Formulário de pesquisa -->
+                            <form method="GET" class="navbar-form" action="{% url 'honorarios_relatorios_index' %}">
+                                {{ form.data_ini }}
+                                {{ form.data_fim }}
+                                {{ form.comarca }}
+                                {{ form.situacao }}
+                                {{ form.movimentacao }}
+                                <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar atendimento">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button type="submit" class="btn btn-info pull-right disabled" rel="tooltip" data-placement="bottom" data-original-title="Gerar Pdf">
+                                    <i class="fas fa-print"></i> Gerar Pdf
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- Tabela de processos -->
+                <table class="table table-hover table-striped responsive">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Processo</th>
+                        <th>Data Cadastro</th>
+                        <th>Situação</th>
+                        <th>Movimentação</th>
+                        <th>Comarca</th>
+                        <th>Defensor</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for honorario in processos %}
+                        <tr>
+                            <td class="bold">{{ forloop.counter }}</td>
+                            <td>
+                                <a href="{% url 'honorarios_processo' honorario.0 %}" class="btn-link">
+                                    <b>{{ honorario.1 }}</b>
+                                </a>
+                                {% if honorario.7 == 1 %}
+                                    <span class="label label-success" title="1º grau" rel="tooltip">1G</span>
+                                {% elif honorario.7 == 2 %}
+                                    <span class="label label-info" title="1º grau" rel="tooltip">2G</span>
+                                {% elif honorario.7 == 3 %}
+                                    <span class="label label-important" >STF/STJ</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ honorario.2 |date:"d/m/Y H:i:s" }}</td>
+                            {% if honorario.5 == 0 %}
+                                <td>Novo</td>
+                            {% elif honorario.5 == 1 %}
+                                <td>Recurso</td>
+                            {% else %}
+                                <td>Transitado em Julgado</td>
+                            {% endif %}
+
+                            {% if honorario.6 == 0 or honorario.6 == None %}
+                                <td>-</td>
+                            {% elif honorario.6 == 1 %}
+                                <td>Aguardando Peticionamento</td>
+                            {% elif honorario.6 == 2 %}
+                                <td>Petição</td>
+                            {% elif honorario.6 == 3 %}
+                                <td>Encaminhado ao Defensor</td>
+                            {% elif honorario.6 == 4 %}
+                                <td>Protocolo</td>
+                            {% elif honorario.6 == 5 %}
+                                <td>Baixa</td>
+                            {% elif honorario.6 == 6 %}
+                                <td>Suspensão</td>
+                            {% endif %}
+                            <td>{{ honorario.3 }}</td>
+                            <td>{{ honorario.4 }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <b><i class="fas fa-exclamation-circle"></i> Nenhum registro encontrado!</b>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                <tfoot>
+                    <tr>
+                        <th>#</th>
+                        <th>Processo</th>
+                        <th>Data Cadastro</th>
+                        <th>Situação</th>
+                        <th>Movimentação</th>
+                        <th>Comarca</th>
+                        <th>Defensor</th>
+                    </tr>
+                    </tfoot>
+                </table>
+                <div class="pagination">
+                    <div class="pull-left">
+                        Página {{ processos.number }} de {{ processos.paginator.num_pages }}
+                    </div>
+                    <div class="pagination-right pagination-mini">
+                        <ul>
+                            {% if processos.has_previous %}
+                                <li><a href="?page={{ processos.previous_page_number }}">Anterior</a></li>
+                            {% else %}
+                                <li class="disabled"><a href="#">Anterior</a></li>
+                            {% endif %}
+                            {% for page in processos.paginator.page_range %}
+                                {% if page >= processos.number|add:"-2" and page < processos.number %}
+                                    <li><a href="?page={{ page }}">{{ page }}</a></li>
+                                {% endif %}
+                                {% ifequal processos.number page %}
+                                    <li class="active"><a href="#">{{ processos.number }}</a></li>
+                                {% endifequal %}
+                                {% if page <= processos.number|add:"2" and page > processos.number %}
+                                    <li><a href="?page={{ page }}">{{ page }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if processos.has_next %}
+                                <li><a href="?page={{ processos.next_page_number }}">Próxima</a></li>
+                            {% else %}
+                                <li class="disabled"><a href="#">Próxima</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+
+    $(document).on('click','a[href=#modal-excluir-audiencia]', function(){
+    $('#btn-modal-excluir-audiencia').attr(
+    'href','/processo/fase/'+$(this).data('id')+'/excluir/?next={{ request.get_full_path }}');
+    });
+
+    $(document).on('click','a[href=#modal-realizar-audiencia]', function(){
+        $('#btn-modal-excluir-audiencia').attr(
+            'href','/processo/fase/'+$(this).data('id')+'/excluir/?next={{ request.get_full_path }}');
+            });
+        
+            $(document).on('click','a[href=#modal-realizar-audiencia]', function(){
+            $('#RealizarAudienciaForm').attr(
+            'action','/processo/audiencia/'+$(this).data('id')+'/realizar/?next={{ request.get_full_path }}');
+            $('#realizar-audiencia-descricao').html($(this).data('descricao'));
+            });
+        
+            $( "#id_situacao" ).change(function() {
+                valor = $(this).val();
+                if(valor!=2){
+                    $("#id_movimentacao").prop("disabled", true);
+                    $("#id_movimentacao").val("");
+                }
+                else{
+                    $("#id_movimentacao").prop("disabled", false);
+                }
+            });
+        
+            $( "#id_situacao" ).change();
+        
+        {% endblock %}
+        
+        

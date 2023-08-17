@@ -1,0 +1,76 @@
+{% load static %}
+{% load contrib_tags %}
+<!-- painel usuario -->
+    <input type="hidden" value="{{ csrf_token }}" id="csrf_token" />
+    <input type="hidden" value="{{ request.user.servidor.id }}" id="usuario_id"/>
+    <div class="span7">
+        <span class="pull-right color-white"><b>{{ request.user.get_full_name }}</b></span>
+        <br/>
+        <span class="pull-right color-white">
+            {% if config.ATIVAR_CALCULADORA %}
+            <!--Botão responsável para acessar a calculadora Jurídica-->
+            <button id="btn-calculadora-juridica" class="btn-small btn-success" style="margin-right:5px; padding:1px 5px;" onclick="abre_janela()">
+                <b><i class="fas fa-calculator"></i> Calculadora Jurídica</b>
+            </button>
+            {% endif %}
+            {% if perms.comarca.view_guiche %}
+            <!-- Botão responsável por alterar guiche-->
+                <button id="btn-alterar-guiche" onclick="abrirModalAlterarGuiche()" class="btn-small btn-warning" style="margin-right:5px; padding:1px 5px;">
+                    <b>Alterar Guichê</b>
+                </button>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <!--Botão responsável para acessar a administração do Django (podendo adicionar e modificar informações) -->
+                <button class="btn-small btn-danger" style="margin-right:5px; padding:1px 5px;" onclick="window.open('{% url 'admin:index' %}', '_blank').focus();">
+                    <i class="fas fa-tools"></i> Django Admin</b>
+                </button>
+            {% endif %}
+            <a href="#">
+                {% get_comarca_servidor %}
+                <i class="fas fa-map-marker-alt color-red"></i>
+            </a>
+        </span>
+    </div>
+    <!--Painel para acessar o perfil do usuário-->
+    <div class="span1">
+        <!--panel button ext-->       
+        <div class="panel-ext">
+            <!--Botão responsável para exibir o painel de perfil do usuário-->
+            <div class="btn-group user-group">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <img class="img-circle" src="{{ user|get_foto_servidor }}" rel="tooltip" data-placement="bottom" data-original-title="{{user.username}}"
+                            height="48" width="48"/>
+                    <!--this for display on PC device-->
+                    <button class="btn btn-small">
+                        <i class="fas fa-user color-silver-dark"></i> {{ request.user.get_full_name }}
+                    </button>
+                    <!--this for display on tablet and phone device-->
+                </a>
+                <ul class="dropdown-menu dropdown-user" role="menu" aria-labelledby="dLabel">
+                    <li>
+                    <div class="media">
+                        <a class="pull-left" href="#">
+                            <img class="img-circle" src="{{ user|get_foto_servidor }}" rel="tooltip" data-placement="bottom" data-original-title="Alterar foto" height="90" width="90"/>
+                        </a>
+                        <!--Div responsável por exibir o painel de perfil do usuário-->
+                        <div class="media-body description">
+                            <p><strong class="color-silver-dark"><i class="fas fa-user color-silver-dark"></i> {{ request.user.get_full_name |truncatechars:25 }}</strong></p>
+                            <p class="muted"><i class="fas fa-envelope color-blue"></i> {{ request.user.email |truncatechars:25 }}</p><p class="muted"><i class="fas fa-check-circle color-green"></i> {{ request.user.username |truncatechars:25  }}</p>
+                            <p class="muted"><i class="fas fa-map-marker-alt color-red"></i><span id="comarca_nome" > {% get_comarca_servidor  %}</span></p>
+                            <a class="btn btn-link" href="{% url "editar_perfil" %}" rel="tooltip" data-placement="bottom" data-original-title="Editar seu perfil"><b><i class="fas fa-user-edit color-blue"></i> Editar Perfil</b></a>
+                            <a href="{% url "logout" %}" class="btn btn-small btn-danger pull-right" rel="tooltip" data-placement="bottom" data-original-title="Sair do Sistema">Sair <i class="fas fa-sign-out-alt color-white"></i></a>
+                        </div>
+                    </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--panel button ext-->
+    </div>
+    <!-- /painel usuario -->
+    <script>
+        function abre_janela() {
+            window.open("{% url 'calc_jur' %}","_blank","toolbar=no, addressbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=yes, width=1100, height=780")
+        }
+    </script>
+

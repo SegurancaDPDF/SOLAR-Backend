@@ -1,0 +1,869 @@
+{% extends "processo/honorarios/index.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+
+{% block conteudo_pag %}
+    <div class="row-fluid" xmlns="http://www.w3.org/1999/html">
+        <h3>
+            <i class="fas fa-folder"></i> Processo
+            {% if atendimento %}
+                <a href="{% url 'atendimento_atender' atendimento.numero %}#/eproc/{{ processo.numero_puro }}/grau/{{ processo.grau }}" class="btn-link" target="_blank">
+                    <b>{{ processo.numero }}</b>
+                </a>
+            {% else %}
+                <a href="{% url 'processo_listar' %}?filtro={{ processo.numero_puro }}" class="btn-link" target="_blank">
+                    <b>{{ processo.numero }}</b>
+                </a>
+            {% endif %}
+            {% if processo.grau == 1 %}
+                <span class="label label-success" title="1º grau" rel="tooltip">1G</span>
+            {% elif processo.grau == 2 %}
+                <span class="label label-info" title="1º grau" rel="tooltip">2G</span>
+            {% elif processo.grau == 3 %}
+                <span class="label label-important" >STF/STJ</span>
+            {% endif %}
+
+            {% if perms.honorarios.view_honorario  %}
+                <a href="{% url 'honorarios_index' %}" class="btn-link pull-right">
+                    <i class="fas fa-chevron-left"></i> Voltar
+                </a>
+            {% endif %}
+        </h3>
+
+    </div>
+    <div class="row-fluid">
+    <div class="span7 pull-left">
+        {% if honorario.suspenso %}
+            <div class="alert">
+                <h4>
+                    <i class="fas fa-lock"></i>
+                    Suspenso até: {{ honorario.suspenso_ate }}
+                </h4>
+            </div>
+        {% endif %}
+    <div class="well well-small">
+        <div class="row-fluid">
+            <div class="span6">
+                        <span>
+                            <h5>Valor Estimado: R${{ honorario.valor_estimado }}</h5>
+                        </span>
+            </div>
+            <div class="span6">
+                        <span>
+                            <h5>Valor Efetivo:
+                                {% if honorario.has_baixa %}
+                                    <b class=" color-green">&nbsp;+R${{ baixa.first.valor_efetivo }}</b>
+                                {% else %}
+                                    <small>(Aguardando Baixa)</small>
+                                {% endif %}
+                            </h5>
+                        </span>
+            </div>
+
+        </div>
+        <div class="row-fluid">
+            <div class="span6">
+                <span><h5>Data Entrada: {{ honorario.data_cadastro |date:"d/m/Y H:i:s" }} </h5></span>
+            </div>
+            <div class="span6">
+                <span><h5>Comarca: {{ honorario.fase.processo.comarca }}</h5></span>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <span><h5>Defensor: {{ honorario.defensor }} </h5></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Siruacao atual-->
+
+    <div class="well well-small">
+
+        {% if honorario.situacao == 2 %}
+            <div class="pull-right">
+                <button data-target="#modal-cadastrar-anotacao" data-placement="right" data-toggle="modal" rel="tooltip" class="btn">
+                    <i class="fas fa-pen-alt"></i>
+                    <br/>
+                    <small>Nova anotação</small>
+                </button>
+                <button data-target="#modal-suspender" data-placement="right" data-toggle="modal" rel="tooltip" class="btn btn-warning" {% if honorario.suspenso %}disabled{% endif %}>
+                    <i class="fas fa-lock"></i>
+                    <br/>
+                    <small>Suspender</small>
+                </button>
+                {% if config.ATIVAR_PROCAPI %}
+                    <a href="{% url 'honorarios_criar_atendimento' honorario.id %}" class="btn btn-info">
+                        <i class="fas fa-university"></i>
+                        <br/>
+                        <small>Peticionar</small>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <h4><i class="fas fa-bookmark"></i> Situação Atual
+            {% if honorario.situacao == 0 %} <!-- Marcado como Novo -->
+                <span class="color-red">Novo</span>
+                <a href="#" class="btn-link muted" style="font-size: 11px !important;">(Alterar <i class="fas fa-pen-alt"></i>)</a>
+                </h4>
+            {% elif honorario.situacao == 1 %} <!-- Marcado como Recurso -->
+                <span class="color-red">Recurso</span>
+                </h4>
+                {% if honorario.numero_recurso_gerado %}
+                    <h5>N° do Recurso gerado:
+                        {% if honorario.recurso_vinculado %}
+                            {% if  honorario.recurso_vinculado.pre_cadastro %}
+                                {{ honorario.numero_recurso_gerado }} Pré-cadastrado (SOLAR)
+                            {% else %}
+                                <a title="Processo Cadastrado no SOLAR" class="btn-link" href="{% url 'processo_listar' %}?numero={{ honorario.numero_recurso_gerado }}" target="_blank">
+                                    {{ honorario.numero_recurso_gerado }} (SOLAR)
+                                </a>
+                                <span class="text-info"><i class="fas fa-search"></i></span>
+                            {% endif %}
+                        {% else %}
+                            {{ honorario.numero_recurso_gerado }} Não Cadastrado (SOLAR)
+                        {% endif %}
+                    </h5>
+                {% endif %}
+            {% elif honorario.situacao == 2 %}
+                <span class="color-red">Transitado em Julgado</span>
+                </h4>
+                {% if honorario.numero_recurso_gerado and  honorario.recurso_finalizado %}
+                    <h5>N° do Recurso transitado em julgado:
+                        <a title="Processo Cadastrado no SOLAR" class="btn-link" href="{% url 'processo_listar' %}?numero={{ honorario.numero_recurso_gerado }}" target="_blank">
+                            {{ honorario.numero_recurso_gerado }} (SOLAR)
+                        </a>
+                    </h5>
+                {% endif %}
+
+                {% if honorario.honorario_origem %}
+                    <h5>N° do Processo Originário: </h5>
+                {% endif %}
+            {% endif %}
+
+            <div class="clearfix"></div>
+
+        <hr/>
+
+        {% if honorario.situacao == 0 %} <!-- Marcado como Novo -->
+
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="box-tab corner-all span11">
+                        <div class="modal-body">
+                            <span class="pull-right"><a href="#modal-honorario-novo-impossivel" data-id="{{ honorario.id }}" data-toggle="modal" class="btn btn-danger btn-mini">Excluir</a></span>
+                            <h4 id="myModalLabel"> Alterar Situação</h4>
+                            <form name="AlteraSituacaoForm" id="AlteraSituacaoForm" action="{% url 'honorarios_altera_situacao' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                <div class="modal-body">
+
+                                    <div class="controls">
+                                        <div class="row-fluid">
+                                            <label class="radio span4">
+                                                <input name="honorario_possivel" checked type="radio" value="1"
+                                                       ng-model="audiencia.honorario.possivel"
+                                                       ng-disabled="audiencia.bloqueado">
+                                                <b>Recurso</b>
+                                            </label>
+                                            <label class="radio span6">
+                                                <input name="honorario_possivel" type="radio" value="2"
+                                                       ng-model="audiencia.honorario.possivel"
+                                                       ng-disabled="audiencia.bloqueado">
+                                                <b>Transitado em Julgado</b>
+                                            </label>
+                                            <button class="btn btn-success pull-right" type="submit" form="AlteraSituacaoForm">
+                                                Salvar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif honorario.situacao == 1 %} <!-- Marcado como Recurso e nao fianlizado -->
+
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="box-tab corner-all span11">
+                        <div class="modal-body">
+                            <h4 id="myModalLabel"> Número de recurso gerado: </h4>
+                            <form name="AlteraRecursoForm" id="AlteraRecursoForm" action="{% url 'honorarios_altera_recurso_gerado' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                <div class="modal-body">
+                                    <div class="row-fluid">
+                                        <div class="row-fluid">
+                                            <div class="control-group span12">
+                                                <small for="id_tipo" class="control-label">Número do processo judicial de recurso (somente números):</small>
+                                                <div class="controls">
+                                                    <input class="span4" id="id_numero" name="numero_recurso" maxlength="50" type="text" placeholder="99999999999999999999"
+                                                            {% if honorario.numero_recurso_gerado %}
+                                                           value="{{ honorario.numero_recurso_gerado }}"
+                                                            {% endif %}
+                                                    >
+                                                    <div class="span8 pull-right">
+                                                        {% if honorario.recurso_vinculado %}
+                                                            <span class="text-success">Recurso identificado.</span>
+                                                            {% if  honorario.recurso_vinculado.pre_cadastro %}
+                                                                <span class="text-warning">Pré-cadastrado <i class="fas fa-exclamation-circle"></i></span>
+                                                            {% else %}
+
+                                                                <a title="Processo Cadastrado no SOLAR" class="btn-link" href="{% url 'processo_listar' %}?numero={{ honorario.numero_recurso_gerado }}" target="_blank">
+                                                                    {{ honorario.numero_recurso_gerado }} (SOLAR)
+                                                                </a>
+                                                                <span class="text-info"><i class="fas fa-search"></i></span>
+                                                            {% endif %}
+                                                        {% else %}
+                                                            <small class="muted">Recurso ainda não cadastrado <i class="fas fa-ban"></i></small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid">
+                                            <div class="row-fluid">
+                                                <label class="radio span4">
+                                                    <input name="recurso_finalizado" type="radio" value="false" checked>
+                                                    Aguardando Trânsito
+                                                </label>
+                                                <label class="radio span4">
+                                                    <input name="recurso_finalizado" type="radio" value="true">
+                                                    Recurso Transitado em Julgado
+                                                </label>
+                                                <button class="btn btn-success pull-right" type="submit" form="AlteraRecursoForm">
+                                                    Salvar
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% else %} <!-- Marcado como Transitado em julgado -->
+            <!-- Aguardando Peticionamento -->
+            {% if honorario.has_aguard_peti %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                    <span>
+                                        <h4 class="muted"><i class="far fa-check-square"></i> Aguardando Peticionamento</h4>
+                                    </span>
+                        <div>
+                            <div>
+                                <small><b>Anotação: </b> {{ aguardando_peticao.first.anotacao }} </small>
+                            </div>
+                            <small><b> Cadastrado por:  {{ aguardando_peticao.first.cadastrado_por }} em {{ aguardando_peticao.first.data_cadastro |date:"d/m/Y H:i:s" }}</b></small>
+                            <small class="pull-right"><b>Valor Estimado:</b> R${{ aguardando_peticao.first.valor_estimado }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+
+                <!-- Form Aguardando Peticionamento.-->
+                <div class="row-fluid">
+                    <div class="span12">
+                                <span>
+                                    <h4 class="color-blue"><i class="fas fa-clock"></i> Aguardando Peticionamento</h4>
+                                </span>
+                        <div class="box-tab corner-all span11">
+                            <div class="modal-body">
+                                <form action="{% url 'honorarios_salvar_movimento' %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tipo_movimento" value="1">
+                                    <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                    <div class="modal-body">
+                                        <div class="row-fluid">
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <label><b>Anotação:</b></label>
+                                                    <textarea class="span12" id="id_fase_descricao" name="anotacao" rows="3" maxlength="255" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="control-group span6">
+                                                    <small for="id_tipo" class="control-label">Valor Estimado R$: Ex: 1929,55</small>
+                                                    <div class="controls">
+                                                        {#  <input class="span12 mask_money" name="valor_estimado" maxlength="22" type="number">#}
+                                                        <input class="span12" step="0.01" name="valor_estimado" maxlength="22" type="number" required placeholder="0000,00">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" class=" pull-right btn btn-success btn-small" value="Salvar">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Form Aguardando Peticionamento.-->
+
+            {% endif %}
+            <!-- Fim Aguardando Peticionamento -->
+
+            <!-- Petição -->
+            {% if honorario.has_peticao %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                    <span>
+                                        <h4 class="muted"><i class="far fa-check-square"></i> Petição</h4>
+                                    </span>
+                        <div>
+                            <small ><b>Anotação: </b> {{ peticao.first.anotacao }} </small>
+                        </div>
+                        <div>
+                            <small ><b> Cadastrado por:  {{ peticao.first.cadastrado_por }} em {{ peticao.first.data_cadastro |date:"d/m/Y H:i:s" }}</b></small>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif not honorario.has_peticao and honorario.has_aguard_peti %}
+
+                <!-- Form Petição.-->
+                <div class="row-fluid">
+                    <div class="span12">
+                                <span>
+                                    <h4 class="color-blue"><i class="fas fa-clock"></i> Petição</h4>
+                                </span>
+                        <div class="box-tab corner-all span11">
+                            <div class="modal-body">
+                                <form action="{% url 'honorarios_salvar_movimento' %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tipo_movimento" value="2">
+                                    <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                    <div class="modal-body">
+                                        <div class="row-fluid">
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <label><b>Anotação:</b></label>
+                                                    <textarea class="span12" id="id_fase_descricao" name="anotacao" rows="3" maxlength="255" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="submit" class=" pull-right btn btn-success btn-small" value="Salvar">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Form Petição.-->
+
+            {% else %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                <span>
+                                    <h4 class="muted"><i class="far fa-check-square"></i> Petição</h4>
+                                </span>
+                        <span class="muted">(Gerenciar movimentos anteriores)</span>
+                    </div>
+                </div>
+
+            {% endif %}
+            <!-- Fim Petição -->
+
+            <!-- Encaminhado ao Defensor -->
+            {% if honorario.has_encaminhado_def %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                {% if not honorario.has_protocolo and perms.honorarios.view_honorario %}
+                    <h3 class="color-red"><i class="fas fa-clock"></i> Editar Dados - Encaminhado ao Defensor</h3>
+
+                    <!-- Form Encaminhado ao defensor -->
+                    <div class="row-fluid">
+                    <div class="span12">
+                    <span></span>
+                    <div class="box-tab corner-all span11">
+                        <div class="modal-body">
+                            <form name="EditarMovimentoForm" action="{% url 'honorarios_editar_movimento' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="movimento_id" value="{{ honorario.get_encaminhado_movimento.id }}">
+                                <div class="row-fluid">
+                                    <div class="row-fluid">
+                                        <div class="row-fluid">
+                                            <div class="control-group span12">
+                                                <small for="id_tipo" class="control-label">Defensor:</small>
+                                                <div class="controls">
+                                                    <select class="span" id="id_defensor" name="defensor" required >
+                                                        {% for defensor in defensores %}
+                                                            <option value="{{ defensor.id }}"
+                                                                    {% if honorario.get_encaminhado_movimento.defensor.id == defensor.id %} selected {% endif %}> {{ defensor }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid">
+                                            <div class="span12">
+                                                <label><b>Anotação ao Defensor:</b></label>
+                                                <textarea class="span12" name="anotacao" rows="3" maxlength="255" required> {{ honorario.get_encaminhado_movimento.anotacao }}</textarea>
+                                            </div>
+                                        </div>
+                                        <input type="submit"  class=" pull-right btn btn-success btn-small" value="Salvar">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="control-group span11">
+
+                            {% if not honorario.atendimento and not honorario.get_encaminhado_movimento.lista_documentos_movimento.count %}
+                                <div class="alert alert-error">
+                                <div>
+                                <small><b><i class="fas fa-exclamation-circle"></i> Nenhum arquivo anexado!</b></small>
+                            {% else %}
+                                <div class="">
+                                <div>
+                                <small><b>Arquivos anexados:</b></small>
+                                {% for doc in honorario.get_encaminhado_movimento.lista_documentos_movimento %}
+                                    {% if doc.visivel %}
+                                        <p class="color-blue">
+                                            <i class="fas fa-file"></i>
+                                            <small>
+                                                <a class="btn-link color-blue" target="_blank" href="{{ MEDIA_URL }}{{ doc.anexo }}">
+                                                    {{ doc.nome }}</a>
+                                                &nbsp;&nbsp;&nbsp;<span class="color-red"><a href="{% url 'honorarios_visibilidade_documento_movimento' doc.id  %}">Excluir</a></span>
+                                            </small>
+                                        </p>
+                                    {% else %}
+                                        <p class="color-silver-dark"><i class="fas fa-trash"></i><small><a class="btn-link color-silver-dark " target="_blank" href="{{ MEDIA_URL }}{{ doc.anexo }}">
+                                            {{ doc.nome }} (Excluído)</a>
+                                            &nbsp;&nbsp;&nbsp;<span class="color-green"><a href="{% url 'honorarios_visibilidade_documento_movimento' doc.id  %}">Recuperar</a></span>
+                                        </small>
+                                        </p>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            </div>
+                            <small class="control-label"><b>Enviar arquivo:</b></small>
+                            <div class="controls">
+                                <form method="POST" enctype="multipart/form-data" name="EnviarDocumentoMovimentoForm" action="{% url 'honorarios_salvar_documento_movimento' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="documento_movimento_id" value="{{ honorario.get_encaminhado_movimento.id }}">
+                                    <button class="btn btn-info btn-mini" type="submit" ><i class="fas fa-upload"></i> Enviar</button>
+                                    <input type="file" accept="{{ config.FORMATO_SUPORTADO_UPLOADS }}" name="documento_anexo" required>
+                                </form>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fim Form Encaminhado ao defensor -->
+                    <h6>Informações atuais(Visualização do defensor):</h6>
+                {% endif %}
+
+            <div class="span9">
+                <span>
+                    <h4 class="muted"><i class="far fa-check-square"></i> Encaminhado ao Defensor</h4>
+                </span>
+                <div>
+                    <small ><b>Defensor: </b>{{ encaminhamento_defensor.first.defensor | default:"Não informado" }}</small>
+                </div>
+                <div>
+                    <small><b>Ao Defensor: </b>
+                        {{ encaminhamento_defensor.first.anotacao }}
+                    </small>
+                </div>
+                <div>{% if encaminhamento_defensor.first.lista_documentos_visiveis_movimento.count %}
+                    <small><b>Arquivos anexados:</b></small>
+                    <ul style="list-style-type:none">
+                        {% for doc in encaminhamento_defensor.first.lista_documentos_visiveis_movimento %}
+                            <li>
+                        <span class="color-blue"><i class="fas fa-file"></i><small><a class="btn-link color-blue" target="_blank" href="{{ MEDIA_URL }}{{ doc.anexo }}">
+                            {{ doc.nome }}</a>
+                        </small>
+                        </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% elif not honorario.atendimento %}
+                    <small class="color-red"><b>Nenhum arquivo anexado!</b></small>
+                {% endif %}
+                </div>
+                <div>
+                    <small ><b> Cadastrado por:  {{ encaminhamento_defensor.first.cadastrado_por }} em {{ encaminhamento_defensor.first.data_cadastro |date:"d/m/Y H:i:s" }}</b></small>
+                </div>
+            </div>
+            </div>
+            {% elif not honorario.has_encaminhado_def and honorario.has_peticao %}
+
+                <!-- Form Encaminhado ao defensor -->
+                <div class="row-fluid">
+                    <div class="span12">
+                                    <span>
+                                        <h4 class="color-blue"><i class="fas fa-clock"></i> Encaminhado ao Defensor</h4>
+                                    </span>
+                        <div class="box-tab corner-all span11">
+                            <div class="modal-body">
+                                <form enctype="multipart/form-data" action="{% url 'honorarios_salvar_movimento' %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tipo_movimento" value="3">
+                                    <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                    <div class="modal-body">
+                                        <div class="row-fluid">
+                                            <div class="row-fluid">
+                                                <div class="control-group span12">
+                                                    <small for="id_tipo" class="control-label">Defensor:</small>
+                                                    <div class="controls">
+                                                        <select class="span" id="id_defensor" name="defensor" required >
+                                                            {% for defensor in defensores %}
+                                                                <option value="{{ defensor.id }}"> {{ defensor }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="span12">
+                                                        <label><b>Anotação ao Defensor:</b></label>
+                                                        <textarea class="span12" name="anotacao" rows="3" maxlength="255" required></textarea>
+                                                    </div>
+                                                </div>
+                                                <small class="text-warning"><i class="fas fa-exclamation-circle"></i> Anexar arquivos após salvar o movimento.</small>
+                                                <input type="submit" class=" pull-right btn btn-success btn-small" value="Salvar">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Form Encaminhado ao defensor -->
+
+            {% else %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                <span>
+                                    <h4 class="muted"><i class="far fa-check-square"></i> Encaminhado ao Defensor</h4>
+                                </span>
+                        <span class="muted">(Gerenciar movimentos anteriores)</span>
+                    </div>
+                </div>
+            {% endif %}
+            <!-- Fim Encaminhado ao Defensor -->
+
+            <!-- Protocolo -->
+            {% if honorario.has_protocolo %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                    <span>
+                                        <h4 class="muted"><i class="far fa-check-square"></i> Protocolo</h4>
+                                    </span>
+                        <div>
+                            <small ><b>Anotação: </b>
+                                {{ protocolo.first.anotacao }}
+                            </small>
+                        </div>
+                        <div>
+                            <small ><b> Cadastrado por:  {{ protocolo.first.cadastrado_por }} em {{ protocolo.first.data_cadastro |date:"d/m/Y H:i:s" }}</b></small>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif not honorario.has_protocolo and honorario.has_encaminhado_def %}
+
+                <!-- Form Petição.-->
+                <div class="row-fluid">
+                    <div class="span12">
+                                <span>
+                                    <h4 class="color-blue"><i class="fas fa-clock"></i> Protocolo</h4>
+                                </span>
+                        <div class="box-tab corner-all span11">
+                            <div class="modal-body">
+                                <form action="{% url 'honorarios_salvar_movimento' %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tipo_movimento" value="4">
+                                    <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                    <div class="modal-body">
+                                        <div class="row-fluid">
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <label><b>Anotação:</b></label>
+                                                    <textarea class="span12" id="id_fase_descricao" name="anotacao" rows="3" maxlength="255" required></textarea>
+                                                </div>
+                                            </div>
+                                            <input type="submit" class=" pull-right btn btn-success btn-small" value="Salvar">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Form Petição.-->
+            {% else %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                <span>
+                                    <h4 class="muted"><i class="far fa-check-square"></i> Protocolo</h4>
+                                </span>
+                        <span class="muted">(Gerenciar movimentos anteriores)</span>
+                    </div>
+                </div>
+            {% endif %}
+            <!-- Fim Protocolo -->
+
+            <!-- Baixa -->
+            {% if honorario.has_baixa %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                    <span>
+                                        <h4 class="muted"><i class="far fa-check-square"></i> Baixa</h4>
+                                    </span>
+                        <div class="row-fluid">
+                            <small class="span4"><b>Valor Efetivo R$: </b>{{ baixa.first.valor_efetivo }}</small>
+                            <small class="span4"><b>Valor Atualizado R$: </b>{{ baixa.first.valor_atualizado }}</small>
+                            <small class="pull-right"><b>Data de Atualização do Valor: </b>{{ baixa.first.data_atualizacao_valor |date:"d/m/Y" }}</small>
+                        </div>
+                        <div>
+                            <small ><b>Anotação: </b>
+                                {{ baixa.first.anotacao }}
+                            </small>
+                        </div>
+                        <div>
+                            <small ><b> Cadastrado por:  {{ baixa.first.cadastrado_por }} em {{ baixa.first.data_cadastro |date:"d/m/Y H:i:s" }}</b></small>
+                        </div>
+                    </div>
+                </div>
+            {% elif not honorario.has_baixa and honorario.has_protocolo and perms.honorarios.view_honorario %}
+                <div class="row-fluid">
+                    <div class="span12">
+                                <span>
+                                    <h4 class="color-blue"><i class="fas fa-clock"></i> Baixa</h4>
+                                </span>
+                        <div class="box-tab corner-all span11">
+                            <div class="modal-body">
+                                <form action="{% url 'honorarios_salvar_movimento' %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tipo_movimento" value="5">
+                                    <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                                    <div class="modal-body">
+                                        <div class="row-fluid">
+                                            <div class="row-fluid">
+                                                <div class="control-group span4">
+                                                    <small for="id_tipo" class="control-label">Valor Efetivo R$: Ex: 1929,55</small>
+                                                    <div class="controls">
+                                                        <input class="span12" step="0.01" name="valor_efetivo" maxlength="22" type="number" required placeholder="0000,00">
+                                                    </div>
+                                                </div>
+                                                <div class="control-group span4">
+                                                    <small for="id_tipo" class="control-label">Valor Atualizado R$: Ex: 1929,55</small>
+                                                    <div class="controls">
+                                                        <input class="span12" step="0.01" name="valor_atualizado" maxlength="22" type="number" required placeholder="0000,00">
+                                                    </div>
+                                                </div>
+                                                <div class="control-group span4">
+                                                    <small for="id_tipo" class="control-label">Data de Atualização do Valor:</small>
+
+                                                    <div class="controls">
+                                                        <input type="text" name="data_atualizacao_valor" class="datepicker span12" data-date-format="dd/mm/yyyy" required>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <label><b>Anotação:</b></label>
+                                                    <textarea class="span12" id="id_fase_descricao" name="anotacao" rows="3" maxlength="255" required></textarea>
+                                                </div>
+                                            </div>
+                                            <input type="submit" class=" pull-right btn btn-success btn-small" value="Salvar">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                    <div class="span9">
+                                <span>
+                                    <h4 class="muted"><i class="far fa-check-square"></i> Baixa</h4>
+                                </span>
+                        <span class="muted">(Gerenciar movimentos anteriores)</span>
+                    </div>
+                </div>
+
+            {% endif %}
+            <!-- Fim Baixa -->
+
+            <!-- Anotação -->
+            {% if honorario.has_anotacao %}
+                <hr>
+                {% for anotacao in anotacoes %}
+                    <div class="row-fluid" style="border-bottom: solid 1px #dddddd">
+                        <div class="span12 alert">
+                                <span>
+                                    <h4 class=""><i class="far fa-check-square"></i> Anotação cod. #{{ anotacao.id }}</h4>
+                                </span>
+                            <div class="row-fluid">
+                                <small ><b>Anotação: </b> {{ anotacao.anotacao }} </small>
+                            </div>
+                            <small ><b> Cadastrado por:  {{ anotacao.cadastrado_por }} em {{ anotacao.data_cadastro |date:"d/m/Y H:i:s" }}</b></small>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+        </div>
+        <!--Fim  Siruacao atual -->
+
+        </div>
+
+        <div class="span5 pull-left">
+            <div class="well well-small">
+                <h4>Alterações de Movimentos </h4>
+
+                <table class="table table-hover table-striped responsive">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Servidor</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for movimeento in movimentos_realizados %}
+                        <tr>
+                            <td class="muted bold">{{ forloop.revcounter }}</td>
+                            <td>
+                                <small class="muted">{{ movimeento.data_cadastro |date:"d/m/Y H:i:s" }}</small>
+                            </td>
+                            <td>
+                                <small class="muted">{{ movimeento.get_tipo_display }}</small>
+                            </td>
+                            <td>
+                                <small class="muted"><i class="fas fa-user"></i> {{ movimeento.cadastrado_por }}</small>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="muted bold">0</td>
+                        <td>
+                            <small class="muted">{{ honorario.data_cadastro |date:"d/m/Y H:i:s" }}</small>
+                        </td>
+                        <td>
+                            <small class="muted">Cadastro Central</small>
+                        </td>
+                        <td>
+                            <small class="muted"><i class="fas fa-user"></i>{{ honorario.cadastrado_por }}</small>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+        <div class="span5 pull-left">
+            <div class="well well-small">
+                <h6 class="text-center"><i class="fas fa-bolt  color-yellow"></i> Atualizações processo Eletrônico </h6>
+
+                <table class="table table-hover table-striped responsive">
+                    <tbody>
+                    {% for atualizacao in atualizacoes %}
+                        <tr>
+                            <td class="muted bold">{{ forloop.revcounter }}</td>
+                            <td>
+                                {% if atualizacao.visualizado %}
+                                    <small class="muted"><i class="fas fa-eye"></i> {{ atualizacao.data_visualizado |date:"d/m/Y H:i:s" }}</small>
+                                {% else %}
+                                    <small class="muted">Cadastrado em {{ atualizacao.data_cadastro |date:"d/m/Y H:i:s" }}</small>
+                                 {% endif %}
+                            </td>
+                            <td>
+                                <small class="muted">{{ atualizacao.mensagem | truncatechars:20 }}</small>
+                            </td>
+                            <td>
+                                {% if atualizacao.visualizado %}
+                                <small class="muted"><i class="fas fa-user"></i> {{ atualizacao.visualizado_por_nome }}</small>
+                                {% else %}
+                                    <a href="{% url 'confirma_visualizacao_alertas' honorario.id %}" class="btn-link">
+                                        <i class="fas fa-eye-slash"></i>
+                                    Confirmar visualização
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td class="text-center">
+                                <small class="muted bold">Nenhuma atualização processual registrada</small>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+    {% if honorario.situacao == 2 and not honorario.suspenso %}
+        {% include 'processo/honorarios/processo_modal_suspender.html' with honorario_id=honorario.id %}
+    {% endif %}
+
+    <div id="modal-cadastrar-anotacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 id="myModalLabel"><i class="fas fa-pen-alt"></i> - Anotação livre:</h4>
+        </div>
+        <div class="modal-body">
+            <form id="form_anotacao_modal" action="{% url 'honorarios_salvar_movimento' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="tipo_movimento" value="0">
+                <input type="hidden" name="honorario_id" value="{{ honorario.id }}">
+                <div class="modal-body">
+                    <div class="row-fluid">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <label><b>Anotação: (Máximo 255 caracteres)</b></label>
+                                <textarea class="span12" id="id_fase_descricao" name="anotacao" rows="4" maxlength="255" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div>
+                <a href="#" data-dismiss="modal"  class="btn btn-small">Cancelar</a>
+                <a href="#" onClick="document.getElementById('form_anotacao_modal').submit();" class="btn btn-success btn-small">Salvar</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-honorario-novo-impossivel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><i class="fas fa-times-circle"></i> Exclusão de honorário</h3>
+        </div>
+        <div class="modal-body">
+            <p><b>Atenção!</b> Confirmar a exclusão do Honorário selecionado?</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url 'honorarios_processo_excluir_possivel' honorario.id %}?next={% url 'honorarios_index' %}" class="btn btn-danger" id="btn-modal-honorario-novo-impossivel">Excluir</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- modal-honorario-impossivel -->
+
+{% endblock %}
+
+{% block js_ready_pag %}
+    $('.datepicker').datepicker();
+{% endblock %}
+

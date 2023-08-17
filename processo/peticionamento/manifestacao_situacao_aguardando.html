@@ -1,0 +1,45 @@
+<div id="accordion_manifestacao" class="accordion">
+    <!-- Grupo de elementos do acordeão -->
+    <div class="accordion-group">
+        <!-- Cabeçalho do acordeão -->
+        <div class="accordion-heading">
+            <!-- Link que controla o colapso e expansão do acordeão -->
+            <a class="accordion-toggle more bg-yellow color-black" data-toggle="collapse" data-target="#collapse_manifestacao"
+                style="text-align: left;" rel="tooltip" title="Clique para ver os detalhes">
+                <!-- Ícones de seta para cima e para baixo que indicam o estado do acordeão -->
+                <i class="helper-font-18 fas fa-chevron-down pull-right"></i>
+                <i class="helper-font-18 fas fa-chevron-up pull-right"></i>
+                <!-- Ícone de círculo com ponto de exclamação, indicando aguardo de análise e protocolo -->
+                <i class="helper-font-24 fas fa-exclamation-circle"></i>
+                <!-- Título do acordeão indicando o estado de aguardo -->
+                <b class="helper-font-20">Aguardando análise e protocolo</b>
+                <!-- Span vazio -->
+                <span></span>
+            </a>
+        </div>
+        <!-- Corpo do acordeão, que será colapsado/expandido (inicialmente expandido) -->
+        <div id="collapse_manifestacao" class="accordion-body collapse in">
+            <div class="accordion-inner">
+                <!-- Lista de descrição de dados -->
+                <dl>
+                    <!-- Título da defensoria -->
+                    <dt>Defensoria:</dt>
+                    <!-- Valor da defensoria -->
+                    <dd>{{ manifestacao.defensoria }}</dd>
+                    <!-- Título do usuário que cadastrou -->
+                    <dt>Cadastrado por:</dt>
+                    <!-- Valor do usuário que cadastrou e data de cadastro -->
+                    <dd>{{ manifestacao.cadastrado_por.username }} em {{ manifestacao.cadastrado_em }}</dd>
+                    <!-- Título da orientação -->
+                    <dt>Orientação:</dt>
+                    <!-- Descrição da orientação -->
+                    <dd>
+                        Caso não necessite mais deste peticionamento ou se
+                        ele foi feito diretamente no {{ manifestacao.sistema_webservice}}, clique no botão Excluir
+                        para removê-lo do seu painel e evitar possíveis equívocos.
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
