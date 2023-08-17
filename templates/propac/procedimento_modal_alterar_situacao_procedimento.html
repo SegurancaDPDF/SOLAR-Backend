@@ -1,0 +1,93 @@
+<!-- modal Alterar situacao do procedimento -->
+<div id="modal-altera-situacao-procedimento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+aria-hidden="true" style="width: 800px; margin-left: -400px;">
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel" class="text-center">
+        Situação (Atual: {{ procedimento.get_situacao_display }})
+    </h3>
+</div>
+<div class="modal-body">
+    <div class="row-fluid">
+        <div class="span6">
+            <h4 class="text-center">
+                <p><i class="fas fa-calendar-alt"></i> Histórico de alterações</p>
+            </h4>
+            {% for situacao in procedimento.situacoes_ativas %}
+                <div class="well" style="padding: 5px 10px 0px 10px">
+                    <b>#{{forloop.revcounter}} {{situacao.get_situacao_display}}</b>
+                    <span class="muted">Motivo: {{situacao.motivo}}</span>
+                    <p class="muted">
+                        Por {{situacao.cadastrado_por.nome}} em {{situacao.data_cadastro| date:'d/m/Y H:i:s' }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="span6">
+            <form action="{% url 'procedimentos:procedimento_altera_situacao' procedimento.uuid %}" id="FormAlteraSituacao" method="POST">
+                {% csrf_token %}
+                <h4 class="text-center">
+                    <i class="fas fa-pencil-alt"></i> Alterar Situação
+                </h3>
+                <div class="control-group">
+                    {% if not procedimento.situacao == SITUACAO_ENCERRADO %}
+                    <b>Motivo alteração:</b>
+                    <small>(max. 255 caracteres)</small>
+                </span>
+                <textarea required class="span12" name="motivo" rows="4" maxlength="255"></textarea>
+                <label class="control-label">
+                    <b>Nova situação:</b>
+                </label>
+                {% endif %}
+                <div class="controls">
+                    {% if procedimento.situacao == SITUACAO_MOVIMENTO or procedimento.situacao == SITUACAO_DESARQUIVADO%}
+                    <label class="radio">
+                        <div class="radio" id="uniform-optionsRadios1">
+                            <span class="">
+                                <input type="radio" data-form="uniform" name="situacao" id="optionsRadios1" value="{{SITUACAO_ARQUIVADO}}" checked="">
+                                Arquivar
+                            </span>
+                        </div>
+                    </label>
+                    <label class="radio">
+                        <div class="radio" id="uniform-optionsRadios2">
+                            <span class="">
+                                <input type="radio" data-form="uniform" name="situacao" id="optionsRadios2" value="{{SITUACAO_ENCERRADO}}">
+                                Encerrar definitivamente <small class="muted">(Alteração irreversível)</small>
+                            </span>
+                        </div>
+                    </label>
+                    {% elif procedimento.situacao == SITUACAO_ARQUIVADO %}
+                    <label class="radio">
+                        <div class="radio" id="uniform-optionsRadios3">
+                            <span class="">
+                                <input type="radio" data-form="uniform" name="situacao" id="optionsRadios3" value="{{SITUACAO_DESARQUIVADO}}">
+                                Desarquivar
+                            </span>
+                        </div>
+                    </label>
+                    {% elif procedimento.situacao == SITUACAO_ENCERRADO %}
+                    <label class="radio">
+                        <div class="radio" id="uniform-optionsRadios4">
+                            <span class="">
+                                <small class="muted">(Alteração indisponível)</small>
+                            </span>
+                        </div>
+                    </label>
+                    {% endif %}
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+</div>
+<div class="modal-footer">
+    {% if not procedimento.situacao == SITUACAO_ENCERRADO %}
+    <p class="pull-left"><b>Atenção!</b> Só altere a situação se for necessário!</p> <!-- Mensagem de atenção para o usuário -->
+    <input type="submit" class="btn btn-primary" form="FormAlteraSituacao" value="Alterar" /> <!-- Botão para submeter o formulário e alterar a situação -->
+    {% endif %}
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button> <!-- Botão para fechar o modal sem realizar alterações -->
+</div>
+</div>
+<!-- modal Alterar situacao do procedimento -->

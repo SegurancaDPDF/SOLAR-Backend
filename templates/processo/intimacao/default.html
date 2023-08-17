@@ -1,0 +1,52 @@
+{% extends "default.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block titulo %}Intimações{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+    <!-- Cabeçalho do aplicativo -->
+    <h2>
+        <i class="helper-font-24 fas fa-bell"></i>
+        Avisos Pendentes
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+    <!-- Inclusão dos arquivos JavaScript de controle -->
+    <script type="text/javascript" src="{% static "js/app/controllers_processo.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_intimacoes.js" %}?v={{ config.JSVERSION }}"></script>
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

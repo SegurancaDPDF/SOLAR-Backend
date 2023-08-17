@@ -1,0 +1,21 @@
+{% load crispy_forms_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form class="form-horizontal" action="{{ form_action }}" method="post"
+      enctype="multipart/form-data" id="form-novo-movimento" name="form-novo-movimento">
+    {% csrf_token %}
+    <!-- Div que envolve o formulário -->
+    <div>
+        <!-- Renderização do formulário usando o filtro "crispy" do django-crispy-forms com estilo "bootstrap" -->
+        {{ form|crispy:'bootstrap' }}
+    </div>
+    <!-- Botão de submit do formulário -->
+    <input type="submit" value="Salvar">
+</form>
+</body>
+</html>

@@ -1,0 +1,76 @@
+3.19 KiB
+{% load static %}
+{% load contrib_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SOLAR - Permissão Negada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="stilearning">
+    <!-- google font -->
+    <!-- <link href="http://fonts.googleapis.com/css?family=Aclonica:regular" rel="stylesheet" type="text/css" /> -->
+    <!-- styles -->
+    <link href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    <link href="{% static "css/bootstrap-responsive.css" %}" rel="stylesheet">
+    <link href="{% static "css/stilearn.css" %}" rel="stylesheet">
+    <link href="{% static "css/stilearn-responsive.css" %}" rel="stylesheet">
+    <link href="{% static "css/stilearn-helper.css" %}" rel="stylesheet">
+    <link href="{% static "css/animate.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/font-awesome.5.15.1.all.min.css" %}" rel="stylesheet">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js" %}"></script>
+        <![endif]-->
+</head>
+<body>
+<!-- section header -->
+<header class="header" data-spy="affix" data-offset-top="0">
+    <!--nav bar helper-->
+    <div class="navbar-helper">
+        <div class="row-fluid">
+            <!--panel site-name-->
+            <div class="span2">
+                <div class="panel-sitename">
+                    <h2><a href="/"><span class="color-teal">SOLAR</span></a></h2>
+                </div>
+            </div>
+            <!--/panel name-->
+        </div>
+    </div>
+    <!--/nav bar helper-->
+</header>
+<!-- section content -->
+<section class="section">
+    <div class="container">
+        <div class="error-page">
+            <h1 class="error-code color-red">Erro 403 - Permissão Negada</h1>  <!-- Título da página de erro 403 -->
+            <p class="error-description">Ops! Erro ao processar sua solicitação. Você não possui permissão para acessar esse recurso.</p>  <!-- Descrição do erro de permissão negada -->
+            <p class="">Se o problema persistir entre em contato com o suporte técnico.</p>  <!-- Instrução para entrar em contato com o suporte técnico -->
+            {% if config.URL_MENU_AJUDA_HELPDESK %}
+            <h5><a href="{{ config.URL_MENU_AJUDA_HELPDESK }}" target="_blank">Help Desk</a></h5>  <!-- Link para o Help Desk se a configuração estiver definida -->
+            {% endif %}
+            <a href="#" onclick="javascript:window.history.back();" class="btn btn-small btn-primary"><i
+                    class="fas fa-arrow-left"></i> Voltar à página anterior</a>  <!-- Botão para voltar à página anterior -->
+            <a href="{% url "index" %}" class="btn btn-small btn-success">Página Principal <i
+                    class="fas fa-arrow-right"></i></a>  <!-- Botão para ir para a página principal -->
+        </div>
+    </div>
+</section>
+<!-- section footer -->
+<footer>
+    <a rel="to-top" href="#top"><i class="fas fa-arrow-circle-up"></i></a>
+</footer>
+<!-- javascript
+================================================== -->
+<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<script type="text/javascript" src="{% static "js/jquery.js" %}"></script>
+<script type="text/javascript" src="{% static "js/bootstrap.js" %}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // try your js
+    })
+</script>
+</body>
+</html>

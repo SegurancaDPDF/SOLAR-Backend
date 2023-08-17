@@ -1,0 +1,107 @@
+{% extends "propac/default_menu.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block conteudo_pag_leteral %}
+    <div class="span9">
+        <div>
+            <h3><i class="far fa-file color-blue"></i> Procedimentos</h3>
+        </div>
+        <table class="table table-hover responsive">
+            <thead>
+                <tr>
+                    <th class="span5">#Número</th> <!-- Coluna para exibir o número do procedimento -->
+                    <th class="span2">Situação</th> <!-- Coluna para exibir a situação do procedimento -->
+                    <th class="span3">Última movimentação</th> <!-- Coluna para exibir a data da última movimentação do procedimento -->
+                    <th class="span2">Atendimento</th> <!-- Coluna para exibir os atendimentos vinculados ao procedimento -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for procedimento in procedimentos_list %}
+                <tr>
+                    <td>
+                        <small class="muted">#{{forloop.counter}} &nbsp;&nbsp;</small>
+                        <i class="far fa-file color-blue"></i>
+                        <a href="{% url 'procedimentos:procedimento_uuid' procedimento.uuid %}" class="link">{{ procedimento.numero }}</a> <!-- Número do procedimento com link para detalhes -->
+                        {% if procedimento.assunto %}
+                            <br/>
+                            <small class="muted">Assunto: {{ procedimento.assunto | truncatechars:50 }}</small> <!-- Exibir o assunto do procedimento com limite de caracteres -->
+                        {% endif %}
+                        <br/>
+                        <small class="muted">Defensoria: {{ procedimento.defensoria_responsavel | truncatechars:50 }}</small> <!-- Exibir a defensoria responsável pelo procedimento com limite de caracteres -->
+                    </td>
+                    <td>
+                        <span class="muted">{{ procedimento.get_situacao_display }}</span> <!-- Exibir a situação do procedimento -->
+                    </td>
+                    <td>
+                        <small class="muted">{{ procedimento.data_ultima_movimentacao | date:'d/m/Y H:i:s' }}</small> <!-- Exibir a data da última movimentação do procedimento formatada -->
+                    </td>
+                    <td>
+                        {% if procedimento.atendimentos_vinculados %}
+                            <a href="#" class="btn-link" rel="popover" data-trigger="hover" data-placement="top" data-original-title="{{procedimento.atendimentos_vinculados.count}} Atendimento(s)"
+                            data-content="{% for atendimento in procedimento.atendimentos_vinculados %}
+                                            <a class='btn-link' href='{% url 'atendimento_atender' atendimento.numero %}#/propac' >{{atendimento.numero}}</a></br>
+                                          {% endfor %}" data-html="true">
+                                <i class="fas fa-comments"></i>
+                                {{ procedimento.atendimentos_vinculados.count }} Atendimentos
+                            </span> <!-- Exibir o número de atendimentos vinculados ao procedimento em um popover -->
+                        {% else %}
+                            <span>
+                                Não vinculado
+                            </span> <!-- Se não houver atendimentos vinculados, exibir uma mensagem -->
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="span5">#Número</th>
+                    <th class="span2">Situação</th>
+                    <th class="span3">Última movimentação</th>
+                    <th class="span2">Atendimento</th>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="pagination">
+            <div class="pull-left">
+                Página {{ page_obj.number }} de {{ paginator.num_pages }} <!-- Exibir a página atual e o número total de páginas -->
+            </div>
+            <div class="pagination-right pagination-mini">
+                <ul>
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">Anterior</a></li> <!-- Link para a página anterior se existir -->
+                    {% else %}
+                        <li class="disabled"><a href="#">Anterior</a></li> <!-- Desativar o link se for a primeira página -->
+                    {% endif %}
+                        {% for page in paginator.page_range %}
+                            {% if page >= page_obj.number|add:"-2" and page < page_obj.number %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li> <!-- Exibir números de página anteriores à página atual -->
+                            {% endif %}
+                            {% ifequal page_obj.number page %}
+                                <li class="active"><a href="#">{{ page_obj.number }}</a></li> <!-- Exibir a página atual como ativa -->
+                            {% endifequal %}
+                            {% if page <= page_obj.number|add:"2" and page > page_obj.number %}
+                                <li><a href="?page={{ page }}">{{ page }}</a></li> <!-- Exibir números de página seguintes à página atual -->
+                            {% endif %}
+                        {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">Próxima</a></li> <!-- Link para a próxima página se existir -->
+                    {% else %}
+                        <li class="disabled"><a href="#">Próxima</a></li> <!-- Desativar o link se for a última página -->
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% include 'propac/procedimento_modal_cadastrar_movimentacao.html' %} <!-- Incluir um modal para cadastrar movimentações -->
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript">
+        // popover de atendimentos
+        $("a[rel=popover]").popover().click(function(e) {
+            e.preventDefault()
+        })
+    </script>
+{% endblock %}

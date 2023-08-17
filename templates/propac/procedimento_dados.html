@@ -1,0 +1,496 @@
+{% extends "propac/default_menu.html" %}
+{% load contrib_tags humanize static static %}
+
+{% block css_pag %}
+    <style>
+        {% if procedimento.assunto %}
+            #FormAlteraAssuntoProcedimento textarea {
+                box-shadow: 0 0 0 0;
+                border: 1px solid #ffffff;
+            }
+
+            #FormAlteraAssuntoProcedimento textarea:focus {
+                border: 1px solid #cccccc;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            }
+        {% endif %}
+    </style>
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="row-fluid">
+        <div class="page-title">
+            <h3>
+                <span class="pull-left">&nbsp;</span>
+                {% if procedimento.tipo == TIPO_PROCEDIMENTO %}
+                    <small class="pull-right">
+                        <a href="{% url 'procedimentos:procedimento_index' %}" class="link">
+                            <i class="fas fa-chevron-left color-blue"></i> Voltar
+                        </a>
+                    </small>
+                {% elif procedimento.tipo == TIPO_PROPAC %}
+                    <small class="pull-right">
+                        <a href="{{ request.META.HTTP_REFERER }}" class="link">
+                            <i class="fas fa-chevron-left color-blue"></i> Voltar
+                        </a>
+                    </small>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+{% endblock %}
+
+{% block conteudo_pag_leteral %}
+    <div class="span9">
+        <!--Div que apresenta a capa do propac -->
+        {% block conteudo_capa_procedimento %}
+            <div class="row-fluid well bg_white">
+                <div class="span12">
+                    <div class="pull-right">
+                        <small class="muted" rel="tooltip" data-original-title="Última movimentação"><i
+                                class="fas fa-calendar color-gray"></i> {{ procedimento.data_ultima_movimentacao | date:'d/m/Y H:i:s' }}
+                            -
+                        </small>
+                        {% if user_acesso_propac %}
+                            <!-- Botoes de gerar relatorio da capa -->
+                                <div class="btn-group" ng-init="init()">
+                                    <a class="btn btn-small btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <i class="fas fa-print"></i>
+                                        Imprimir
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right">
+                                        {% for relatorio in relatorios %}
+                                            <li>
+                                                <a href="#" class="text-left" ng-click="imprimir({user:'{{ user }}', params:{procedimento_id:'{{ procedimento.id }}', defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}')">{{ relatorio.titulo }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <button type="button" class="btn btn-small btn-primary" ng-show="relatorio.status.pending" disabled>
+                                    <i class="fas fa-cogs"></i> Gerando...
+                                </button>
+                                <button type="button" class="btn btn-small btn-danger" ng-show="relatorio.status.fail"
+                                        bs-tooltip="relatorio.status.reason">Erro!
+                                </button>
+                                <a class='btn btn-small btn-success' target='_blank' href="[[ relatorio.status.report ]]"
+                                   ng-show="relatorio.status.success">
+                                   <i class="fas fa-download"></i> Baixar
+                                </a>
+                            <!--FIM Botoes de gerar relatorio da capa -->
+                            {% if user_acesso_propac_editar %}
+                                <a href="{% url 'procedimentos:editar_procedimento' procedimento.uuid %}" class="btn btn-small">
+                                    <i class="fas fa-pencil-alt"></i> Editar
+                                </a>
+                            {% else %}
+                                <a href="#" class="btn btn-small" disabled="true" bs-tooltip title="Somente a defensoria responsável pode editar">
+                                    <i class="fas fa-pencil-alt"></i> Editar
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <span class="label"><i class="fas fa-warning"></i> Sem permissão de acesso!</span>
+                        {% endif %}
+                    </div>
+                    <div class="procedimento">
+                        <h3>
+                            {% if procedimento.tipo == TIPO_PROCEDIMENTO %}
+                                <i class="far fa-file color-blue"></i> Procedimento {{ procedimento.numero }}
+                                <small class="muted">&nbsp;</small>
+                            {% elif procedimento.tipo == TIPO_PROPAC %}
+                                <i class="fas fa-folder-open color-yellow"></i> Propac  {{ procedimento.numero }}
+                                <small class="muted">&nbsp;</small>
+                            {% endif %}
+                        </h3>
+                        <small class="muted">Código: {{ procedimento.uuid }}</small>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <p style="text-transform: uppercase;">
+                                <span class="bold">ASSUNTO: </span>
+                                {{ procedimento.assunto }}
+                            </p>
+                        </div>
+                    </div>
+                    {% if config.AREA_NO_CADASTRO_PROCEDIMENTOS %}
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <p style="text-transform: uppercase;">
+                                <span class="bold">ÁREA: </span>
+                                {{ procedimento.area }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="row-fluid">
+                        <div class="span6">
+                            <p><span class="bold">DEFENSORIA RESPONSÁVEL: </span>
+                                <span>{{ procedimento.defensoria_responsavel_nome }}</span>
+                            </p>
+                            <p><span class="bold">REPRESENTANTE: </span>
+                                <span>{{ procedimento.representante | default:"" }}</span>
+                            </p>
+                        </div>
+                        <div class="span6">
+                            <p><span class="bold">DEFENSOR PÚBLICO: </span>
+                                <span>{{ procedimento.defensor_responsavel_nome }}</span>
+                            </p>
+                            <p><span class="bold">REPRESENTADO: </span>
+                                <span>{{ procedimento.representado | default:"" }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span12 alert">
+                            <p>
+                                <span class="bold">TIPO DE ACESSO: </span>
+                                {% if procedimento.acesso == ACESSO_NIVEL_PRIVADO %}
+                                    <span><i class="fas fa-lock color-red"> Privado </i>- Somente {{ procedimento.defensoria_responsavel_nome }} pode acessar e alterar</span>
+                                {% elif procedimento.acesso == ACESSO_NIVEL_PUBLICO %}
+                                    <span><i class="fas fa-unlock color-green"> Público </i>- Todos podem acessar e movimentar.</span>
+                                {% elif procedimento.acesso == ACESSO_NIVEL_RESTRITO %}
+                                    <span><i class="fas fa-info-circle color-orange"> Restrito </i>- Somente os indicados podem acessar e alterar</span>
+                                {% endif %}
+                            </p>
+                            {% if procedimento.acesso == ACESSO_NIVEL_RESTRITO %}
+                                <i class="fas fa-briefcase"></i> {{ procedimento.defensoria_responsavel_nome }}
+                                {% for nucleo in procedimento.listar_defensorias_acesso %}
+                                    <i class="fas fa-briefcase" style="padding-left: 20px;"></i> {{ nucleo.nome }} &nbsp;&nbsp;
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <p>
+                                <span class="bold">ATENDIMENTOS VINCULADOS: </span>
+                                {% for atendimento in procedimento.atendimentos_vinculados %}
+                                    &nbsp;<a href="{% url 'atendimento_atender' atendimento.numero %}#/propac"
+                                             class="btn-link" style="padding-right: 20px;">
+                                        <i class="fas fa-comments"></i> {{ atendimento.numero }}
+                                    </a>
+                                {% empty %}
+                                    Sem atendimentos
+                                {% endfor %}
+                            </p>
+                            <p>
+                                <span class="bold">SITUAÇÃO ATUAL: </span> {{ procedimento.get_situacao_display }}
+                                {% if user_acesso_propac_editar %}
+                                    <a href="#" class="btn btn-small" title="Editar situação" bs-tooltip
+                                       data-target="#modal-altera-situacao-procedimento" data-toggle="modal">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        <!--Fim Div que apresenta a capa do propac -->
+
+        <!--Div que apresenta movimentos e documentos do procedimento e propac -->
+        <div class="row-fluid well bg_white">
+            {% block conteudo_movimentos_volumes_propac %}
+                <div class="span6">
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <div class="procedimento">
+                                <p><h3>Movimentações</h3></p>
+                            </div>
+
+                            {% if user_acesso_propac %}
+                                <!-- Lista de movimentos -->
+                                {% regroup procedimento.movimentos_ativos by volume as movimentos_list %}
+                                <ul class="tree" style="margin-bottom: 35px;">
+                                    <li>
+                                        <ul>
+                                            {% for movimento_volume in movimentos_list %}
+                                                {% if movimento_volume.grouper != procedimento.movimentos_ativos.last.volume %}
+                                                    <li class="none">
+                                                        {% else %}
+                                                    <li class="none cliked">
+                                                {% endif %}
+                                            &nbsp;
+                                            <i class="fas fa-folder-open color-yellow"></i>
+                                            <a href="#" class="volume bold">Volume {{ movimento_volume.grouper }}</a>
+                                            <ul>
+                                                {% for movimento_item in movimento_volume.list %}
+                                                    <li class="{% if movimento_item.data_remocao %}volume-item-remove {% endif %}">
+                                                        <!-- Se o movimento foi removido -->
+                                                        {% if movimento_item.data_remocao %}
+                                                            <i class="fas fa-file color-silver-dark"></i>
+                                                            <a href="#modal-detalhes-movimento-removido"
+                                                               data-toggle="modal" class="bold"
+                                                               data-cadastrado-por="{{ movimento_item.cadastrado_por | truncatechars:25 }}"
+                                                               data-data-cadastro="{{ movimento_item.data_cadastro| date:'d/m/Y H:i:s' }}"
+                                                               data-data-remocao="{{ movimento_item.data_remocao | date:'d/m/Y H:i:s' }}"
+                                                               data-motivo-remocao="{{ movimento_item.motivo_remocao }}"
+                                                               data-removido-por="{{ movimento_item.removido_por.nome }}">
+                                                                {{ movimento_item.ordem_volume }} {{ movimento_item.tipo.nome }}
+                                                                - {{ movimento_item.data_movimento| date:'d/m/Y' }}
+                                                            </a>
+                                                            <span class="muted color-black"> [Removido] </span>
+                                                        {% else %}
+                                                            <!-- Se Movimento nao removido. -->
+                                                            <i class="fas fa-file color-silver-dark"></i>
+                                                            <a href="{% url 'procedimentos:editar_movimento' uuid=movimento_item.procedimento.uuid pk=movimento_item.pk %}" class="bold"
+                                                               rel="popover" data-trigger="hover" data-placement="right" 
+                                                               data-title="Por {{ movimento_item.cadastrado_por | truncatechars:25 }} - em {{ movimento_item.data_cadastro| date:'d/m/Y H:i:s' }}" data-content="{{movimento_item.historico}}">
+                                                                {{ movimento_item.ordem_volume }} {{ movimento_item.tipo.nome }}
+
+                                                                <span class="mark">- {{ movimento_item.data_movimento| date:'d/m/Y' }}</span>
+                                                                {% if movimento_item.id == procedimento.movimentos_ativos.last.id and not movimento_item.data_remocao %}
+                                                                    <a href="#modal-remover-movimentacao-procedimento"
+                                                                       data-toggle="modal"  data-id="{{ movimento_item.id }}"
+                                                                       class="btn btn-danger btn-small" bs-tooltip title="Remover movimento">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </a>
+                                                                {% endif %}
+                                                            </a>
+                                                            <!-- Lista de arquivos do movimento -->
+                                                            <div style="font-weight: 100;margin-left: 19px;">
+                                                                <ul>
+                                                                    {% for documento in movimento_item.documentos_movimento %}
+                                                                        <li class="volume-item volume-item-attach">
+                                                                            <a href="#"
+                                                                               data-data-nome="{% if documento.documento %}Doc. Online{% else %}Anexo{% endif %} - {{ documento.nome }}"
+                                                                               data-data-url="{% if documento.documento %}{% url 'documentos:validar_detail_pdf' slug=documento.documento.pk_uuid %}?no_nav=1{% else %}{{ documento.anexo.url }}{% endif %}"
+                                                                               data-data-volume-ordem=" - Vol. {{ movimento_volume.grouper }}, Movimento Nº {{ movimento_item.ordem_volume }}"
+                                                                               rel="popover" data-trigger="hover"
+                                                                               data-placement="top"
+                                                                               data-title="{% if documento.documento %}
+                                                                                        <i class='fas fa-cloud color-blue'></i>
+                                                                                    {% else %}
+                                                                                        <i class='fas fa-paperclip color-green'></i>
+                                                                                    {% endif %}
+                                                                                    {% if documento.documento %}Doc. Online{% else %}Anexo{% endif %}"
+                                                                               data-content="<b>{{ documento.nome }}</b>"
+                                                                               data-html="true">
+                                                                                {% if documento.documento %}
+                                                                                    <i class='micro_font fas fa-cloud color-silver-dark'></i>
+                                                                                {% else %}
+                                                                                    <i class='micro_font fas fa-paperclip color-silver-dark'></i>
+                                                                                {% endif %}
+                                                                                <small class="muted">{{ documento.nome }}</small>
+                                                                            </a>
+                                                                        </li>
+                                                                        {% comment %}{% if not forloop.last %},{% endif %}{% endcomment %}
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                            <!-- Lista de arquivos do movimento -->
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                {% if not procedimento.movimentos_ativos_cadastrados.exists %}
+                                    <p>
+                                        <b class="color-blue">Nenhum movimento Cadastrado.</b>
+                                    </p>
+                                {% endif %}
+                                <!--Fim Lista de movimentos -->
+
+                                {% block conteudo_pag_nova_movimentacao %}
+                                    <!-- Opção de lançamento de movimentações -->
+                                    {% if procedimento.situacao == SITUACAO_ENCERRADO %}
+                                        <div class="pull-left">
+                                            <small class="muted">
+                                                Impossível cadastrar novas movimentações:
+                                                {% if procedimento.tipo == TIPO_PROCEDIMENTO %}Procedimento{% else %}
+                                                    Propac{% endif %} encerrado
+                                            </small>
+                                        </div>
+                                    {% elif procedimento.situacao == SITUACAO_ARQUIVADO %}
+                                        <div class="pull-left">
+                                            <small class="muted">
+                                                Desarquivar {% if procedimento.tipo == TIPO_PROCEDIMENTO %}
+                                                procedimento{% else %}propac{% endif %} para cadastrar novas
+                                                movimentações
+                                            </small>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center">
+                                            <a href="#" id="novo-movimento-btn" data-toggle="modal"
+                                               class="btn btn-mini">
+                                                <i class="fas fa-plus-circle"></i> Nova Movimentação</a>
+                                        </div>
+                                    {% endif %}
+                                    <!-- Fim Opção de lançamento de movimentações -->
+                                {% endblock %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="span6">
+                    <div id="doc_preview" style="display: none">
+                        <h3 class="text-center">
+                            <span class="label label-info text-center">
+                                <i class="fas fa-search"></i> Pré visualizar</span>
+                        </h3>
+
+                        <div class="preview_doc">
+                            <div class="doc_tools">
+                                <h4 class="color-white">
+                                    <span>
+                                        <i class="fas fa-file"></i> <b class="doc-nome"></b>
+                                    </span>
+                                    <small class="doc-volume"></small>
+                                    <a href="#" class="doc-url external_link pull-right" target="_blank">
+                                        <i class="fas fa-external-link-alt" rel="tooltip"
+                                           data-original-title="Abrir em nova janela"></i>
+                                    </a>
+                                </h4>
+                            </div>
+                            <object id="iframepreview" data="" type="application/pdf" width="100%" height="450" style="background-color: #e4e4e4;">
+                                <div class="text-error text-center helper-font-24"><p><i class="fas fa-exclamation-triangle"></i></p><p><b>Visualização não disponível</b></p><div></div></div>
+                            </object>
+                            <div id="loadingMessage" class="text-center">
+                                <h1>
+                                    <i class="fas fa-file"></i>
+                                </h1>
+                                <h4>
+                                    <img src="{% static "img/loader_16.gif" %}"> Carregando...
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if not user_acesso_propac %}
+                    <div class=" text-center">
+                        <span class="muted"><h4><i class="fas fa-warning color-red"></i> Sem permissão de acesso!</h4></span>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+        <!--Div que apresenta movimentos e documentos do procedimento e propac -->
+    </div>
+    {% block conteudo_propac_modais %}
+        {% include 'propac/procedimento_modal_criar_movimento.html' %}
+        {% include 'propac/procedimento_modal_remover_movimentacao.html' %}
+        {% include 'propac/procedimento_modal_detalhes_movimentacao_removida.html' %}
+        {% include 'propac/procedimento_modal_alterar_situacao_procedimento.html' %}
+        {% include 'propac/procedimento_modal_alterar_assunto_movimentacao.html' %}
+    {% endblock %}
+{% endblock %}
+
+{% block js_app %}
+    {{ block.super }}
+    <script type="application/javascript">
+        $(document).ready(function () {
+            function prevent_double_post() {
+                //http://stackoverflow.com/a/22509422/2975300
+                $('input[type="submit"]').filter('.no-double-submit').each(function (index) {
+                    var botao_submit = $(this);
+                    var form_id = botao_submit.attr('form');
+                    var form = botao_submit.closest("form");
+
+                    if (typeof form_id !== typeof undefined && form_id !== false && form.length <= 0) {
+                        form = $("#" + form_id);
+                    }
+                    form.submit(function () {
+                        botao_submit.attr('disabled', true);
+
+                        $(this).submit(function () {
+                            return false;
+                        });
+
+                        return true;
+                    });
+
+                });
+
+            }
+            prevent_double_post();
+
+            var modal_cadastrar_movimento = $("#modal-cadastrar-movimento");
+            var novo_movimento_btn = $("#novo-movimento-btn");
+            var iframepreview = $('#iframepreview');
+            var doc_preview = $("#doc_preview");
+            var modal_detalhes_movimento_removido = $('#modal-detalhes-movimento-removido');
+
+
+            $(document).on('click', 'a[href=#modal-remover-movimentacao-procedimento]', function () {
+                $('#FormRemoveMovimentacao').attr(
+                    'action', 'movimento/' + $(this).data('id') + '/remover/?next={{ request.get_full_path }}');
+            });
+
+            $(document).on('click', 'a[href=#modal-detalhes-movimento-removido]', function () {
+                modal_detalhes_movimento_removido.find('.modal-body b.cadastrado_por').text($(this).data('cadastrado-por'));
+                modal_detalhes_movimento_removido.find('.modal-body b.data_cadastro').text($(this).data('data-cadastro'));
+                modal_detalhes_movimento_removido.find('.modal-body b.data_remocao').text($(this).data('data-remocao'));
+                modal_detalhes_movimento_removido.find('.modal-body b.removido_por').text($(this).data('removido-por'));
+                modal_detalhes_movimento_removido.find('.modal-body b.motivo_remocao').text($(this).data('motivo-remocao'));
+            });
+
+            $('#continuar-criar-novo-movimento').on('click', function () {
+                modal_cadastrar_movimento.modal('hide');
+            });
+            novo_movimento_btn.on('click', function (data) {
+                var disabled = $(this).attr('disabled');
+                disabled = typeof disabled !== typeof undefined && disabled !== false;
+                if (!disabled) {
+                    novo_movimento_btn.attr('disabled', true);
+                    novo_movimento_btn.empty();
+                    novo_movimento_btn.append('Carregando. Aguarde...');
+
+                    var jqxhr = $.get("{{ movimento_form_modal_url }}", function () {
+
+
+                    }).done(function (data) {
+
+                        modal_cadastrar_movimento.html(data);
+                        modal_cadastrar_movimento.modal('show');
+
+                        novo_movimento_btn.attr('disabled', false);
+                        prevent_double_post();
+                        $('.datepicker').datepicker();
+
+                    }).fail(function () {
+                        novo_movimento_btn.attr('disabled', false);
+                    }).always(function () {
+
+                        novo_movimento_btn.empty();
+                        novo_movimento_btn.append("<i class='fas fa-plus-circle'></i> Nova Movimentação");
+                    });
+                }
+            });
+            $('.tree li.none a.volume').on('click', function () {
+                $(this).parent().toggleClass("cliked");
+            });
+
+            $('li.volume-item a').on('click', function () {
+                $('li.volume-item a').parent().removeClass("item-cliked");
+                $(this).parent().toggleClass("item-cliked");
+                if ($(this).parent().hasClass("volume-item-attach")) {
+                    doc_preview.find('b.doc-nome').text($(this).data('data-nome'));
+                    doc_preview.find('small.doc-volume').text($(this).data('data-volume-ordem'));
+                    doc_preview.find('a.doc-url').attr('href', $(this).data('data-url'));
+                    iframepreview.attr('data', $(this).data('data-url'));
+                    doc_preview.show();
+                }
+                else {
+                    doc_preview.hide();
+                }
+
+            });
+
+            iframepreview.ready(function () {
+                $('#loadingMessage').css('display', 'none');
+            });
+
+            $('.datepicker').datepicker();
+
+            $("a[rel=popover]").popover().click(function (e) {
+                e.preventDefault()
+            });
+        });
+    </script>
+
+{% endblock %}

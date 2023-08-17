@@ -1,0 +1,34 @@
+<h4>Documentos</h4>
+<div class="well">
+    <!-- Div para documentos de atendimento -->
+    <span class="label label-info">Atendimento</span>
+    <ul>
+        {% for doc in documentos_atendimento %}
+            <!-- Item de documento -->
+            <li>
+                <b>{{ doc.nome|upper }}</b>
+            </li>
+            <!-- Campo oculto para armazenar o ID do documento -->
+            <input type="hidden" name="doc_atendimento" value="{{ doc.id }}">
+        {% empty %}
+            <!-- Mensagem exibida quando nenhum documento está selecionado -->
+            <li><i>Nenhum documento selecionado</i></li>
+        {% endfor %}
+    </ul>
+    <!-- Div para documentos pessoais -->
+    <span class="label label-success">Assistido</span>
+    <ul>
+        {% for doc in documentos_pessoais %}
+            <!-- Item de documento -->
+            <li>
+                <b>{{ doc.nome|upper }}</b>
+                {{ doc.pessoa.nome }}
+            </li>
+            <!-- Campo oculto para armazenar o ID do documento -->
+            <input type="hidden" name="doc_pessoal" value="{{ doc.id }}">
+        {% empty %}
+            <!-- Mensagem exibida quando nenhum documento está selecionado -->
+            <li><i>Nenhum documento selecionado</i></li>
+        {% endfor %}
+    </ul>
+</div>

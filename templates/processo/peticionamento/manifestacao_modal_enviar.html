@@ -1,0 +1,39 @@
+<!-- Modal Enviar Manifestação Para Análise -->
+<div id="modal-manifestacao-enviar" class="modal hide fade" tabindex="-1" role="dialog">
+    <div class="modal-header">
+        <!-- Botão para fechar o modal -->
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>
+            <i class="fas fa-envelope"></i> Enviar p/ Análise
+        </h3>
+    </div>
+    <div class="modal-body">
+        <h5>Informe pra onde deseja enviar:</h5>
+        <hr/>
+        <div class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label">Defensoria</label>
+                <div class="controls">
+                    <!-- Seleção da defensoria para envio da manifestação -->
+                    <select name="atuacao_id" class="span12 ativar-select2" required>
+                        <option value="">Selecione...</option>
+                        {% for atuacao in atuacoes_para_analise %}
+                            <option value="{{ atuacao.id }}" {% if manifestacao.defensoria.id == atuacao.defensoria_id %}selected{% endif %} >{{ atuacao.defensoria }} - {{ atuacao.defensor.servidor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <!-- Botão para enviar a manifestação para análise -->
+        <button type="submit" onClick="setTimeout(function(){this.disabled=true}.bind(this), 100);" form="ManifestacaoForm" formaction="{% url 'peticionamento:enviar-para-analise' atendimento_numero=atendimento.numero %}" class="btn btn-warning">
+            <i class="fas fa-envelope"></i> Enviar p/ Análise
+        </button>
+        <!-- Botão para fechar o modal -->
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-times"></i> Fechar
+        </a>
+    </div>
+</div>
+<!-- Modal Enviar Manifestação Para Análise -->

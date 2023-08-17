@@ -1,0 +1,66 @@
+<!-- Div para exibir os links de acesso ao painel de administração para usuários superusuários -->
+<h4>Dados Básicos
+    {% if request.user.is_superuser %}
+        <!-- Link para o painel de administração do Sistema Web Service -->
+        <a href="{% url 'admin:procapi_client_sistemawebservice_changelist' %}" target="_blank" class="text-info"
+           title="Acessar Admin de Sistema Web Service" rel="tooltip">
+            <i class="fas fa-link"></i>
+        </a>
+        <!-- Link para o painel de administração da Defensoria Vara relacionada ao atendimento -->
+        <a href="{% url 'admin:contrib_defensoriavara_changelist' %}?defensoria__id__exact={{ atendimento.defensoria_id }}" target="_blank" class="text-info"
+           title="Acessar Admin de Defensoria Vara" rel="tooltip">
+            <i class="fas fa-link"></i>
+        </a>
+        <!-- Link para o painel de administração da Competência relacionada ao atendimento -->
+        <a href="{% url 'admin:procapi_client_competencia_changelist' %}?area__id__exact={{ atendimento.qualificacao.area_id }}" target="_blank" class="text-info"
+           title="Acessar Admin de Competência" rel="tooltip">
+            <i class="fas fa-link"></i>
+        </a>
+        {% if atendimento.qualificacao %}
+            <!-- Link para o painel de administração da Ação/Classe relacionada ao atendimento -->
+            <a href="{% url 'admin:atendimento_qualificacao_change' atendimento.qualificacao.id %}" target="_blank" class="text-info"
+            title="Acessar Admin de Ação/Classe" rel="tooltip">
+                <i class="fas fa-link"></i>
+            </a>
+        {% endif %}
+        <!-- Link para o painel de administração do Assunto Qualificação relacionado ao atendimento -->
+        <a href="{% url 'admin:atendimento_qualificacaoassunto_changelist' %}?qualificacao__id__exact={{ atendimento.qualificacao_id }}" target="_blank" class="text-info"
+           title="Acessar Admin de Assunto Qualificação" rel="tooltip">
+            <i class="fas fa-link"></i>
+        </a>
+        {% if manifestacao.fase.tipo %}
+            <!-- Link para o painel de administração do Evento relacionado à fase da manifestação -->
+            <a href="{% url 'admin:processo_fasetipo_change' manifestacao.fase.tipo_id %}" target="_blank" class="text-info"
+                title="Acessar Admin de Evento" rel="tooltip">
+                    <i class="fas fa-link"></i>
+            </a>
+        {% endif %}
+    {% endif %}
+    </h4>
+    
+    {% for field in form.visible_fields %}
+        {% if field.name == 'calculo_judicial' %}
+            {% if PROCESSO_CALCULADORA_CALCULO_URL %}
+                <!-- Div para exibir o campo 'calculo_judicial' com o link para obter um código de cálculo -->
+                <div class="control-group">
+                    <div class="controls">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        <a href="{{ PROCESSO_CALCULADORA_CALCULO_URL }}" target="_blank" class="btn-link">
+                            <i class="fas fa-calculator"></i>
+                            Clique aqui para obter um código de cálculo
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Div para exibir os demais campos do formulário -->
+            <div class="control-group">
+                <div class="controls">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.help_text }}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}

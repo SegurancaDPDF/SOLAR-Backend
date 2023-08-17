@@ -1,0 +1,27 @@
+{% load cache contrib_tags static %}
+
+{% if GOOGLE_ANALYTICS_ID %}
+    <!-- GOOGLE UNIVERSAL ANALYTICS -->
+    <!-- Global site tag (gtag.js) - Google Universal Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_ID }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ GOOGLE_ANALYTICS_ID }}');
+    </script>
+{% endif %}
+
+{% if GOOGLE_ANALYTICS_4_ID %}
+    <!-- GOOGLE ANALYTICS 4 -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_4_ID }}"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ GOOGLE_ANALYTICS_4_ID }}');
+    </script>
+{% endif %}
+
+

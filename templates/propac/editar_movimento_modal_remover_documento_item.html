@@ -1,0 +1,28 @@
+<!-- modal Remover documento do movimento em processo de criação -->
+<div id="modal-remover-documento-item" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel" class="text-center color-red">
+            <i class="fas fa-trash"></i> Excluir Documento
+        </h3>
+    </div>
+    <div class="modal-body">
+        <form action="[[ movimento.documento_remover.cancelar_doc_propac_url ]]" id="form_remover_documento_propac" method="POST">
+            {% csrf_token %}
+            <p>
+                <b>Documento:</b>
+                <i class="helper-font-16"
+                ng-class="{false:'fas fa-cloud color-blue',true:'fas fa-paperclip color-green'}[!movimento.documento_remover.modo]"></i>
+                [[ movimento.documento_remover.documento.numero || movimento.documento_remover.anexo_str ]] -
+                <b>Tipo:</b> [[movimento.documento_remover.tipo_anexo_str]]
+            </p>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <p class="pull-left text-error">Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        <input type="button" class="btn btn-danger" ng-click="deletar_documento(movimento.documento_remover.cancelar_doc_propac_url)" value="Excluir" />
+        <button class="btn" ng-click="movimento.documento_remover=null" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>
+<!-- FIM modal Remover documento do movimento em processo de criação -->

@@ -1,0 +1,78 @@
+{% load widget_tweaks %}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel" class="text-center">Cadastrar Movimento</h3>
+</div>
+<div class="modal-body">
+    <form enctype="multipart/form-data" action="{{ movimento_form_action }}" id="FormNovaMovimentacao" method="post">
+        {% csrf_token %} <!-- Token CSRF para proteção contra ataques de falsificação de solicitação entre sites -->
+        {% if  movimento_form.instance.pk %}
+            <div class="row-fluid">
+                <div class="span12 text-center">
+                    <span class="label label-important"><i class="fas fa-warning"></i> Existe um movimento com cadastro não finalizado!</span>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="control-group">
+                    <label class="control-label">
+                        <small><b>Tipo</b>:</small>
+                    </label>
+                    <div class="controls">
+                        {% if  movimento_form.instance.pk %}
+                            &#9679; {{ movimento_form.instance.tipo }} <!-- Exibe o tipo do movimento se já estiver salvo -->
+                        {% else %}
+                            {{ movimento_form.tipo|attr:"required"|add_class:"span12 btn" }} <!-- Campo de seleção para o tipo do movimento -->
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="control-group">
+                    <label class="control-label">
+                        <small><b>Data do movimento</b>:</small>
+                    </label>
+                    <div class="controls">
+                        {% if  movimento_form.instance.pk %}
+                            &#9679; {{ movimento_form.instance.data_movimento | date:'d/m/Y' }} <!-- Exibe a data do movimento se já estiver salvo -->
+                        {% else %}
+                            {{ movimento_form.data_movimento|attr:"required"|add_class:"span12" }} <!-- Campo de seleção para a data do movimento -->
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="row-fluid">
+            <div class="span12">
+                <div class="control-group">
+                    <label class="control-label">
+                        <small><b>Observações</b>:</small>
+                    </label>
+                    <div class="controls">
+                        {% if  movimento_form.instance.pk %}
+                            &#9679; {{ movimento_form.instance.historico }} <!-- Exibe as observações se já estiverem salvas -->
+                        {% else %}
+                            {{ movimento_form.historico|add_class:"span12" }} <!-- Campo de texto para inserir observações -->
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    {% if  movimento_form.instance.pk %}
+        <b class="pull-left"><i class="fas fa-warning"></i> Continue para anexar arquivos!</b>
+        <a id="continuar-criar-novo-movimento"
+           href="{% url 'procedimentos:editar_movimento' uuid=movimento_form.instance.procedimento.uuid pk=movimento_form.instance.pk %}"
+           class="btn btn-info">Continuar cadastro</a> <!-- Link para editar o movimento e anexar arquivos -->
+    {% else %}
+        <b class="pull-left"><i class="fas fa-warning"></i> Salve para anexar arquivos!</b>
+        <input type="submit" id="btn-salvar-nova-movimentacao" class="btn btn-success no-double-submit" form="FormNovaMovimentacao"
+               value="Salvar"/> <!-- Botão para enviar o formulário e salvar o novo movimento -->
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button> <!-- Botão para fechar o modal sem salvar o movimento -->
+    {% endif %}
+</div>

@@ -1,0 +1,83 @@
+{% load contrib_tags %}
+<style>
+.signo-notifications ul.dropdown-notification{
+    width: 480px !important;
+    max-width: 480px !important;
+}
+.signo-notifications ul.nav {
+    left: 30px;
+    top: 4px;
+    margin-right: 20px;
+}
+.signo-notifications div.btn-group > a > span.badge {
+    position: absolute;
+    top: -5px;
+    left: 19px;
+    padding: 2px 5px;
+    font-size: 11px;
+    font-weight: 400;
+}
+.signo-notifications .dropdown-menu li > a:hover,
+.signo-notifications .dropdown-menu li > a:focus,
+.signo-notifications .dropdown-submenu:hover > a,
+.signo-notifications .dropdown-menu .active > a,
+.signo-notifications .dropdown-menu .active > a:hover {
+    color: #000;
+    text-decoration: none;
+    background-color: #FFFFE0 !important;
+    background-image: none !important;
+}
+.signo-notifications .dropdown-menu h4,
+.signo-notifications .dropdown-menu p {
+    white-space: normal !important;
+    color: #333;
+}
+
+.signo-notifications .dropdown-menu img {
+    width: 48px;
+    height: 48px;
+}
+
+</style>
+{% if config.USAR_NOTIFICACOES_SIGNO %}
+<div class="navbar-helper signo-notifications">
+    <div class="navbar navbar-custom-menu">
+        <div class="navbar-inner-small">
+            <!-- notifications - SOLAR -->
+            <ul id="signo-notifications" class="nav navbar-nav">
+                <span></span>
+                <li id="notification-dropdown" class="dropdown notif notifications hidden-xs"></li>
+                <li>
+                    <div class="btn-group">
+                        <!--notification-->
+                        <a class="helper-font-24 color-white" data-toggle="dropdown" href="#">
+                            <span class="badge badge-warning notificacoes-contador">0</span>
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-notification notificacoes-ul"></ul>
+                        <!--notification-->
+                    </div>
+                </li>
+            </ul>
+            <!-- notifications - SOLAR -->
+            <!-- notifications - OUTROS -->
+            <ul id="signo-notifications-outros" class="nav navbar-nav" style="left: 30px;">
+                <span></span>
+                <li id="notification-dropdown" class="dropdown notif notifications hidden-xs"></li>
+                <li>
+                    <div class="btn-group">
+                        <!--notification-->
+                        <a class="helper-font-24 color-white" data-toggle="dropdown" href="#">
+                            <span class="badge badge-important notificacoes-contador">0</span>
+                            <i class="fas fa-bell"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-notification notificacoes-ul"></ul>
+                        <!--notification-->
+                    </div>
+                </li>
+            </ul>
+            <!-- notifications - OUTROS -->
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+{% if object.ativo %}
+    <!-- Verifica se o objeto está ativo -->
+    <form action="" method="post">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        <!-- Exibe uma mensagem de confirmação para excluir o objeto -->
+        <input type="submit" value="Confirm"/>
+    </form>
+{% else %}
+    <!-- Exibe uma mensagem indicando que o DocumentoPropac já foi excluído -->
+    DocumentoPropac já foi excluido
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!-- modal Remover movimentacao em procedimento -->
+<div id="modal-alterar-assunto-procedimento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel" class="text-center">
+            <i class="fas fa-pencil-alt"></i> Alterar assunto
+        </h3>
+    </div>
+    <div class="modal-body">
+        <form action="{% url 'procedimentos:procedimento_altera_assunto' procedimento.uuid %}" id="FormAlteraAssuntoProcedimento" method="POST">
+            {% csrf_token %}
+            <p><b>Assunto:</b> <small>(max. 128 caracteres)</small>:</p>
+            <textarea required class="span12" name="assunto" rows="2" maxlength="128">{% if procedimento.assunto %}{{ procedimento.assunto}}{% endif %}</textarea> <!-- Campo de texto para inserir o novo assunto do procedimento -->
+        </form>
+    </div>
+    <div class="modal-footer">
+        <p class="pull-left"><b>Atenção!</b> Só altere o assunto se for necessário!</p> <!-- Mensagem de atenção para o usuário -->
+        <input type="submit" class="btn btn-primary" form="FormAlteraAssuntoProcedimento" value="Alterar" /> <!-- Botão para submeter o formulário e alterar o assunto -->
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button> <!-- Botão para fechar o modal sem realizar alterações -->
+    </div>
+</div>
+<!-- modal Remover movimentacao em procedimento -->
