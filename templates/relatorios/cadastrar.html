@@ -1,0 +1,114 @@
+{% extends "relatorios/default.html" %}  <!-- Define o template pai -->
+
+{% load humanize contrib_tags static %}  <!-- Carrega os filtros e tags adicionais -->
+
+{% block css_pag %}  <!-- Define o bloco de código CSS específico para esta página -->
+<link href="{% static "css/fileicon.css" %}" rel="stylesheet">  <!-- Importa arquivo CSS para estilização de ícones -->
+<link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">  <!-- Importa arquivo CSS para estilização de upload de arquivos -->
+{% endblock %}
+
+{% block menu_app %}  <!-- Define o bloco de código para o menu da aplicação -->
+{% endblock %}
+
+{% block cabecalho_pag %}  <!-- Define o bloco de código para o cabeçalho da página -->
+<div class="page-title">
+    <h3>
+        {{ object.titulo | default:"Cadastrar relatório" }}  <!-- Título da página com o valor do campo "titulo" ou um valor padrão -->
+        {% if object and request.user.is_superuser %}  <!-- Verifica se o usuário é um superusuário e se há um objeto válido -->
+            <a href="{% url 'admin:relatorios_relatorio_change' object.id %}" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>  <!-- Link para acessar a página de administração -->
+                <i class="fas fa-link"></i>  <!-- Ícone de link -->
+            </a>
+        {% endif %}
+    </h3>
+</div>
+{% endblock %}
+
+{% block conteudo_pag %}  <!-- Define o bloco de código para o conteúdo da página -->
+
+<div class="row-fluid">  <!-- Cria uma linha de fluidos para organizar o conteúdo em duas colunas -->
+    <div class="span7">  <!-- Coluna com largura de 7 espaços -->
+        <div class="box corner-all">  <!-- Caixa de conteúdo -->
+            <div class="box-header corner-top grd-white">  <!-- Cabeçalho da caixa de conteúdo -->
+                <span>
+                    Informações básicas  <!-- Título do bloco de informações básicas -->
+                </span>
+            </div>
+            <div class="box-body">  <!-- Corpo da caixa de conteúdo -->
+                <form name="SalvarRelatorioForm" id="SalvarRelatorioForm" method="POST" class="form-horizontal">  <!-- Formulário para salvar o relatório -->
+                    {% csrf_token %}  <!-- Token CSRF para proteção contra ataques CSRF -->
+                    {{ form.as_p }}  <!-- Renderiza os campos do formulário -->
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="span5">  <!-- Coluna com largura de 5 espaços -->
+        {% if parametrizavel %}  <!-- Verifica se o relatório é parametrizável -->
+        <div class="box corner-all">  <!-- Caixa de conteúdo -->
+            <div class="box-header corner-top grd-white">  <!-- Cabeçalho da caixa de conteúdo -->
+                <span>
+                    Parâmetros disponíveis no relatório  <!-- Título do bloco de parâmetros disponíveis -->
+                </span>
+            </div>
+            <div class="box-body">  <!-- Corpo da caixa de conteúdo -->
+                <table class="table table-striped table-hover">  <!-- Tabela para exibir os parâmetros -->
+                    <tr>
+                        <th>Nome</th>
+                        <th>Habilitado?</th>
+                    </tr>
+                    {% for nome, habilitado in parametros.items %}  <!-- Itera sobre os parâmetros -->
+                    <tr>
+                        <td>
+                            <b>{{ nome }}</b>  <!-- Exibe o nome do parâmetro -->
+                        </td>
+                        <td>
+                            {% if habilitado %}  <!-- Verifica se o parâmetro está habilitado -->
+                                <span class="label label-success">Sim</span>  <!-- Exibe um rótulo de "Sim" -->
+                            {% else %}
+                            <span class="label label-important">Não</span>  <!-- Exibe um rótulo de "Não" -->
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+            {% include 'relatorios/box_parametros_extra.html' with parametros_extra=parametros_extra%}  <!-- Inclui outro arquivo de template passando parâmetros adicionais -->
+        {% else %}
+        <div class="box corner-all">  <!-- Caixa de conteúdo -->
+            <div class="box-header corner-top grd-white">  <!-- Cabeçalho da caixa de conteúdo -->
+                <span>
+                    Parâmetros disponíveis por local  <!-- Título do bloco de parâmetros disponíveis por local -->
+                </span>
+            </div>
+            <div class="box-body">  <!-- Corpo da caixa de conteúdo -->
+                {% for local in object.locais.all %}  <!-- Itera sobre os locais relacionados ao objeto -->
+                <h5>
+                    <i class="fas fa-sitemap"></i>
+                    {{ local.titulo }}  <!-- Exibe o título do local -->
+                </h5>
+                <table class="table table-striped table-hover">  <!-- Tabela para exibir os parâmetros -->
+                    {% for nome, habilitado in local.parametros.items %}  <!-- Itera sobre os parâmetros do local -->
+                    <tr>
+                        <td>
+                            <b>{{ nome }}</b>  <!-- Exibe o nome do parâmetro -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <hr/>  <!-- Cria uma linha horizontal -->
+</div>
+<div class="form-actions">  <!-- Define as ações do formulário -->
+    <div class="pull-right">  <!-- Alinha à direita -->
+        <a href="{% url 'relatorios:buscar' %}" class="btn">Voltar</a>  <!-- Botão para voltar à página de busca -->
+        <button class="btn btn-primary" name="next"
+                value="{{ request.GET.next }}"
+                type="submit" form="SalvarRelatorioForm">Salvar</button>  <!-- Botão para salvar o formulário -->
+    </div>
+</div>
+
+{% endblock %}

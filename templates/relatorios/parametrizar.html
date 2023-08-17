@@ -1,0 +1,86 @@
+{% extends "relatorios/default.html" %}
+
+{% load humanize contrib_tags static %}
+
+{% block css_pag %}
+    <link href="{% static "css/bootstrap2-toggle.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<!-- Div do cabeçalho da página -->
+<div class="page-title">
+    <h3>
+        {{ object.titulo }}
+        <small>{{ local.get_pagina_display }} - {{ local.titulo }}</small>
+        {% if request.user.is_superuser %}
+            <!-- Link para acessar a página de administração -->
+            <a href="{% url 'admin:relatorios_relatorio_change' object.id %}" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>
+                <i class="fas fa-link"></i>
+            </a>
+        {% endif %}
+    </h3>
+</div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<!-- Div do conteúdo da página -->
+<div class="row-fluid">
+    <div class="span6">
+        <!-- Div do primeiro bloco de conteúdo -->
+        <div class="box corner-all">
+            <div class="box-header corner-top grd-white">
+                <span>
+                    Parâmetros disponíveis no relatório
+                </span>
+            </div>
+            <div class="box-body">
+                <form name="SalvarRelatorioForm" id="SalvarRelatorioForm" method="POST" class="form-horizontal">
+                    {% csrf_token %}
+                    <input id="id_parametros" name="parametros" value="{&quot;ano&quot;:true}" type="hidden">
+                    <table class="table table-striped table-hover">
+                        <tr>
+                            <th>Campo</th>
+                            <th>Habilitado?</th>
+                        </tr>
+                        {% for nome, habilitado in parametros.items %}
+                        <tr>
+                            <td>
+                                <b>{{ nome }}</b>
+                            </td>
+                            <td>
+                                <!-- Checkbox para habilitar/desabilitar o parâmetro -->
+                                <input id="id_parametro_{{ forloop.counter }}" name="parametro" value="{{ nome }}" type="checkbox" data-toggle="toggle" data-on="Sim" data-off="Não" data-onstyle="success" {% if habilitado %}checked{% endif %}>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="span6">
+        <!-- Div do segundo bloco de conteúdo (incluindo um arquivo externo) -->
+        {% include 'relatorios/box_parametros_extra.html' with parametros_extra=parametros_extra%}
+    </div>
+</div>
+<div class="form-actions">
+    <div class="pull-right">
+        <!-- Botões de ação no formulário -->
+        <a href="{% url 'relatorios:buscar' %}" class="btn">Voltar</a>
+        <button class="btn btn-primary" name="next"
+                value="{{ request.GET.next }}"
+                type="submit" form="SalvarRelatorioForm">Salvar</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js_pag %}
+    <script src="{% static "js/bootstrap2-toggle.min.js" %}"></script>
+{% endblock %}

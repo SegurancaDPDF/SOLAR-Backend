@@ -1,0 +1,50 @@
+{% extends "default.html" %}  <!-- Define o template pai -->
+
+{% load humanize contrib_tags static %}  <!-- Carrega os filtros e tags adicionais -->
+
+{% block titulo %}Relatórios{% endblock %}  <!-- Define o bloco de código para o título da página -->
+
+{% block css_app %}  <!-- Define o bloco de código CSS específico para a aplicação -->
+
+    {% block css_pag %}  <!-- Define o bloco de código CSS específico para a página -->
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}  <!-- Define o bloco de código para o cabeçalho da aplicação -->
+
+    <h2>
+        <i class="fas fa-chart-bar fa-lg"></i> Relatórios  <!-- Título do cabeçalho -->
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}  <!-- Define o bloco de código para o menu da aplicação -->
+
+{% endblock %}
+
+{% block conteudo_app %}  <!-- Define o bloco de código para o conteúdo da aplicação -->
+
+    {% block cabecalho_pag %}  <!-- Define o bloco de código para o cabeçalho da página -->
+    {% endblock %}
+
+    {% block conteudo_pag %}  <!-- Define o bloco de código para o conteúdo da página -->
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}  <!-- Define o bloco de código JS específico para a aplicação -->
+
+    {% block js_pag %}  <!-- Define o bloco de código JS específico para a página -->
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_relatorios.js" %}?v={{ config.JSVERSION }}"></script>  <!-- Inclui um arquivo JavaScript com a versão especificada -->
+
+{% endblock %}
+
+{% block js_ready_app %}  <!-- Define o bloco de código JS Ready específico para a aplicação -->
+
+    {% block js_ready_pag %}  <!-- Define o bloco de código JS Ready específico para a página -->
+    {% endblock %}
+
+{% endblock %}

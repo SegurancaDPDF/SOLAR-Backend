@@ -1,0 +1,250 @@
+{% load static %}
+<!-- Modal Imprimir Atendimento -->
+<div id="modal-imprimir" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Imprimir</h3>
+    </div>
+    <div class="modal-body">
+        <h5 ng-bind="relatorio.titulo"></h5>
+        <hr>
+        <form id="RelatorioForm" name="RelatorioForm" method="POST" action="{% url 'processo_salvar' %}" class="form form-horizontal">
+            <!-- Div para o campo "Ano" -->
+            <div class="control-group" ng-if="relatorio.fields.ano">
+                <label for="id_ano" class="control-label"><label for="id_ano">Ano</label></label>
+                <div class="controls">
+                    <input id="id_ano" name="ano" ng-model="relatorio.params.ano" ng-pattern="/^[0-9]{4}$/" type="number" required>
+                </div>
+            </div>
+            <!-- Div para o campo "Mês" -->
+            <div class="control-group" ng-if="relatorio.fields.mes">
+                <label for="id_mes" class="control-label"><label for="id_mes">Mês</label></label>
+                <div class="controls">
+                    <select id="id_mes"
+                            ng-model="relatorio.params.mes"
+                            ng-options="mes.id as mes.nome for mes in meses"
+                            ng-change="relatorio.status=null"
+                            ng-disabled="relatorio.params.anual">
+                    </select>
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="relatorio.params.anual" ng-change="relatorio.params.mes=0; relatorio.status=null;"> Todos os meses
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="control-group" ng-if="relatorio.fields.data_inicial">
+    <!-- Div para selecionar a data inicial -->
+    <label for="data_inicial" class="control-label"><label for="data_inicial">Data Inicial</label></label>
+    <div class="controls">
+        <div class="input-append span12">
+            <input id="data_inicial" placeholder="Data Inicial" type="text" class="span7" bs-datepicker
+                   data-date-format="dd/mm/yyyy" data-validate="{required:true,date:true}"
+                   name="data_ini" ng-model="relatorio.params.data_inicial"
+                   ng-change="relatorio.status=null;" required>
+            <span data-toggle="datepicker" class="add-on">
+                <i class="fas fa-calendar-alt"></i>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="control-group" ng-if="relatorio.fields.data_final">
+    <!-- Div para selecionar a data final -->
+    <label for="data_final" class="control-label"><label for="data_final">Data Final</label></label>
+    <div class="controls">
+        <div class="input-append span12">
+            <input id="data_final" placeholder="Data Final" type="text" class="span7" bs-datepicker
+                   data-date-format="dd/mm/yyyy" data-validate="{required:true,date:true}"
+                   name="data_final" ng-model="fields.data_final"
+                   ng-change="relatorio.status=null;" required>
+            <span data-toggle="datepicker" class="add-on">
+                <i class="fas fa-calendar-alt"></i>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="control-group" ng-if="relatorio.fields.diretoria_id">
+    <!-- Div para selecionar a diretoria -->
+    <label for="id_diretoria" class="control-label"><label for="id_diretoria">Diretoria</label></label>
+    <div class="controls">
+        <select id="id_diretoria" class="span12"
+                ng-disabled="diretorias==null"
+                ng-model="relatorio.params.diretoria_id" ng-options="v.id as v.nome for (k, v) in diretorias"
+                ng-change="alterar_diretoria(v);">
+            <option value="" selected="selected">Todas diretorias</option>
+        </select>
+        <span ng-show="diretorias==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+    </div>
+</div>
+
+<div class="control-group" ng-if="relatorio.fields.comarca_id">
+    <!-- Div para selecionar a comarca -->
+    <label for="id_comarca" class="control-label"><label for="id_comarca">Comarca</label></label>
+    <div class="controls">
+        <select id="id_comarca" class="span12"
+                ng-disabled="comarcas==null"
+                ng-model="relatorio.params.comarca_id" ng-options="i.id as i.nome for i in comarcas | filter:{coordenadoria:relatorio.params.diretoria_id}:true"
+                ng-change="relatorio.status=null; relatorio.params.defensoria_id=null">
+            <option value="" selected="selected">Todas comarcas</option>
+        </select>
+                <span ng-show="comarcas==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+                </div>
+            </div>
+            <div class="control-group" ng-if="relatorio.fields.defensoria_id">
+                <!-- Div para selecionar a defensoria -->
+                <label for="id_defensoria" class="control-label"><label for="id_defensoria">Defensoria</label></label>
+                <div class="controls">
+                    <select id="id_defensoria" class="span12"
+                            ng-disabled="defensorias==null || (relatorio.fields.comarca_id && relatorio.params.comarca_id==null)"
+                            ng-model="relatorio.params.defensoria_id" ng-options="i.id as i.nome for i in defensorias | filter:{comarca:relatorio.params.comarca_id}:true"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todas defensorias</option>
+                    </select>
+                    <span ng-show="defensorias==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+                </div>
+            </div>
+            
+            <div class="control-group" ng-if="relatorio.fields.defensor_id">
+                <!-- Div para selecionar o defensor -->
+                <label for="id_defensor" class="control-label"><label for="id_defensor">Defensor</label></label>
+                <div class="controls">
+                    {% if perms.relatorios.view_filter_defensores %}
+                        <select id="id_defensor" class="span12"
+                                ng-disabled="defensores==null"
+                                ng-model="relatorio.params.defensor_id" ng-options="i.id as i.nome for i in defensores"
+                                ng-change="relatorio.status=null">
+                            <option value="" selected="selected">Todos Defensores</option>
+                        </select>
+                    {% else %}
+                        <input type="text" class="span12" value="{{ request.user.get_full_name }}" disabled ng-init="relatorio.params.defensor_id={{ request.user.servidor.defensor.id }}">
+                    {% endif %}
+                    <span ng-show="defensores==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+                </div>
+            </div>
+            
+            <div class="control-group" ng-if="relatorio.fields.servidor_id">
+                <!-- Div para selecionar o servidor -->
+                <label for="id_servidor" class="control-label"><label for="id_servidor">Servidor</label></label>
+                <div class="controls">
+                    {% if perms.relatorios.view_filter_servidores %}
+                    <select id="id_servidor" class="span12"
+                            ng-disabled="servidores==null"
+                            ng-model="relatorio.params.servidor_id" ng-options="i.id as i.nome for i in servidores"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todos servidores</option>
+                    </select>
+                    {% else %}
+                        <input type="text" class="span12" value="{{ request.user.get_full_name }}" disabled ng-init="relatorio.params.servidor_id={{ request.user.servidor.id }}">
+                    {% endif %}
+                    <span ng-show="servidores==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+                </div>
+            </div>
+            <div class="control-group" ng-if="relatorio.fields.area_id">
+                <!-- Div para selecionar a área -->
+                <label for="id_area" class="control-label"><label for="id_area">Área</label></label>
+                <div class="controls">
+                    <select id="id_area" class="span12"
+                            ng-disabled="areas==null"
+                            ng-model="relatorio.params.area_id" ng-options="i.id as i.nome for i in areas"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todas Áreas</option>
+                    </select>
+                    <span ng-show="areas==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+                </div>
+            </div>
+            
+            <div class="control-group" ng-if="relatorio.fields.indicador_meritocracia_id">
+                <!-- Div para selecionar o indicador de meritocracia -->
+                <label for="id_area" class="control-label"><label for="indic_meritocracia">Indicadores de meritocracia</label></label>
+                <div class="controls">
+                    <select id="indic_meritocracia" class="span12"
+                            ng-disabled="areas==null"
+                            ng-model="relatorio.params.indicador_meritocracia_id" ng-options="i.id as i.nome for i in indicadores"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todos Indicadores</option>
+                    </select>
+                    <span ng-show="areas==null"><img src="{% static 'img/loading.gif' %}"/> Carregando...</span>
+                </div>
+            </div>
+            
+            <div class="control-group" ng-if="relatorio.fields.categoria_de_agenda_id">
+                <!-- Div para selecionar a categoria de agenda -->
+                <label for="id_categoria_de_agenda" class="control-label"><label for="id_categoria_de_agenda">Categoria de Agenda</label></label>
+                <div class="controls">
+                    <select id="id_categoria_de_agenda" class="span12"
+                            ng-disabled="categorias_de_agenda==null"
+                            ng-model="relatorio.params.categoria_de_agenda_id" ng-options="i.id as i.nome for i in categorias_de_agenda"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todas Categorias</option>
+                    </select>
+                    <span ng-show="categorias_de_agenda==null"><img src="{% static "img/loading.gif" %}"/> Carregando...</span>
+                </div>
+            </div>
+            
+            <div class="control-group" ng-repeat="extra in relatorio.extra">
+                <!-- Div para parâmetros extras -->
+                <label class="control-label"><label>[[ extra.label ]]</label></label>
+                <div class="controls">
+                    <!-- Div para selecionar opções adicionais -->
+                    <select class="span12"
+                            ng-if="extra.type=='select' && !extra.choices_url"
+                            ng-model="extra.value"
+                            ng-options="key as value for (key, value) in extra.choices"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todos(as)</option>
+                    </select>
+                    <select class="span12"
+                            ng-if="extra.type=='select' && extra.choices_url"
+                            ng-model="extra.value"
+                            ng-options="i.id as i.nome for i in extra.choices"
+                            ng-change="relatorio.status=null">
+                        <option value="" selected="selected">Todos(as)</option>
+                    </select>
+                    <input type="text"
+                            class="span12"
+                            ng-if="extra.type=='text'"
+                            ng-model="extra.value"
+                            ng-change="relatorio.status=null">
+                    <span ng-show="extra.help_text" class="muted">[[ extra.help_text ]]</span>
+                </div>
+                </div>
+                
+                <div class="control-group">
+                    <!-- Div para selecionar o formato do arquivo -->
+                    <label for="id_formato" class="control-label"><label>Formato do arquivo</label></label>
+                    <div class="controls">
+                        <label class="radio">
+                            <input name="formato" type="radio" value="pdf" ng-model="relatorio.format"
+                                ng-change="relatorio.status=null" required> PDF
+                        </label>
+                        <label class="radio">
+                            <input name="formato" type="radio" value="xlsx" ng-model="relatorio.format"
+                                ng-change="relatorio.status=null" required> XLSX
+                        </label>
+                        {% if CHRONUS_PODE_GERAR_XLSX_SEM_PAGINACAO %}
+                        <label class="radio">
+                            <input name="formato" type="radio" value="xlsx_unpaginated" ng-model="relatorio.format"
+                                ng-change="relatorio.status=null" required> XLSX (Sem paginação)
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="gerar('{{ request.user.username }}')"
+                        ng-hide="relatorio.status" ng-disabled="!RelatorioForm.$valid">Gerar
+                </button>
+                <button type="button" class="btn btn-primary" ng-show="relatorio.status.pending" disabled>Gerando...
+                </button>
+                <button type="button" class="btn btn-danger" ng-show="relatorio.status.fail"
+                        bs-tooltip="relatorio.status.reason">Erro!
+                </button>
+                <a class='btn btn-success' target='_blank' href="[[ relatorio.status.report ]]"
+                    ng-show="relatorio.status.success">Baixar</a>
+                </div>
+                </div>
+<!-- Modal Imprimir Atendimento -->
