@@ -1,0 +1,106 @@
+{% load contrib_tags %}
+<div class="control-group"
+    {% if ng_init %}
+        {% if form_endereco %}
+            ng-init="endereco_selecionado['{{ field.html_name }}']='{{ field.value }}'"
+        {% else %}
+            ng-init="pessoa['{{ field.html_name }}']='{{ field.value }}'"
+        {% endif %}
+    {% endif %}
+    {% if ng_class %}
+        ng-class="{{ ng_class }}"
+    {% elif form_endereco %}
+        ng-class="{'error': enderecoForm['{{ field.html_name }}'].$invalid}"
+    {% else %}
+        ng-class="{'error': !AssistidoForm['{{ field.html_name }}'].$valid}"
+    {% endif %}
+    {% if ng_show %}
+        ng-show="{{ ng_show }}"
+    {% endif %}
+>
+    <div class="{% if span %}span{{ span }}{% endif %}">
+        {% if assistido.tipo == 1 and field.name == 'cpf' %}
+            <label class="control-label">CNPJ:</label>
+        {% elif assistido.tipo == 1 and field.name == 'nome' %}
+            <label class="control-label">Razão Social:</label>
+        {% elif assistido.tipo == 1 and field.name == 'apelido' %}
+            <label class="control-label">Nome Fantasia:</label>
+        {% elif field.name == 'aderiu_zap_defensoria' %}
+            <label class="control-label">Aceita receber as comunicações via WhatsApp:</label>
+        {% else %}
+            <label class="control-label">{{ field.label_tag }}</label>
+        {% endif %}
+
+
+
+        <div class="controls">
+            {% with class_name=field|field_class_name %}
+                {% if class_name == 'DateField' %}
+                    <div class="input-append">
+                        {{ field }}
+                        <span class="add-on" data-toggle="datepicker"><i class="far fa-calendar-alt"></i></span>
+                    </div>
+                {% elif class_name == 'EmailField' %}
+                    <div class="input-append">
+                        {{ field }}
+                        <span class="add-on"><i class="fas fa-envelope"></i></span>
+                    </div>
+                {% else %}
+                    {{ field }}
+                    {% if field.name == 'cpf' %}
+                        <span class="label label-important" ng-show="cpf.existe">
+                            O
+                            {% if assistido.tipo == 0 %}
+                                CPF
+                            {% else %}
+                                CNPJ
+                            {% endif %}
+                            informado já está vinculado à "[[ cpf.nome ]]"
+                        </span>
+                    {% elif field.name == 'certidao_numero' %}
+                        <a href="#modal-converter-certidao-civil" data-toggle="modal" ng-click="init_certidao()">
+                            <i class="fas fa-question-circle"></i> Possui certidão antiga? <u>Clique aqui</u>
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                {% if field2 and not span %}
+                    {{ field2 }}
+                {% endif %}
+                {% if config.EXIBIR_NAO_POSSUI_NOS_CAMPOS_OPCIONAIS and not field.field.required and not class_name == 'BooleanField' %}
+
+                    {% if form_endereco %}
+                        <label class="checkbox" ng-class="{'muted':endereco_selecionado['{{ field.html_name }}']}">
+                            <input type="checkbox"
+                                   ng-model="nao_possui['{{ field.html_name }}']"
+                                   ng-disabled="endereco_selecionado['{{ field.html_name }}']"> Não possui
+                        </label>
+                    {% else %}
+                        <label class="checkbox" ng-class="{'muted':pessoa['{{ field.html_name }}']}">
+                            <input type="checkbox"
+                                   ng-model="nao_possui['{{ field.html_name }}']"
+                                   ng-disabled="pessoa['{{ field.html_name }}']"> Não possui
+                        </label>
+                    {% endif %}
+                {% endif %}
+                {% if check_is_valid %}
+                    <i class="text-error fas fa-exclamation-circle" ng-hide="{{ check_is_valid }}"></i>
+                    <i class="text-success fas fa-check-circle" ng-show="{{ check_is_valid }}"></i>
+                {% endif %}
+                {% if field.help_text %}
+                    <i class="muted">{{ field.help_text }}</i>
+                {% elif field2.help_text %}
+                    <i class="muted">{{ field2.help_text }}</i>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    {% if field2 and span %}
+        <div class="{% if span %}span{{ span }}{% endif %}" ng-show="pessoa['{{ field.html_name }}']">
+            <label class="control-label">{{ field2.label_tag }}</label>
+            <div class="controls">
+                {{ field2 }}
+            </div>
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,17 @@
+{% load contrib_tags %}
+<div class="tab-pane {% if active %}active{% endif %} form-horizontal" id="{{ tab_id }}">
+    {% for field in form.visible_fields %}
+        {% if not field|field_class_name == 'BooleanField' and not field.name in form.ignored_fields %}
+            <div class="control-group">
+                <label for="id_{{ field.html_name }}" class="control-label">{{ field.label_tag }}</label>
+                <div class="controls">
+                    <input id="id_{{ field.html_name }}" name="{{ field.html_name }}" value="true" type="checkbox"
+                            {% if field.field.required %}checked{% endif %}
+                            {% if field.name in form.not_null_fields %}disabled{% endif %}
+                        data-toggle="toggle" data-on="Obrigatório" data-off="Opcional" data-onstyle="danger">
+                    <span class="help-inline">{{ field.help_text }}</span>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>

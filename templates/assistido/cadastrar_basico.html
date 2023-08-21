@@ -1,0 +1,76 @@
+{% include 'assistido/cadastrar_input.html' with field=pessoa.cpf ng_init=True %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.nome ng_init=True %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.apelido %}
+
+{% if assistido.tipo == 0 %}
+    <!-- filiacao -->
+    <div class="control-group" ng-repeat="mae in pessoa.filiacao" ng-class="{'error': !mae.nome && !tipo}">
+        <label class="control-label">Filiação:</label>
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                    <span ng-bind="get_filiacao(mae)"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="i in tipo_filiacao">
+                        <a href="#" ng-click="set_filiacao($index, mae)" ng-bind="i"></a>
+                    </li>
+                </ul>
+            </div>
+            <input type="text" id="mae[[$index ]]" name="mae[[$index ]]" class="span6" placeholder="Filiação" ng-model="mae.nome" upper-text ng-required="{{ requerente|lower }}">
+            <button type="button" class="btn" ng-click="remover_filiacao($index)" ng-disabled="pessoa.filiacao.length == 1 || salvando" bs-tooltip="'Remover filiação'">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button type="button" class="btn" ng-click="adicionar_filiacao()" ng-disabled="pessoa.filiacao.length == 4" ng-show="$index == pessoa.filiacao.length - 1" bs-tooltip="'Adicionar filiação'">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+    </div>
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.data_nascimento %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.genero %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.estado_civil %}
+{% endif %}
+<!-- telefones -->
+<div class="control-group" ng-repeat="telefone in pessoa.telefones">
+    <label class="control-label">Telefone: </label>
+    <div class="controls">
+        <div class="btn-group dropup">
+            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                <span ng-bind="get_tipo_telefone(telefone)"></span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="i in tipo_telefone">
+                    <a href="#" ng-click="set_tipo_telefone($index, telefone)" ng-bind="i"></a>
+                </li>
+            </ul>
+        </div>
+        <input type="text" name="telefone" ng-model="telefone.telefone" ng-copy="remover_mascara_telefone($event)" class="span2" ui-mask="[[ telefone.telefone.length == 11 ? '(99)99999-9999' : '(99)9999-9999?9' ]]" title="Nº do telefone c/ DDD" bs-tooltip>
+        <input type="text" name="telefone" ng-model="telefone.nome" class="span4" placeholder="Nome do Contato (Ex: João - Vizinho)" title="Nome do Contato (Ex: João - Vizinho)" bs-tooltip>
+        <button type="button" class="btn" ng-click="remover_telefone($index)" ng-disabled="pessoa.telefones.length == 1 || salvando" bs-tooltip="'Remover telefone'">
+            <i class="fas fa-trash"></i>
+        </button>
+        <button type="button" class="btn" ng-click="adicionar_telefone()" ng-style="{visibility:{true:'hidden', false:''}[$index != pessoa.telefones.length - 1]}" bs-tooltip="'Adicionar telefone'">
+            <i class="fas fa-plus-circle"></i>
+        </button>
+    </div>
+</div>
+{% if config.ATIVAR_ZAP_DEFENSORIA %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.aderiu_zap_defensoria %}
+{% endif %}
+{% if config.USAR_SMS %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.aderiu_sms %}
+{% endif %}
+{% if USAR_EDEFENSOR %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.aderiu_edefensor %}
+{% endif %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.email %}
+
+{% if assistido.tipo == 0 %}
+    <!--Inicio Dados Nudis -->
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.declara_orientacao_sexual field2=pessoa.orientacao_sexual span=4 %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.declara_identidade_genero field2=pessoa.identidade_genero span=4 %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.nome_social ng_show="pessoa.declara_orientacao_sexual || pessoa.declara_identidade_genero" %}
+    <!--Fim Dados Nudis -->
+{% endif %}

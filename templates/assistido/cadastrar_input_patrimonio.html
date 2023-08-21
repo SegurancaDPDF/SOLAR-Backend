@@ -1,0 +1,21 @@
+<div class="control-group" ng-repeat="patrimonio in pessoa.patrimonios" ng-class="{'error': !patrimonio.tipo}">
+    <label class="control-label">[[ patrimonio.tipo.grupo_nome ]]: </label>
+    <div class="controls">
+        <select class="span3" ng-model="patrimonio.tipo.id" ng-options="tipo_patrimonio.id as tipo_patrimonio.nome for tipo_patrimonio in tipos_patrimonio" disabled required  title=[[patrimonio.tipo.nome]]>
+            <option value="">Selecione um tipo...</option>
+        </select>
+        <input type="text" class="span3" mask-money mm-options="{prefix:'R$ ', allowZero: true, thousands:'.', decimal:',', affixesStay: false}" ng-model="patrimonio.valor" placeholder="Valor" ng-change="avaliar()" bs-tooltip>
+        <input type="text" class="span4" ng-model="patrimonio.descricao" placeholder="Descrição" title="Descrição" bs-tooltip>
+        <button type="button" class="btn" ng-click="remover_patrimonio(patrimonio)" ng-disabled="pessoa.patrimonios.length == 1 || salvando" bs-tooltip="'Remover'">
+            <i class="fas fa-trash"></i>
+        </button>
+        <button type="button" class="btn" ng-click="adicionar_patrimonio(patrimonio.tipo, $index+1)" bs-tooltip="'Adicionar'">
+            <i class="fas fa-plus-circle"></i>
+        </button>
+        {% if sigla_uf == "PR" %}
+            <div ng-if="patrimonio.tipo.id == 1" >
+                <input type="checkbox" ng-model="patrimonio.eh_bem_familia" ng-click="verifica_check_box_bem_familia(patrimonio.id,$index)" class="check_box_eh_bem_familia" id="[[$index]]">É bem de família destinado a residência?
+            </div>
+        {% endif %}
+    </div>
+</div>

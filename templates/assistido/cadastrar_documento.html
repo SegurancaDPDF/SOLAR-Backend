@@ -1,0 +1,69 @@
+{% if not permissao_acessar %}
+    <div class="alert">
+        <b>Atenção!</b>
+        Seu perfil de usuário não tem permissão para acessar estes dados de assistido(as) em situação sigilosa.  Caso queira solicitar acesso aos criadores do registro, vá na aba Adicional e clique no ícone do da chave.
+    </div>
+{% else %}
+<!-- Se o usuário tem permissão de acesso -->
+    <div ng-hide="pessoa.id">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i><b> Atenção!</b> Para anexar os documentos do assistido, clique em <b>SALVAR</b> primeiro.
+        </div>
+        <hr>
+    </div>
+    <div ng-show="pessoa.id">
+        <!-- Mostra uma mensagem de atenção se a pessoa possui um ID -->
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> <b>Atenção!</b> Área destinada para o envio de documentos pessoais de <b>[[ pessoa.nome_visualizacao ]]</b> (Ex: RG, CPF, Certidão de Nascimento/Casamento).
+        </div>
+        <hr>
+        <div>
+            <button class="btn" data-target="#modal-upload-documentos" data-toggle="modal"
+                    title="Novo documento anexo" bs-tooltip ng-click="limparDocumentosSelecionadosUpload()">
+                <b class="text-success">
+                    <i class="fas fa-paperclip"></i> Novo Anexo
+                </b>
+                <br/>
+                <small class="muted">Enviar arquivo do computador</small>
+            </button>
+        </div>
+        <table class="table table-striped table-hover responsive" ng-show="pessoa.id">
+            <thead>
+            <tr>
+                <th class="">Documento Pessoal</th>
+                <th class="span1">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="documento in documentos">
+                    <td>
+                        [[ documento.nome ]]
+                        <small class="muted" ng-if="documento.enviado_por_nome">Enviado por <span bs-tooltip="documento.enviado_por_nome">[[ documento.enviado_por_username ]]</span> em [[ documento.data_enviado|date:'dd/MM/yyyy HH:mm' ]]</small>
+                        <!-- Verifica se o usuário é um superusuário e exibe um link para acessar o admin -->
+                        {% if request.user.is_superuser %}
+                        <a href="[[ gerar_link('admin:assistido_documento_change', {object_id:documento.id}) ]]" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>
+                            <i class="fas fa-link"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="[[ documento.arquivo ]]" target="_blank" class="btn btn-small btn-success" rel="tooltip" title="Visualizar">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="[[ documento.arquivo ]]" download="[[ documento.nome ]]" class="btn btn-small" rel="tooltip" title="Baixar"><i class="fas fa-download"></i></a>
+                            <a data-target="#modal-excluir-documento" class="btn btn-small btn-danger"
+                            title="Excluir"
+                            data-toggle="modal" bs-tooltip ng-click="excluir(documento.id)">
+                            <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-hide="documentos.length">
+                    <td colspan="4">Nenhum registro adicionado</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endif %}

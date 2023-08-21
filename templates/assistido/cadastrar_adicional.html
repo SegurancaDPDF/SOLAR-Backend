@@ -1,0 +1,83 @@
+{% if not permissao_acessar %}
+    <div class="alert">
+        <b>Atenção!</b>
+        Seu perfil de usuário não tem permissão para alterar a situação de assistidos(as) em situação sigilosa.
+    </div>
+{% endif %}
+
+<!-- Div que contém as opções de seleção para a situação do assistido -->
+<div class="control-group" id="check_box_situacoes">
+    <label class="control-label">Situação</label>
+    <div class="controls">
+        {% for situacao in situacoes %}
+        <!-- Checkbox para selecionar a situação do assistido -->
+            <label class="checkbox">
+                <input type="checkbox" value="{{ situacao.id }}" 
+                       id="situacao_{{ situacao.id }}" name="{{situacao.codigo}}"
+                       ng-model="pessoa.situacoes[{{ situacao.id }}]"
+                       ng-change="habilita_sigilo('{{situacao.codigo}}', 'situacao_{{ situacao.id }}')"
+                       ng-disabled="{{ not_permissao_acessar|lower }}">{{ situacao.nome }}
+            </label>
+        {% endfor %}
+    </div>
+    <!-- Exibe alertas adicionais para situações sigilosas (se necessário) -->
+    {% if config.SITUACOES_SIGILOSAS and permissao_acessar %}
+    <div id="vinculo_assistido_defensoria" hidden="true" class="controls">
+        <b>Atenção!</b>
+        Assistidos em situação sigilosa têm restrição de acesso aos dados de endereço, documentos e alteração da situação. Clique no ícone abaixo (da chave) e vincule os ofícios que deseja que acessem estes dados sensíveis.
+        <div>
+            <!-- Botões para acesso restrito aos dados sigilosos -->
+            <button class="btn btn-small pull-left" title="Acesso Restrito" rel="tooltip"
+                data-target="#modal-liberar-acesso" data-toggle="modal"
+                ng-show="acessos && !acessos.solicitacoes.length">
+                <i class="fas fa-key"> </i>
+            </button>
+            <button class="btn btn-small pull-left btn-warning"
+                title="Solicitações de Acesso Aguardando Aprovação" rel="tooltip"
+                data-target="#modal-liberar-acesso" data-toggle="modal"
+                ng-show="acessos && acessos.solicitacoes.length">
+            <i class="fas fa-key"> </i>
+            </button>
+        </div>
+    </div>
+    <!-- Div de alerta exibida para situações sigilosas com informações sobre o sigilo -->
+    <div id="alerta_sigilo" hidden="true" class="controls">
+        <b>Atenção!</b>
+        O tipo de situação que você atribuiu ao assistido fará com que o endereço e documentos pessoais fiquem sigilosos somente aos setores em que estiver lotado.
+    </div>
+    {% endif %}
+    {% if config.SITUACOES_SIGILOSAS and not permissao_acessar %}
+    <div id="solicitacao_acesso" class="controls">
+        <b>Atenção!</b>
+        Assistidos em situação sigilosa têm restrição de acesso aos dados de endereço, documentos e alteração da situação.
+        <p>Caso queira solicitar o acesso clique no ícone abaixo.</p>
+        <div>
+            {% if acesso_solicitado %}
+            <button class="btn btn-small btn-danger pull-left disabled"
+                    title="Acesso Privado - aguardando autorização"
+                    ng-disabled="true"
+                    rel="tooltip">
+                <i class="fas fa-lock"> </i>
+            </button>
+            {% else %}
+            <button class="btn btn-small btn-danger pull-left" title="Acesso Restrito - clique para solicitar acesso" rel="tooltip"
+                data-target="#modal-solicitar-acesso" data-toggle="modal"> 
+                <i class="fas fa-key"> </i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% include 'assistido/cadastrar_input.html' with field=pessoa.rg_numero %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.rg_orgao %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.rg_data_expedicao %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.certidao_tipo %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.certidao_numero %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.raca %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.qtd_filhos %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.naturalidade %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.naturalidade_estado %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.nacionalidade %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.naturalidade_pais %}

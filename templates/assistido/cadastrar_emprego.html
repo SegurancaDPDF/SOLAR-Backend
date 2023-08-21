@@ -1,0 +1,18 @@
+{% include 'assistido/cadastrar_input.html' with field=pessoa.escolaridade %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.tipo_trabalho %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.profissao %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.qtd_estado %}
+{% include 'assistido/cadastrar_input.html' with field=moradia.tipo %}
+{% include 'assistido/cadastrar_input.html' with field=moradia.num_comodos %}
+<div class="control-group">
+    <label class="control-label">Estrutura</label>
+    <div class="controls">
+        {% for estrutura in estruturas %}
+            <label class="checkbox">
+                <input type="checkbox" value="{{ estrutura.id }}"
+                       id="estrutura_{{ estrutura.id }}" name="estrutura"
+                       ng-model="pessoa.estrutura[{{ estrutura.id }}]">{{ estrutura.nome }}
+            </label>
+        {% endfor %}
+    </div>
+</div>

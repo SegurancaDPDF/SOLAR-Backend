@@ -1,0 +1,20 @@
+<div id="modal-confirmar-alteracao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Cuidado!</h3>
+    </div>
+    <div class="modal-body">
+        <p>Você está <b>alterando o cadastro de {{ assistido.nome }}</b>. Esta ação é irreversível e afetará TODOS os atendimentos em que esta pessoa está vinculada.</p>
+        <p>Se está tentando substituir por outra pessoa em um atendimento, volte ao atendimento, utilize o recurso de busca ou cadastro para incluir a pessoa desejada e depois remova esta pessoa do atendimento. Em caso de dúvidas, contate o suporte técnico.</p>
+        <label class="checkbox"><input type="checkbox" ng-model="alteracao_confirmado"/><i>Estou ciente desta ação.</i></label>
+    </div>
+    <div class="modal-footer">
+        <a class="btn" href="{{ next }}">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+        <a class="btn btn-primary" data-dismiss="modal" aria-hidden="true" ng-show="alteracao_confirmado">
+            <i class="fas fa-check-circle"></i> Continuar
+        </a>
+    </div>
+</div>

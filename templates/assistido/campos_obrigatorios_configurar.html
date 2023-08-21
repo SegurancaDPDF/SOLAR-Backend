@@ -1,0 +1,60 @@
+{% extends "assistido/default.html" %}
+{% load contrib_tags static humanize %}
+
+{% block titulo %}Cadastrar Pessoa{% endblock %}
+
+{% block css_pag %}
+    <link href="{% static "css/bootstrap2-toggle.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <h3>
+        <i class="fas fa-tasks" aria-hidden="true"></i>
+        Definição de Campos Obrigatórios <!-- Cabeçalho com um ícone de tarefa e o texto "Definição de Campos Obrigatórios" -->
+    </h3>
+    <h4 class="text-info">{{ perfil.nome }}</h4>
+    <!-- Exibe o nome do perfil no cabeçalho -->
+{% endblock %}
+
+{% block conteudo_pag %}
+<form action="{% url 'campos_obrigatorios_salvar_perfil' perfil_id %}" method="POST">
+    {% csrf_token %}
+    <ul class="nav nav-tabs" id="myTab">
+        <li class="active"><a href="#basico" data-toogle="tab">Básico</a></li>
+        <li><a href="#endereco" data-toogle="tab">Endereço</a></li>
+        <li><a href="#moradia" data-toogle="tab">Moradia</a></li>
+        <li><a href="#renda" data-toogle="tab">Renda</a></li>
+    </ul>
+    <!-- Criação de guias de navegação para diferentes seções -->
+    <div class="tab-content">
+        {% include 'assistido/campos_obrigatorios_configurar_tabs.html' with tab_id='basico' form=pessoa active=True %}
+        {% include 'assistido/campos_obrigatorios_configurar_tabs.html' with tab_id='endereco' form=endereco %}
+        {% include 'assistido/campos_obrigatorios_configurar_tabs.html' with tab_id='moradia' form=moradia %}
+        {% include 'assistido/campos_obrigatorios_configurar_tabs.html' with tab_id='renda' form=renda %}
+        <!-- Inclusão de conteúdo de guias usando o arquivo 'campos_obrigatorios_configurar_tabs.html' -->
+    </div>
+    <div class="form-actions">
+        <a href="{% url 'campos_obrigatorios_index' %}" class="btn">Cancelar</a>
+        <button type="submit" name="salvar" id="salvar" class="btn btn-primary">Salvar</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block js_pag %}
+    <script src="{% static "js/bootstrap2-toggle.min.js" %}"></script>
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('#myTab a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
+    $('.nav-tabs a').on('shown.bs.tab', function(event){
+        $('input[type=checkbox]').bootstrapToggle('destroy');
+        $('input[type=checkbox]').bootstrapToggle();
+    });
+
+{% endblock %}
+

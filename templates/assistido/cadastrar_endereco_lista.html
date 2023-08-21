@@ -1,0 +1,114 @@
+{% load static %}
+<div ng-if="carregando_enderecos" class="text-center">
+    <img src="{% static "img/loader_16.gif" %}">
+    <div>Carregando...</div>
+</div>
+{% if not permissao_acessar %}
+<!-- Verifica se o usuário tem permissão para acessar os dados -->
+    <div class="alert">
+        <b>Atenção!</b>
+        Seu perfil de usuário não tem permissão para acessar estes dados de assistido(as) em situação sigilosa.  Caso queira solicitar acesso aos criadores do registro, vá na aba Adicional e clique no ícone da chave.
+    </div>
+{% else %}
+    <div class="row-fluid" ng-hide="carregando_enderecos">
+        <!-- Div para exibir os endereços, ocultando enquanto carrega -->
+        <div class="span10 actions-m5" ng-hide="modo_edicao_endereco">
+            <div class="alert" ng-if="falta_salvar_assistido_para_concluir">
+                <b>Atenção! </b>
+                Salve o cadastro do assistido para concluir!
+            </div>
+
+            <button type="button" class="btn align-center" title="Cadastrar novo endereço" bs-tooltip
+                ng-click="habilitar_modo_edicao_endereco(null)">
+                <!-- Botão para habilitar o modo de edição de endereço -->
+                <i class="fas fa-plus-circle"></i> Endereço
+            </button>
+
+            <button type="button" class="btn align-center"
+                    data-target="#modal-endereco-historico" data-toggle="modal"
+                    title="Ver histórico de endereços" bs-tooltip
+                    ng-if="pessoa.id" ng-click="get_pessoa_enderecos_historico()">
+                <i class="fas fa-history"></i> Histórico
+            </button>
+        </div>
+        <div ng-show="assistido_enderecos.length == 0" >
+            <h5>Não há endereços cadastrados.</h5>
+        </div>
+        <div ng-show="modo_edicao_endereco"  class="span2" style="margin-left:0">
+         
+            <div ng-if="!endereco_selecionado.is_cep_correto" class="alert alert-error" >
+                <b>Atenção! </b> [[ msg_erro_cep ]]
+            </div>
+            
+        </div>
+        <div ng-hide="modo_edicao_endereco"
+            class="span10 well file-container" style="margin-left: 0px;"
+            ng-repeat="endereco in assistido_enderecos | orderBy:'-principal'">
+            <div class="clearfix">
+                <button type="button"
+                        data-target="#modal-excluir-endereco"
+                        data-toggle="modal"
+                        style="margin-left: 30px;"
+                        class="pull-right file-delete"
+                        ng-if="!endereco.principal"
+                        title="Excluir" bs-tooltip data-placement="left"
+                        ng-click="set_endereco(endereco)">
+                    <i class="fas fa-trash fa-lg text-error"></i>
+                </button>
+                <button type="button" style="margin-left: 30px;"
+                        class="pull-right file-delete"
+                        ng-if="endereco.principal"
+                        title="Não é permitido excluir o endereço principal" bs-tooltip>
+                    <i class="fas fa-trash fa-lg text-error"></i>
+                </button>
+                <button type="button" class="pull-right file-edit" title="Editar" bs-tooltip
+                    ng-click="habilitar_modo_edicao_endereco(endereco)">
+                    <i class="fas fa-pencil-alt fa-lg"></i>
+                </button>
+
+                <div class="bold">
+                    <i class="fas fa-home fa-2x" ng-show="endereco.principal" title="Endereço principal" bs-tooltip></i>
+                    Área [[ endereco.tipo_area.nome ]] - [[ endereco.tipo.nome ]]
+                    {% if request.user.is_superuser %}
+                        <a href="/admin/contrib/endereco/[[ endereco.id ]]" target="_blank" class="text-info" title="Admin" bs-tooltip>
+                            <i class="fas fa-link"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div>
+                    [[ endereco.logradouro ]]
+                    <span ng-if="endereco.numero"> nº [[ endereco.numero | default:'Não informado.' ]]</span>
+                    <span ng-if="endereco.complemento">[[ endereco.complemento ]]</span>
+                </div>
+                <div>
+                    Bairro: [[ endereco.bairro | default:'Não informado']]
+                </div>
+                <div>
+                    <span ng-if="endereco.cep">CEP: [[ endereco.cep|cep ]].</span>
+                    [[ endereco.municipio ]] - [[ endereco.estado ]]
+                </div>
+            </div>
+            <div ng-if="endereco.cadastrado_por_nome || endereco.modificado_por_nome">
+                <dt class="muted">Auditoria</dt>
+                <dd ng-if="endereco.cadastrado_por_nome" class="muted">
+                    Cadastrado por
+                    <span bs-tooltip="endereco.cadastrado_por_nome">
+                        [[ endereco.cadastrado_por_username ]]
+                    </span>
+                    em [[ endereco.cadastrado_em |date:'dd/MM/yyyy HH:mm' ]]
+                </dd>
+                <dd ng-if="endereco.modificado_por_nome" class="muted">
+                    Alterado por
+                    <span bs-tooltip="endereco.modificado_por_nome">
+                        [[ endereco.modificado_por_username ]]
+                    </span>
+                    em [[ endereco.modificado_em |date:'dd/MM/yyyy HH:mm' ]]
+                </dd>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% include 'assistido/cadastrar_endereco_modal_excluir.html' %}
+{% include 'assistido/cadastrar_endereco_modal_lista_historico.html' %}

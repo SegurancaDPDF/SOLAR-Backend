@@ -1,0 +1,137 @@
+{% include 'assistido/cadastrar_input.html' with field=pessoa.cpf ng_init=True %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.nome ng_init=True %}
+{% if assistido.tipo == 0 %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.nome_social %}
+    <!-- filiacao -->
+    <!-- Div para informações de filiação -->
+    <div class="control-group" ng-repeat="mae in pessoa.filiacao" ng-class="{'error': !mae.nome && !tipo}">
+        <label class="control-label">Filiação:</label>
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                    <span ng-bind="get_filiacao(mae)"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="i in tipo_filiacao">
+                        <a href="#" ng-click="set_filiacao($index, mae)" ng-bind="i"></a>
+                    </li>
+                </ul>
+            </div>
+            <input type="text" id="mae[[$index ]]" name="mae[[$index ]]" class="span6" placeholder="Filiação" ng-model="mae.nome" upper-text ng-required="{{ requerente|lower }}">
+            <button type="button" class="btn" ng-click="remover_filiacao($index)" ng-disabled="pessoa.filiacao.length == 1 || salvando" bs-tooltip="'Remover filiação'">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button type="button" class="btn" ng-click="adicionar_filiacao()" ng-disabled="pessoa.filiacao.length == 4" ng-show="$index == pessoa.filiacao.length - 1" bs-tooltip="'Adicionar filiação'">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+    </div>
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.data_nascimento %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.genero %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.estado_civil %}
+{% else %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.apelido %}
+{% endif %}
+<!-- telefones -->
+<!-- Div para informações de telefones -->
+<div class="control-group" ng-repeat="telefone in pessoa.telefones">
+    <label class="control-label">Telefone: </label>
+    <div class="controls">
+        <div class="btn-group dropup">
+            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                <span ng-bind="get_tipo_telefone(telefone)"></span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="i in tipo_telefone">
+                    <a href="#" ng-click="set_tipo_telefone($index, telefone)" ng-bind="i"></a>
+                </li>
+            </ul>
+        </div>
+        <input type="text" name="telefone" ng-model="telefone.telefone" ng-copy="remover_mascara_telefone($event)" class="span2" ui-mask="[[ telefone.telefone.length == 11 ? '(99)99999-9999' : '(99)9999-9999?9' ]]" title="Nº do telefone c/ DDD" bs-tooltip>
+        <input type="text" name="telefone" ng-model="telefone.nome" class="span4" placeholder="Nome do Contato (Ex: João - Vizinho)" title="Nome do Contato (Ex: João - Vizinho)" bs-tooltip>
+        <button type="button" class="btn" ng-click="remover_telefone($index)" ng-disabled="pessoa.telefones.length == 1 || salvando" bs-tooltip="'Remover telefone'">
+            <i class="fas fa-trash"></i>
+        </button>
+        <button type="button" class="btn" ng-click="adicionar_telefone()" ng-style="{visibility:{true:'hidden', false:''}[$index != pessoa.telefones.length - 1]}" bs-tooltip="'Adicionar telefone'">
+            <i class="fas fa-plus-circle"></i>
+        </button>
+    </div>
+</div>
+{% if config.ATIVAR_ZAP_DEFENSORIA %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.aderiu_zap_defensoria %}
+{% endif %}
+{% if config.USAR_SMS %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.aderiu_sms %}
+{% endif %}
+{% if USAR_EDEFENSOR %}
+    {% include 'assistido/cadastrar_input.html' with field=pessoa.aderiu_edefensor %}
+{% endif %}
+{% include 'assistido/cadastrar_input.html' with field=pessoa.email %}
+{% if not permissao_acessar %}
+    <div class="alert">
+        <b>Atenção!</b>
+        Seu perfil de usuário não tem permissão para alterar a situação de assistidos(as) em situação sigilosa.
+    </div>
+{% endif %}
+<!-- Div para seleção de situação do assistido -->
+<div class="control-group" id="check_box_situacoes">
+    <label class="control-label">Situação</label>
+    <div class="controls">
+        {% for situacao in situacoes %}
+            <label class="checkbox">
+                <input type="checkbox" value="{{ situacao.id }}" 
+                       id="situacao_{{ situacao.id }}" name="{{situacao.codigo}}"
+                       ng-model="pessoa.situacoes[{{ situacao.id }}]"
+                       ng-change="habilita_sigilo('{{situacao.codigo}}', 'situacao_{{ situacao.id }}')"
+                       ng-disabled="{{ not_permissao_acessar|lower }}">{{ situacao.nome }}
+            </label>
+        {% endfor %}
+    </div>
+    {% if config.SITUACOES_SIGILOSAS and permissao_acessar %}
+    <div id="vinculo_assistido_defensoria" hidden="true" class="controls">
+        <b>Atenção!</b>
+        Assistidos em situação sigilosa têm restrição de acesso aos dados de endereço, documentos e alteração da situação. Clique no ícone abaixo (da chave) e vincule os ofícios que deseja que acessem estes dados sensíveis.
+        <div>
+            <button class="btn btn-small pull-left" title="Acesso Restrito" rel="tooltip"
+                data-target="#modal-liberar-acesso" data-toggle="modal"
+                ng-show="acessos && !acessos.solicitacoes.length">
+                <i class="fas fa-key"> </i>
+            </button>
+            <button class="btn btn-small pull-left btn-warning"
+                title="Solicitações de Acesso Aguardando Aprovação" rel="tooltip"
+                data-target="#modal-liberar-acesso" data-toggle="modal"
+                ng-show="acessos && acessos.solicitacoes.length">
+            <i class="fas fa-key"> </i>
+            </button>
+        </div>
+    </div>
+    <div id="alerta_sigilo" hidden="true" class="controls">
+        <b>Atenção!</b>
+        O tipo de situação que você atribuiu ao assistido fará com que o endereço e documentos pessoais fiquem sigilosos somente aos setores em que estiver lotado.
+    </div>
+    {% endif %}
+    {% if config.SITUACOES_SIGILOSAS and not permissao_acessar %}
+    <div id="solicitacao_acesso" class="controls">
+        <b>Atenção!</b>
+        Assistidos em situação sigilosa têm restrição de acesso aos dados de endereço, documentos e alteração da situação.
+        <p>Caso queira solicitar o acesso clique no ícone abaixo.</p>
+        <div>
+            {% if acesso_solicitado %}
+            <button class="btn btn-small btn-danger pull-left disabled"
+                    title="Acesso Privado - aguardando autorização"
+                    ng-disabled="true"
+                    rel="tooltip">
+                <i class="fas fa-lock"> </i>
+            </button>
+            {% else %}
+            <button class="btn btn-small btn-danger pull-left" title="Acesso Restrito - clique para solicitar acesso" rel="tooltip"
+                data-target="#modal-solicitar-acesso" data-toggle="modal"> 
+                <i class="fas fa-key"> </i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>

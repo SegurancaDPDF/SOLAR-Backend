@@ -1,0 +1,55 @@
+<div class="span8">
+    {% if assistido.tipo == 0 %}
+        {% include 'assistido/cadastrar_input.html' with field=renda.numero_membros %}
+        {% include 'assistido/cadastrar_input.html' with field=renda.ganho_mensal_membros check_is_valid='avaliacao.renda_familiar' %}
+        {% include 'assistido/cadastrar_input_patrimonio.html'%}
+    {% else %}
+        {% include 'assistido/cadastrar_input.html' with field=renda.salario_funcionario check_is_valid='avaliacao.salario_funcionario' %}
+        {% include 'assistido/cadastrar_input_patrimonio.html'%}
+        {% include 'assistido/cadastrar_input.html' with field=renda.tem_fins_lucrativos %}
+    {% endif %}
+</div>
+
+<div class="span4">
+    <div class="alert">
+        <h4><i class="fas fa-money-bill-alt"></i> Salário vigente: R$ {{salario_minimo}}</h4>
+        <hr>
+        <ul>
+            <li ng-repeat="grupo in grupos_patrimonio">
+                <b>Total [[ grupo.nome ]]: </b> [[ grupo.valor | currency:'R$ ':2 ]]
+            </li>
+        </ul>
+    </div>
+    {% if config.EXIBIR_ALERTA_HIPOSSUFICIENCIA %}
+        <div class="alert alert-error" ng-show="avaliacao.hipossuficiente==false">
+            <h4>Atenção!</h4>
+            <p>Pelas declarações prestadas, o(a) senhor(a) não se enquadra na condição de
+                necessitado. Caso queira insistir no atendimento com o Defensor Público, devo
+                lembrá-lo que a assistência jurídica poderá ser indeferida.</p>
+            <ul>
+                <li class="text-error" ng-hide="avaliacao.renda_familiar">
+                    Renda famililar ultrapassa [[ avaliacao.salario.indice_renda_familiar ]] salários mínimos<br />
+                    <small class="muted"><i>Fórmula: [[ avaliacao.salario.indice_renda_familiar ]] x [[ avaliacao.salario.valor | currency:'R$ ':2 ]] = [[ avaliacao.salario.valor * avaliacao.salario.indice_renda_familiar | currency:'R$ ':2 ]]</i></small>
+                </li>
+                <li class="text-error" ng-hide="avaliacao.total_bens">
+                    Valor total dos bens (imóveis + móveis + outros) ultrapassa [[ avaliacao.salario.indice_valor_bens ]] salários mínimos<br />
+                    <li>
+                        <p>Deve-se observar a Resolução nº 34/2015-CS/DPERO, de 10 de Abril de 2015, no artigo Art°2 inciso §15º:
+                        O único bem imóvel destinado à moradia ou subsistência, ainda que tenha valor superior ao previsto no inciso II, não poderá ensejar, por si só, a denegação em razão da situação econômico-financeira.</p>
+                    </li>
+                   
+                    <small class="muted"><i>Fórmula: [[ avaliacao.salario.indice_valor_bens ]] x [[ avaliacao.salario.valor | currency:'R$ ':2 ]] = [[ avaliacao.salario.valor * avaliacao.salario.indice_valor_bens | currency:'R$ ':2 ]]</i></small>
+                </li>
+                <li class="text-error" ng-hide="avaliacao.total_investimentos">
+                    Valor total dos investimentos ultrapassa [[ avaliacao.salario.indice_valor_investimentos ]] salários mínimos<br />
+                    <small class="muted"><i>Fórmula: [[ avaliacao.salario.indice_valor_investimentos ]] x [[ avaliacao.salario.valor | currency:'R$ ':2 ]] = [[ avaliacao.salario.valor * avaliacao.salario.indice_valor_investimentos | currency:'R$ ':2 ]]</i></small>
+                </li>
+                <li class="text-error" ng-hide="avaliacao.salario_funcionario">
+                    Maior Salário de funcionário ultrapassa [[ avaliacao.salario.indice_valor_salario_funcionario ]]
+                    salários mínimos<br />
+                    <small class="muted"><i>Fórmula: [[ avaliacao.salario.indice_valor_salario_funcionario ]] x [[avaliacao.salario.valor | currency:'R$ ':2 ]] = [[ avaliacao.salario.valor * avaliacao.salario.indice_valor_salario_funcionario | currency:'R$ ':2 ]]</i></small>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+</div>

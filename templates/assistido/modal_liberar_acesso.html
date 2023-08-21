@@ -1,0 +1,102 @@
+<!-- Modal Liberar Acesso -->
+<div id="modal-liberar-acesso" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="VerAgendaModal">
+            <i class="fas fa-key"></i> Acesso ao Assistido
+        </h3>
+    </div>
+    <div class="modal-body">
+        <div>
+            <ul class="nav nav-tabs" id="AcessoTab">
+                <li class="active">
+                    <a data-target="#acesso_solicitacoes" data-toggle="tab">Solicitações
+                <span class="badge badge-warning" ng-show="acessos.solicitacoes.length"
+                      ng-bind="acessos.solicitacoes.length"></span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="#acesso_concessoes" data-toggle="tab">Concessões</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="acesso_solicitacoes">
+                    <table class="table">
+                        <thead>
+                        <th>Colaborador</th>
+                        <th>Solicitado em</th>
+                        <th>&nbsp;</th>
+                        </thead>
+                        <tbody>
+                        <!-- Listagem das solicitações de acesso -->   
+                        <tr ng-repeat="acesso in acessos.solicitacoes">
+                            <td>[[ acesso.concessao.nome ]]</td>
+                            <td>[[ acesso.data_solicitacao | utc | date:"dd/MM/yy HH:mm" ]]</td>
+                            <td ng-hide="!acessos.possui_acesso_administracao">
+                                <!-- Botões para negar ou conceder acesso -->
+                                <a href="#" class="text-error" ng-click="revogar_acesso(acesso.concessao.id,'servidor')">
+                                    Negar
+                                </a>
+                                <a href="#" class="text-success" ng-click="conceder_acesso(acesso.concessao.id,'servidor')">
+                                    Conceder
+                                </a>
+                            </td>
+                        </tr>
+                        <tr ng-hide="acessos.solicitacoes.length">
+                            <td colspan="3">Nenhuma concessão encontrada</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="acesso_concessoes">
+                    <form class="form-inline">
+                        <div class="control-group" ng-class="{true:'error'}[!acesso.defensoria.id]" ng-hide="!acessos.possui_acesso_administracao">
+                            <!-- Campo para incluir uma nova defensoria -->
+                            <input type="text" class="span10" placeholder="Digite o nome da defensoria que concederá acesso"
+                                   ng-model="acesso.defensoria"
+                                   typeahead="i as i.nome for i in defensorias | filter:{nome:$viewValue} | limitTo:8">
+                            <button class="btn" ng-click="conceder_acesso(acesso.defensoria.id,'defensoria')">
+                                <i class="fas fa-plus-circle"></i> Incluir
+                            </button>
+                            <label class="text-error helper-font-small"
+                                   ng-show="acesso.defensoria && !acesso.defensoria.id">
+                                Esta defensoria não existe no banco de dados
+                            </label>
+                        </div>
+                    </form>
+                    <table class="table">
+                        <thead>
+                        <th>Defensoria / Colaborador</th>
+                        <th>Condedido em</th>
+                        <th>&nbsp;</th>
+                        </thead>
+                        <tbody>
+                        <!-- Listagem das concessões de acesso -->
+                        <tr ng-repeat="acesso in acessos.concessoes">
+                            <td>[[ acesso.concessao.nome ]]<div ng-hide="!acesso.dono">(ofício que criou o cadastro)</div></td>
+                            <td>[[ acesso.data_concessao | utc | date:"dd/MM/yy HH:mm" ]]</td>
+                            <td>
+                                <!-- Botão para revogar acesso -->
+                                <a href="#" class="text-error" ng-click="revogar_acesso(acesso.concessao.id,acesso.concessao.tipo)" ng-hide="acesso.dono || !acessos.possui_acesso_administracao">
+                                    Revogar
+                                </a>
+                            </td>
+                        </tr>
+                        <tr ng-hide="acessos.concessoes.length">
+                            <td colspan="3">Nenhuma solicitação encontrada</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <!-- Botão para fechar o modal -->
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-times"></i> Fechar
+        </a>
+    </div>
+</div>
+<!-- Modal Liberar Acesso -->

@@ -1,0 +1,36 @@
+<div id="modal-excluir-endereco" class="modal hide fade" tabindex="-1" role="dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Excluir o endereço?</h3>
+    </div>
+    <div class="modal-body">
+        <div class="bold">
+            <!-- Div para exibir informações do endereço selecionado -->
+            Área [[ endereco_selecionado.tipo_area.nome ]] - [[ endereco_selecionado.tipo.nome ]]
+        </div>
+        <div>
+            <div>
+                [[ endereco_selecionado.logradouro ]]
+                <span ng-if="endereco_selecionado.numero"> nº [[ endereco_selecionado.numero | default:'Não informado' ]]</span>
+                <span ng-if="endereco_selecionado.complemento">[[ endereco.complemento ]]</span>
+            </div>
+            <div>
+                Bairro: [[ endereco_selecionado.bairro_nome | default:'Não informado']]
+            </div>
+            <div>
+                <span ng-if="endereco_selecionado.cep">CEP: [[ endereco_selecionado.cep|cep ]].</span>
+                [[ endereco_selecionado.municipio_nome ]] - [[ endereco_selecionado.estado_uf ]]
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <span class="btn-group">
+            <a href="#" class="btn btn-danger" ng-click="excluir_endereco()">
+                <i class="fas fa-trash"></i> Excluir
+            </a>
+        </span>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>

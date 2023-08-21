@@ -1,0 +1,71 @@
+{% load static %}
+<div id="modal-endereco-historico" class="modal hide fade" tabindex="-1" role="dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Histórico de endereços</h3>
+    </div>
+    <div class="modal-body">
+        <div ng-if="carregando_enderecos_historico" class="text-center">
+                <img src="{% static "img/loader_16.gif" %}">
+                <!-- Div condicional para mostrar um indicador de carregamento -->
+                <div>Carregando...</div>
+        </div>
+        <div class="well" style="margin-left: 0px;"
+             ng-repeat="endereco in assistido_enderecos_historico | orderBy:[-data_modificacao]">
+             <!-- Div que representa cada endereço no histórico -->
+
+            <div class="bold">
+                <i class="fas fa-home fa-2x" ng-show="endereco.principal" title="Endereço principal" bs-tooltip></i>
+                Área [[ endereco.tipo_area.nome ]] - [[ endereco.tipo.nome ]]
+                {% if request.user.is_superuser %}
+                <!-- Condicional para exibir link de admin se o usuário for superusuário -->
+                    <a href="/admin/contrib/enderecohistorico/[[ endereco.id ]]" target="_blank" class="text-info" title="Admin" bs-tooltip>
+                        <i class="fas fa-link"></i>
+                    </a>
+                {% endif %}
+            </div>
+            <div>
+                <div>
+                    [[ endereco.logradouro ]]
+                    <span ng-if="endereco.numero"> nº [[ endereco.numero | default:'Não informado.' ]]</span>
+                    <span ng-if="endereco.complemento">[[ endereco.complemento ]]</span>
+                </div>
+                <div>
+                    Bairro: [[ endereco.bairro | default:'Não informado']]
+                </div>
+                <div>
+                    <span ng-if="endereco.cep">CEP: [[ endereco.cep|cep ]].</span>
+                    [[ endereco.municipio ]] - [[ endereco.estado ]]
+                </div>
+
+                <div ng-if="endereco.cadastrado_por_nome || endereco.modificado_por_nome || endereco.desativado_por_nome">
+                    <!-- Div condicional para exibir informações de auditoria -->
+                    <dt class="muted">Auditoria</dt>
+                    <dd ng-if="endereco.cadastrado_por_nome" class="muted">
+                        Cadastrado por
+                        <span bs-tooltip="endereco.cadastrado_por_nome">
+                            [[ endereco.cadastrado_por_username ]]
+                        </span>
+                        em [[ endereco.cadastrado_em |date:'dd/MM/yyyy HH:mm' ]]
+                    </dd>
+                    <dd ng-if="endereco.modificado_por_nome" class="muted">
+                        Alterado por
+                        <span bs-tooltip="endereco.modificado_por_nome">
+                            [[ endereco.modificado_por_username ]]
+                        </span>
+                        em [[ endereco.modificado_em |date:'dd/MM/yyyy HH:mm' ]]
+                    </dd>
+                    <dd ng-if="endereco.desativado_por_nome" class="muted">
+                        Removido por
+                        <span bs-tooltip="endereco.desativado_por_nome">[[ endereco.desativado_por_username ]]</span>
+                        em [[ endereco.desativado_em |date:'dd/MM/yyyy HH:mm' ]]
+                    </dd>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Voltar</button>
+    </div>
+</div>

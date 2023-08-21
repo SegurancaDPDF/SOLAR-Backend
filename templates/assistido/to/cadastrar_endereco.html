@@ -1,0 +1,38 @@
+<!-- Div para edição de endereço, exibida quando modo_edicao_endereco é verdadeiro -->
+<div ng-if="modo_edicao_endereco" class="form-group span10" ng-form="enderecoForm">
+    <div class="control-group">
+        <label class="control-label">É o endereço principal?</label>
+
+        <div class="controls" style="margin-top: 12px">
+            <input type="checkbox" name="endereco-principal"
+                   ng-model="endereco_selecionado.principal"> Sim
+        </div>
+    </div>
+    
+    <!-- Inclusão de campos de input para edição de informações de endereço -->
+    {% include 'assistido/cadastrar_input.html' with field=endereco.tipo form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.cep form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.estado form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.municipio form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.bairro form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.logradouro form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.numero form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.complemento form_endereco=True %}
+
+    <!-- Condição para mostrar campo de input adicional apenas para assistidos do tipo 0 -->
+    {% if assistido.tipo == 0 %}
+        {% include 'assistido/cadastrar_input.html' with field=moradia.tipo form_endereco=True %}
+    {% endif %}
+
+    <button type="button" name="salvar" class="btn btn-primary" ng-disabled="enderecoForm.$invalid"
+            title="Adicionar endereço" bs-tooltip
+            ng-click="salvar_endereco()">
+        <i class="fas fa-plus-circle"></i> Adicionar
+    </button>
+    <button type="button" class="btn"
+            title="Cancelar alteração e ver lista de endereços" bs-tooltip
+            ng-click="desabilitar_modo_edicao_endereco()">
+        <i class="fas fa-ban"></i> Cancelar alteração
+    </button>
+
+</div>

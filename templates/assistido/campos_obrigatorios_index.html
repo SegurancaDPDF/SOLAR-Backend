@@ -1,0 +1,38 @@
+{% extends "assistido/default.html" %}
+{% load contrib_tags static humanize %}
+
+{% block titulo %}Campos Obrigatórios{% endblock %}
+
+{% block css_pag %}
+    <link href="{% static "css/bootstrap2-toggle.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <h3>
+        <i class="fas fa-tasks" aria-hidden="true"></i>
+        Definição de Campos Obrigatórios <!-- Cabeçalho com um ícone e o texto "Definição de Campos Obrigatórios" -->
+    </h3>
+    <h4>Selecione um perfil para continuar...</h4> <!-- Texto explicativo para seleção de perfil -->
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <ul class="nav nav-tabs nav-stacked">
+                {% for perfil in perfis %}
+                    <li><a href="{% url 'campos_obrigatorios_configurar_perfil' perfil.id %}" class="btn btn-link text-left">{{ perfil.nome }}</a></li>
+                     <!-- Lista de perfis com links para configurar campos obrigatórios -->
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}
+

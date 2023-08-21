@@ -1,0 +1,17 @@
+<div id="modal-avaliacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Atenção!</h3>
+    </div>
+    <div class="modal-body">
+        <h4>Leia para o assistido o texto a seguir</h4>
+        {{ config.MENSAGEM_ALERTA_AVALIACAO_ASSISTIDO | safe }}
+        <label class="checkbox"><input type="checkbox" ng-model="confirmado"/><i>Confirmo que li o texto acima para
+            o assistido.</i></label>
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-primary" data-dismiss="modal" aria-hidden="true" ng-show="confirmado">
+        <i class="fas fa-check-circle"></i> Continuar</a>
+    </div>
+</div>

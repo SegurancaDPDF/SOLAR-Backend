@@ -1,0 +1,158 @@
+{% extends "assistido/default.html" %}
+{% load humanize static %}
+
+{% block css_pag %}
+<style>
+    #popover_pessoa .popover{width: 500px;}
+</style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <form class="navbar-form" ng-init="init({ {% for k, v in request.GET.items %}'{{ k }}':'{{ v }}'{% if not forloop.last %},{% endif %}{% endfor %} })">
+                    {% csrf_token %}
+                    <div class="row-fluid no-space">
+                        <div class="span2">
+                            <input type="text" id="cpf" name="cpf" class="span12" ng-model="filtro.cpf"
+                                   ng-keypress="buscar_key($event)"
+                                   ui-mask="[[ filtro.cpf.length == 14 ? '99.999.999/9999-99' : '999.999.999-99?999' ]]"
+                                   data-validate="{required:false,cpf:true}">
+                        </div>
+                        <div class="span4">
+                            <input type="text" id="nome" name="nome" class="span12" placeholder="Nome"
+                                   title="Pressione ENTER para buscar" rel="tooltip" data-trigger="focus"
+                                   ng-model="filtro.nome" ng-keypress="buscar_key($event)"
+                                   data-validate="{required:true}" upper-text>
+                        </div>
+                        <div class="span4">
+                            <input type="text" id="mae" name="mae" class="span12" placeholder="Filiação"
+                                   ng-model="filtro.filiacao" ng-keypress="buscar_key($event)" upper-text>
+                        </div>
+                        <button ng-disabled="carregando" title="Buscar" rel="tooltip" class="btn actions-f12"
+                                type="submit" ng-click="buscar(true)">
+                            <i ng-hide="carregando" class="fas fa-search"></i>
+                            <img ng-show="carregando" src="{% static "img/loader_16.gif" %}">
+                        </button>
+                    </div>
+                </form>
+                <!-- /.nav-collapse -->
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar pessoa ([[ pessoas.length ]])
+        </h3>
+
+        <div class="pull-right actions-m18">
+            {% if perms.assistido.add_pessoa %}
+                <a href="{% url "assistido_editar" 0 0 %}?next={% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'atendimento_listar' %}{% endif %}&nome=[[filtro.nome]]&cpf=[[filtro.cpf]]"
+                   rel="tooltip" data-placement="top" data-original-title="Cadastrar nova Pessoa Física"
+                   role="button" class="btn btn-primary actions-f12">
+                    <i class="fas fa-plus-circle"> </i> Pessoa Física
+                </a>
+                <a href="{% url "assistido_editar" 0 1 %}?next={% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'atendimento_listar' %}{% endif %}&nome=[[filtro.nome]]&cpf=[[filtro.cpf]]"
+                   rel="tooltip" data-placement="top" data-original-title="Cadastrar nova Pessoa Jurídica"
+                   role="button" class="btn btn-primary actions-f12">
+                    <i class="fas fa-plus-circle"> </i> Pessoa Jurídica
+                </a>
+            {% endif %}
+            {% if perms.assistido.unificar_pessoa %}
+                <a href="#modal-unificar" class="btn btn-warning" title="Unificar registros" rel="tooltip" data-toggle="modal" ng-disabled="(pessoas|filter:{selecionado:true}).length<2">
+                    <i class="fas fa-compress"> </i> Unificar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <div class="clearfix">
+        <table id="assitidos" class="table table-bordered table-striped table-hover responsive display-data">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>CPF / CNPJ</th>
+                <th>Nome / Razão Social</th>
+                <th>Filiação</th>
+                <th class="span1">Nascimento</th>
+                <th class="span1">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="pessoa in pessoas" ng-class="{true:'warning'}[pessoa.selecionado]">
+                <td class="text-center">
+                    <input type="checkbox" ng-model="pessoa.selecionado" />
+                </td>
+                <td>[[ pessoa.cpf | cpf_cnpj ]]</td>
+                <td>
+                    <span class="label label-important" bs-tooltip title="Nome Social" ng-if="pessoa.tipo==0 && pessoa.nome_social">NS</span>
+                    <span class="label label-info" bs-tooltip title="Nome Fantasia" ng-if="pessoa.tipo==1 && pessoa.apelido">NF</span>
+                    {% if request.GET.next %}
+                        <a href="{{ request.GET.next }}?pessoa_id=[[ pessoa.id ]]#/{{ request.GET.route }}"
+                           class="btn-link" ng-bind-html="pessoa.nome_mark" data-container="#popover_pessoa"
+                           data-placement="bottom" data-title="[[ pessoa.nome ]]" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'" ng-mouseover="get_pessoa(pessoa.id)">
+                        </a>
+                    {% else %}
+                        <a href="/atendimento/listar/?pessoa_id=[[ pessoa.id ]]&amp;next={{ request.GET.next }}"
+                           class="btn-link" ng-click="confirmar(pessoa)" ng-bind-html="pessoa.nome_mark"
+                           data-placement="bottom" data-title="[[ pessoa.nome ]]" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'" ng-mouseover="get_pessoa(pessoa.id)">
+                        </a>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="helper-font-small" ng-repeat="mae in pessoa.filiacao" ng-bind-html="mae.nome_mark"></div>
+                </td>
+                <td>[[pessoa.data_nascimento|date:'dd/MM/yyyy']]</td>
+                <td>
+                    <div class="pull-center btn-group">
+                        {% if request.GET.next %}
+                            <a href="{{ request.GET.next }}?pessoa_id=[[ pessoa.id ]]#/{{ request.GET.route }}" class="btn" bs-tooltip data-placement="left" data-original-title="Selecionar">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        {% else %}
+                            <a href="/assistido/editar/[[ pessoa.id ]]/{% if next %}&amp;next={{ next }}{% endif %}" class="btn" bs-tooltip data-placement="left" data-original-title="Editar Cadastro">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="/atendimento/listar/?pessoa_id=[[ pessoa.id ]]{% if next %}&amp;next={{ next }}{% endif %}"
+                               class="btn btn-success" bs-tooltip data-placement="left"
+                               data-original-title="Agendar Atendimento">
+                                <i class="fas fa-calendar-plus"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <tr ng-hide="pessoas.length">
+                <td colspan="6" ng-show="carregando"><img src="{% static "img/loader_16.gif" %}"> Carregando...</td>
+                <td colspan="6" ng-hide="carregando || msg_erro_busca_pessoa">Nenhum registro encontrado</td>
+                <td colspan="6" ng-hide="carregando || !msg_erro_busca_pessoa">
+                    <span class="label label-important ng-binding" ng-if="msg_erro_busca_pessoa">
+                        <i class="fas fa-exclamation-circle"></i> [[ msg_erro_busca_pessoa ]]
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {% include "assistido/modal_unificar.html" %}
+    <div id="popover_pessoa" style="width: 500px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}

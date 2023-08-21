@@ -1,0 +1,43 @@
+<div ng-if="modo_edicao_endereco" class="form-group span10" ng-form="enderecoForm">
+    <div class="control-group">
+        <!-- Div para agrupar elementos de controle -->
+        <label class="control-label">É o endereço principal?</label>
+
+        <div class="controls" style="margin-top: 12px">
+             <!-- Div para agrupar controles de entrada -->
+            <input type="checkbox" name="endereco-principal"
+                   ng-model="endereco_selecionado.principal"> Sim
+        </div>
+    </div>
+    <div class="control-group" ng-class="{ error : enderecoForm.tipo_area.$invalid }" >
+        <label class="control-label">Área</label>
+
+        <div class="controls">
+            {% for i in endereco.tipo_area %}
+                <label class="radio">{{ i }}</label>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% include 'assistido/cadastrar_input.html' with field=endereco.tipo form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.cep form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.estado form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.municipio form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.bairro form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.logradouro form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.numero form_endereco=True %}
+    {% include 'assistido/cadastrar_input.html' with field=endereco.complemento form_endereco=True %}
+
+    <button type="button" name="salvar" class="btn btn-primary" ng-disabled="enderecoForm.$invalid"
+            title="Adicionar endereço" bs-tooltip
+            ng-click="salvar_endereco()">
+        <i class="fas fa-plus-circle"></i> Adicionar
+    </button>
+    <!-- Botão para adicionar o endereço com ícone de sinal de mais -->
+    <button type="button" class="btn"
+            title="Cancelar alteração e ver lista de endereços" bs-tooltip
+            ng-click="desabilitar_modo_edicao_endereco()">
+        <i class="fas fa-ban"></i> Cancelar alteração
+    </button>
+
+</div>

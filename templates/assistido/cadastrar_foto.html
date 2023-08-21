@@ -1,0 +1,25 @@
+<div class="span4 offset4">
+    <a href="#" id="start_capture" class="btn btn-small">
+        <i class="fas fa-video"></i>
+        Iniciar captura
+    </a>
+    <a href="#" id="stop_capture" class="btn btn-small">
+        <i class="fas fa-camera"></i>
+        Tirar foto
+    </a>
+    <a href="#" id="sendFile" class="btn btn-small">
+        <i class="fas fa-upload"></i>
+        Enviar foto
+    </a>
+    <input id="inputFile" type="file" accept="image/*" style="display: none;">
+    <div class="rdd">
+        <img id="image" ng-src="[[ pessoa.foto ? pessoa.foto : '{{ STATIC_URL }}/img/sem_foto_360_280.jpg' ]]"/>
+        <video id="player" autoplay></video>
+        <canvas id="snapshot" width=360 height=280 style="display: none;"></canvas>
+
+        <div id="photo" style="display:none">
+            <img src="#" ng-model="foto" alt=""/>
+        </div>
+
+    </div>
+</div>

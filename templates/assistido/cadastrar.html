@@ -1,0 +1,618 @@
+{% extends "assistido/default.html" %}
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load contrib_tags %}
+
+{% block titulo %}Cadastrar Pessoa{% endblock %}
+
+{% block css_pag %}
+    <link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/angular-strap/bootstrap-datepicker.css" %}" rel="stylesheet">
+    <link href="{% static "js/jcrop/jquery.Jcrop.min.css" %}" rel="stylesheet">
+
+    <style>
+        .tab-pane {
+            min-height: 360px;
+        }
+
+        /* bugfix para CheckboxSelectMultiple */
+        div.controls ul {
+            margin: 0;
+        }
+
+        div.controls ul li {
+            list-style: none;
+        }
+
+        div.controls ul li label:first-child {
+            padding-top: 5px;
+        }
+
+        div.controls ul li label {
+            min-height: 20px;
+            padding-left: 20px;
+        }
+
+        div.controls ul li label input[type="radio"] {
+            float: left;
+            margin-left: -20px;
+        }
+
+        .rdd {
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            background-color: #efefef;
+            width: 360px;
+            height: 280px;
+            overflow: hidden;
+        }
+
+        .rdd img {
+            width: 360px;
+            height: 280px;
+        }
+
+        /* end_bugfix */
+
+        .dropdown-toggle span[ng-bind] {
+            display: block;
+            float: left;
+            width: 92px;
+            text-align: left;
+        }
+
+        /* Jcrop */
+        .jcrop-centered{
+            display: inline-block;
+        }
+
+    </style>
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <h3 ng-init="tipo={% if requerente %}0{% else %}1{% endif %}">
+        <span ng-bind="(pessoa.nome?pessoa.nome:'(PESSOA SEM NOME)')"></span>
+        {% if request.user.is_superuser %}
+            <a href="[[ gerar_link('admin:assistido_pessoaassistida_change', {object_id:pessoa.id}) ]]" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>
+                <i class="fas fa-link"></i>
+            </a>
+        {% endif %}
+        {% if requerente %}
+            <span class="pull-right text-success">REQUERENTE</span>
+        {% else %}
+            <span class="pull-right text-error">REQUERIDO</span>
+        {% endif %}
+    </h3>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <div class="row-fluid"
+         ng-init="init(
+            {% if assistido.id %}{{ assistido.id }}{% else %}null{% endif %},
+            {{ tab }},
+            {{ modificado_hoje }},
+            {
+                'estado':'{{ endereco_form_initial.estado }}',
+                'municipio':'{{ endereco_form_initial.municipio }}'
+            },
+            {{ assistido.tipo }},
+            {{ config.CALCULAR_RENDA_FAMILIAR_E_MEMBROS_ASSISTIDO|lower }},
+            {{ config.ASSISTIDO_TELEFONE_TIPO_PADRAO }})">
+        <div class="span12">
+            <form method="POST" novalidate="novalidade" action="{% url "assistido_salvar" %}?{% for k, v in request.GET.items %}{{ k }}={{ v }}&{% endfor %}{% if request.GET.next %}&next={{ request.GET.next }}{% endif %}"
+                  name="AssistidoForm" id="AssistidoForm" enctype="multipart/form-data" class="ng-cloak">
+                {% csrf_token %}
+                <input type="hidden" id="tab" name="tab" value="{{ tab }}">
+                <input type="hidden" id="prev" name="prev" value="{{ request.GET.prev }}">
+                <input type="hidden" id="next" name="next" value="{{ request.GET.next }}">
+                <div class="pull-right" style="margin-left: 5px;" ng-hide="modo_edicao_endereco">
+                    <div class="btn-group">
+                        {% if assistido.id %}
+                            <a type="button" class="btn" ng-class="{'btn-info':({{ assistido.tipo }}=='0')}"
+                                href="{% url 'assistido_editar' assistido.id 0 %}?{% for k, v in request.GET.items %}{{ k }}={{ v }}&{% endfor %}">
+                                <i class="fas fa-user"></i> Pessoa Física
+                            </a>
+                            <a type="button" class="btn" ng-class="{'btn-info':({{ assistido.tipo }}=='1')}"
+                                href="{% url 'assistido_editar' assistido.id 1 %}?{% for k, v in request.GET.items %}{{ k }}={{ v }}&{% endfor %}">
+                                <i class="far fa-building"></i> Pessoa Jurídica
+                            </a>
+                        {% else %}
+                            <a type="button" class="btn" ng-class="{'btn-info':({{ assistido.tipo }}=='0')}"
+                                href="{% url 'assistido_editar' 0 0 %}?{% for k, v in request.GET.items %}{{ k }}={{ v }}&{% endfor %}">
+                                <i class="fas fa-user"></i> Pessoa Física
+                            </a>
+                            <a type="button" class="btn" ng-class="{'btn-info':({{ assistido.tipo }}=='1')}"
+                                href="{% url 'assistido_editar' 0 1 %}?{% for k, v in request.GET.items %}{{ k }}={{ v }}&{% endfor %}">
+                                <i class="far fa-building"></i> Pessoa Jurídica
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <ul class="nav nav-tabs" id="myTab">
+                        <li>
+                            <a href="#basico" ng-click="desabilitar_modo_edicao_endereco()">
+                                Básico <span class="badge badge-important"></span>
+                            </a>
+                        </li>
+
+                        {% if assistido.tipo == 0 %}
+                        <li>
+                            <a href="#membros" ng-click="desabilitar_modo_edicao_endereco()" title="Membros do Grupo Familiar" rel="tooltip">
+                                Membros <span class="badge badge-important"></span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <li>
+                            <a href="#avaliacao" ng-click="desabilitar_modo_edicao_endereco()">
+                                Avaliação <span class="badge badge-important"></span>
+                            </a>
+                        </li>
+                        {% if assistido.tipo == 0 %}
+                            <li>
+                                <a href="#adicional" ng-click="desabilitar_modo_edicao_endereco()">
+                                    Adicional <span class="badge badge-important"></span>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li>
+                            <a href="#endereco" ng-click="get_pessoa_enderecos()">
+                                Endereço <span class="badge badge-important"></span>
+                            </a>
+                        </li>
+
+                        {% if assistido.tipo == 0 %}
+                            <li>
+                                <a href="#emprego" ng-click="desabilitar_modo_edicao_endereco()">
+                                    Emprego / Moradia <span class="badge badge-important"></span>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li>
+                            <a href="#foto" ng-click="desabilitar_modo_edicao_endereco()">
+                                Foto
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#documentos" ng-click="desabilitar_modo_edicao_endereco()">
+                                Documentos  [[ eh_pessoa_fisica ? 'Pessoais' : 'da Empresa' ]]
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane form-horizontal" id="basico">
+                            {% include 'assistido/cadastrar_basico.html' %}
+                        </div>
+                        <div class="tab-pane form-horizontal" id="membros">
+                            {% include 'assistido/cadastrar_membros.html' %}
+                        </div>
+                        <div class="tab-pane form-horizontal" id="avaliacao">
+                            {% include 'assistido/cadastrar_avaliacao.html' %}
+                        </div>
+                        {% if assistido.tipo == 0 %}
+                            <div class="tab-pane form-horizontal" id="adicional">
+                                {% include 'assistido/cadastrar_adicional.html' %}
+                            </div>
+
+                            <div class="tab-pane form-horizontal" id="emprego">
+                                {% include 'assistido/cadastrar_emprego.html' %}
+                            </div>
+                        {% endif %}
+                        <div class="tab-pane form-horizontal" id="endereco">
+                            {% include 'assistido/cadastrar_endereco.html' %}
+                            {% include 'assistido/cadastrar_endereco_lista.html' %}
+                        </div>
+                        <div class="tab-pane form-horizontal" id="foto">
+                            {% include 'assistido/cadastrar_foto.html' %}
+                        </div>
+                        <div class="tab-pane form-horizontal" id="documentos">
+                            {% include 'assistido/cadastrar_documento.html' %}
+                        </div>
+                    </div>
+                </div>
+                <!-- /tab-content -->
+                <div class="form-actions" ng-hide="modo_edicao_endereco">
+                    {% if request.GET.next %}
+                        <a href="#" name="cancelar" id="cancelar" class="btn"
+                           onclick="window.history.back();">
+                           <i class="fas fa-ban"></i> Cancelar
+                        </a>
+                    {% endif %}
+                    <button type="button" name="voltar" id="voltar" class="btn disabled" ng-click="voltar()">
+                        <i class="fas fa-chevron-left"></i> Voltar
+                    </button>
+                    <button type="button" name="avancar" id="avancar" class="btn btn-primary" ng-click="avancar()">
+                        <i class="fas fa-chevron-right"></i> Avançar
+                    </button>
+                    <button type="button" name="salvar" id="salvar" class="btn btn-primary hidden"
+                        ng-click="salvar(true, false)" ng-disabled="salvando || !AssistidoForm.$valid">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                    {% if request.GET.next %}
+                        <button type="button" name="continuar" id="continuar" class="btn btn-primary"
+                            ng-click="salvar(true, true)" ng-disabled="salvando || !AssistidoForm.$valid">
+                            <i class="fas fa-share-square"></i> Salvar e redirecionar
+                        </button>
+                    {% endif %}
+                    {% if config.ATIVAR_BOTAO_ATENDER_AGORA %}
+                        <button onclick="event.preventDefault();" ng-controller="AtendimentoSemAgendaCtrl" ng-disabled="salvando || !AssistidoForm.$valid || !pessoa.id" ng-click='criar_atendimento_inicial_sem_agenda({requerente_id: pessoa.id, comarca_servidor_id: {{request.user.servidor.comarca.id}}, servidor_defensor_id: {{request.user.servidor.defensor.id}}})'
+                            class="btn btn-warning">  <i class="fas fa-bolt"></i> Atendimento Inicial Agora
+                        </button>
+                        {% include 'atendimento/atender_modal_inicial_sem_agenda.html' %}
+                    {% endif %}
+
+                    {% if pessoa_id %}
+                        <div class="pull-right" ng-controller="ImprimirCtrl" ng-init="init()">
+                            {% include 'relatorios/modal_imprimir.html' %}
+                            <div class="btn-group">
+                                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="!salvo">
+                                    <i class="fas fa-print"></i> Imprimir
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu pull-right">
+                                    {% for relatorio in relatorios %}
+                                        <li>
+                                            <a href="#modal-imprimir" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{assistido_id:pessoa.id, comarca_id:{{ request.user.servidor.comarca.id }}, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}')">{{ relatorio.titulo }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <a href="#modal-excluir" role="button" data-toggle="modal"
+                               class="btn btn-danger">
+                               <i class="fas fa-trash"></i> Excluir
+                            </a>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <!-- /form-actions -->
+            </form>
+            <!-- /box -->
+        </div>
+        <!-- /span12 -->
+    </div><!-- /row-fluid -->
+    {% if config.EXIBIR_ALERTA_AVALIACAO_ASSISTIDO %}
+        {% include 'assistido/modal_confirmar_avaliacao.html' %}
+    {% endif %}
+    {% if config.SITUACOES_SIGILOSAS %}
+        {% include 'assistido/modal_liberar_acesso.html' %}
+        {% include 'assistido/modal_solicitar_acesso.html' %}
+    {% endif %}
+
+    {% if pessoa_id %}
+
+        {% include 'assistido/modal_excluir.html' %}
+        {% include 'assistido/modal_confirmar_alteracao.html' %}
+        {% include 'assistido/modal_converter_certidao.html' %}
+        {% include 'atendimento/atender_modal_atendimento_documentos.html' %}
+        {% include 'atendimento/atender_modal_excluir_documento.html' %}
+        {% include 'atendimento/atender_modal_crop_foto.html' %}
+
+    {% endif %}
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script type="text/javascript" src="{% static "js/angular-strap/bootstrap-datepicker.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/validate/jquery.validate.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/validate/jquery.validate.methods.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/validate/jquery.metadata.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-extend.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_atendimento.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/jcrop/Jcrop.gif" %}"></script>
+    <script type="text/javascript" src="{% static "js/jcrop/jquery.Jcrop.min.js" %}"></script>
+
+    <script type="text/javascript">
+
+        // https://developers.google.com/web/fundamentals/media/capturing-images/?hl=pt-br
+        var player = document.getElementById('player');
+        var snapshotCanvas = document.getElementById('snapshot');
+        var startCaptureButton = document.getElementById('start_capture');
+        var captureButton = document.getElementById('stop_capture');
+        var videoTracks;
+        var width = 360;
+        var height = 280;
+
+        var sendFile = document.getElementById("sendFile");
+        var inputFile = document.getElementById("inputFile");
+        var cropModal = $("#modal-crop-foto");
+        var cropModalBody = cropModal.find('.modal-body');
+        var cropButton = $("#btn-modal-crop-foto");
+        var cropSaveButton = $("#btn-modal-crop-save");
+        var standard_crop_options = $("#standard-crop-options");
+        var finish_crop_options = $("#finish-crop-options");
+
+        var img;
+        var imageWidth;
+        var imageHeight;
+        var proportion;
+        var aspectRatio = width / height;
+
+        var crop_x;
+        var crop_y;
+        var crop_width;
+        var crop_height;
+        var modal_body_width;
+        var modal_body_height;
+
+        startCaptureButton.addEventListener('click', function() {
+
+            var handleSuccess = function(stream) {
+                // Attach the video stream to the video element and autoplay.
+                player.srcObject = stream;
+                videoTracks = stream.getVideoTracks();
+            };
+
+            navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
+
+            player.setAttribute("width", width);
+            player.setAttribute("height", height);
+            snapshotCanvas.setAttribute("width", width);
+            snapshotCanvas.setAttribute("height", height);
+
+            $('#image').hide();
+            $('#player').show();
+            $('#snapshot').show();
+            $("#photo").hide()
+
+        });
+
+        captureButton.addEventListener('click', function() {
+
+            var context = snapshot.getContext('2d');
+            // Draw the video frame to the canvas.
+            context.drawImage(player, 0, 0, width, height);
+            // Stop all video streams.
+            videoTracks.forEach(function(track) {track.stop()});
+
+            $('#image').hide();
+            $('#player').hide();
+            $('#snapshot').hide();
+            $("#photo").show().children("img").attr('src', snapshotCanvas.toDataURL("image/png"));
+
+            $.ajax({
+                type: "POST",
+                url: "/assistido/foto/salvar/",
+                data: {imgBase64: snapshotCanvas.toDataURL("image/png"), csrfmiddlewaretoken: '{{ csrf_token }}'},
+                success: function(data){
+                    $('#id_foto').val(data.arquivo);
+                }
+            });
+
+        });
+
+        jQuery(function($){
+
+            var jcrop_api;
+
+            /* Definição da função carrega Arquivo */
+            function carregaArquivo(files) {
+                if (files.length) {
+
+                    img = document.createElement("img");
+                    img.src = window.URL.createObjectURL(files[0]);
+                    img.onload = function () {
+
+                        imageWidth = img.width;
+                        imageHeight = img.height;
+
+                        if((imageWidth < width)||(imageHeight < height)){
+                            show_stack_error("A imagem deve ter no mínimo "+width+" x "+height);
+                            return;
+                        }
+
+                        cropModalBody.empty();
+
+                        cropModal.off('shown.bs.modal').on('shown.bs.modal', function () {
+
+                            standard_crop_options.show();
+                            finish_crop_options.hide();
+                            cropModalBody.append(img);
+
+                            modal_body_width = $(cropModalBody).width();
+                            modal_body_height = $(cropModalBody).height();
+
+                            // Associa o Jcrop
+                            $(img).Jcrop({
+                                bgFade: true,
+                                bgOpacity: .2,
+                                aspectRatio: aspectRatio,
+                                minSize: [width, height],
+                                boxWidth: modal_body_width,
+                                boxHeight: modal_body_height,
+                                allowResize: true,
+                                addClass: 'jcrop-centered',
+                                onChange: updateCropVariables,
+                            }, function(){
+                                jcrop_api = this;
+                                jcrop_api.animateTo([0,0,width,height]);
+                            });
+
+                        });
+
+                        cropModal.modal('show');
+
+                        function cropAndCall(call){
+                            var imagemFinal = document.createElement("img");
+                            resizeImage(img, crop_x, crop_y, crop_width, crop_height, function(dataURL){
+                                imagemFinal.src=dataURL;
+                                cropModalBody.empty();
+                                cropModalBody.append(imagemFinal);
+                                finish_crop_options.show();
+                                standard_crop_options.hide();
+
+                                $('#image').hide();
+                                $('#player').hide();
+                                $('#snapshot').hide();
+                                $("#photo").show().children("img").attr('src', dataURL);
+
+                                call(dataURL);
+
+                            });
+                        }
+
+                        cropButton.off('click').on('click', function(){
+
+                            cropAndCall(function(dataURL){
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/assistido/foto/salvar/",
+                                    data: {imgBase64: dataURL, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                                    success: function(data){
+                                        if(data.success == true){
+                                            show_stack_success('Foto anexada com sucesso');
+                                        }else{
+                                            show_stack_error(data.erro);
+                                        }
+                                    }
+                                });
+                            });
+
+                        });
+
+                        cropSaveButton.off('click').on('click', function(){
+                            cropAndCall(function(dataURL){
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/assistido/{{ assistido.id }}/foto/salvar-agora/",
+                                    data: {imgBase64: dataURL, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                                    success: function(data){
+                                        if(data.success == true){
+                                            show_stack_success('Foto alterada com sucesso');
+                                        }else{
+                                            show_stack_error(data.erro);
+                                        }
+                                    }
+                                });
+                            });
+                        });
+
+                    };
+                }
+            }
+
+            function updateCropVariables(crop){
+                crop_x = crop.x;
+                crop_y = crop.y;
+                crop_width = crop.w;
+                crop_height = crop.h;
+            }
+
+            function resizeImage(imageObj, source_x, source_y, mywidth, myheight, callback) {
+                var canvas = document.createElement("canvas");
+                var context = canvas.getContext('2d');
+
+                canvas.width = width;
+                canvas.height = height;
+
+                proportion = imageWidth/modal_body_width;
+
+                context.drawImage(imageObj, source_x*proportion, source_y*proportion, mywidth*proportion, myheight*proportion, 0, 0, width, height);
+                callback(canvas.toDataURL());
+            }
+
+            inputFile.onchange= function(){
+                carregaArquivo(this.files);
+            };
+
+            sendFile.addEventListener("click", function (e) {
+                if (inputFile) {
+                    inputFile.click();
+                }
+                e.preventDefault(); // prevent navigation to "#"
+            }, false);
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
+        var tabIndex = $('#tab').val(); //index da tab atual
+        var tabs = $('#myTab a'); //array das tabs disponiveis
+
+        var profissoes = {};
+
+        function validTab() {
+
+            show_badge_erros();
+
+            if ($('.control-group.error').length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+
+        };
+
+        function show_badge_erros() {
+            $('.tab-pane').each(function () {
+                errors = $('.control-group.error', this).length;
+                $('a[href=#' + $(this).attr('id') + '] span').html(errors ? errors : null);
+            });
+        }
+
+    </script>
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_pag %}
+
+        //Exibe/Oculta botoes de acordo com a tab selecionada
+        $('#myTab a').on('show', function (e) {
+            //Recupera index da tab atual
+            tabIndex = $(e.target).closest('li').index();
+            $('#tab').val(tabIndex);
+
+            //Exibe/Oculta botoes
+            if (tabIndex == tabs.length - 1) {
+                $('#avancar').addClass('hidden');
+                $('#salvar').removeClass('hidden');
+                $('#continuar').removeClass('hidden');
+            } else {
+                $('#avancar').removeClass('hidden');
+                $('#salvar').addClass('hidden');
+                $('#continuar').addClass('hidden');
+            }
+
+            if (tabIndex === 0) {
+                $('#voltar').addClass('disabled');
+            }
+            else {
+                $('#voltar').removeClass('disabled');
+            }
+
+            {% if config.EXIBIR_ALERTA_AVALIACAO_ASSISTIDO %}
+                if (tabs.eq(tabIndex).attr('href') == '#avaliacao') {
+                    $('#modal-avaliacao').modal();
+                }
+            {% endif %}
+
+        }).click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+            validTab();
+        });
+
+        $('#myTab a:eq(' + tabIndex + ')').tab('show');
+
+        $('#id_documento-nome').typeahead({
+            minLength: 3,
+            source: function (query, process) {
+                $.get('/atendimento/documento/listar/', {q: query}, function (data) {
+                    return process(data);
+                }, 'json');
+            }
+        });
+
+    {% endblock %}
+
+</script>

@@ -1,0 +1,28 @@
+{% if assistido.tipo == 0 %}
+    [[ pessoa.casado ]]
+    <!-- Formulario de cadastro de membros da famímilia do Assistido -->
+    <div class="control-group" ng-repeat="membro in pessoa.membros | filter:{desativado_em:null}" ng-class="{'error': !membro.nome && ($index > 0 || pessoa.casada)}">
+        <label class="control-label">Membro: </label>
+        <div class="controls">
+            <div class="btn-group dropup">
+                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" ng-disabled="$index == 0">
+                    <span style="min-width: 165px;" ng-bind="get_membro(membro)"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="top: 100% !important; bottom: auto !important;">
+                    <li ng-repeat="i in tipo_membro">
+                        <a href="#" ng-click="set_membro($index, membro)" ng-bind="i"></a>
+                    </li>
+                </ul>
+            </div>
+            <input type="text" name="membro-nome" ng-model="membro.nome" class="span6" placeholder="Nome do membro familiar" autocomplete="off" ng-disabled="$index == 0 && !pessoa.casada" ng-required="($index > 0 || pessoa.casada)">
+            <input type="text" name="membro-renda" ng-model="membro.renda" class="span2" placeholder="Renda" title="Renda do membro familiar" mask-money bs-tooltip mm-options="{prefix:'R$ ', allowZero: true, thousands:'.', decimal:',', affixesStay: false}" ng-disabled="$index == 0 && !pessoa.casada" ng-change="recalcular_membros(); avaliar();">
+            <button type="button" class="btn" ng-click="remover_membro(membro)" ng-disabled="salvando" bs-tooltip="'Remover membro familiar'" ng-if="$index > 0">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button type="button" class="btn" ng-click="adicionar_membro(2)" ng-style="" bs-tooltip="'Adicionar membro familiar'">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,16 @@
+<!-- Modal Solicitar Acesso -->
+<div id="modal-solicitar-acesso" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="VerAgendaModal">Solicitar Acesso ao Assistido</h3>
+    </div>
+    <div class="modal-body">
+        <p>Deseja encaminhar uma solicitação de acesso a quem criou o cadastro deste assistido?</p>
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-primary" data-dismiss="modal" aria-hidden="true" ng-click="solicitar_acesso({{ acesso.defensoria.id }})">Sim</a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Não</a>
+    </div>
+</div>
+<!-- Modal Solicitar Acesso -->

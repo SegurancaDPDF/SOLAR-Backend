@@ -1,0 +1,57 @@
+{% extends "default.html" %}
+{% load static humanize %}
+
+{% block titulo %}Pessoas{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2><i class="helper-font-24 fas fa-user"></i>Pessoas
+        <small></small>
+    </h2> <!-- Cria um cabeçalho na página com um ícone e o texto "Pessoas" -->
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+    {% include 'atendimento/modal_upload_multiplos_documentos.html' %}
+    <!-- Inclui o conteúdo do arquivo "modal_upload_multiplos_documentos.html" na página -->
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+        <script type="text/javascript" src="{% static "js/app/controllers_atendimento.js" %}?v={{ config.JSVERSION }}"></script>
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/directives/cpfcnpj_diretiva_validacao.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_assistido.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/utils.js" %}?v={{ config.JSVERSION }}"></script>
+    <!-- Inclui scripts JavaScript necessários para o funcionamento da página, como controladores e utilitários -->
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_app %}
+
+        {% block js_ready_pag %}
+        {% endblock %}
+
+    {% endblock %}
+
+</script>
