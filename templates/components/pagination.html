@@ -1,0 +1,71 @@
+{% load contrib_tags humanize static %}
+<div class="pagination">
+    <div class="pull-left">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    </div>
+    <div class="pagination-right">
+        <ul>
+            <!-- Verifica se existe uma página anterior -->
+            {% if page_obj.has_previous %}
+                <li>
+                    <a href="?{% url_replace_tarefas page=1 %}" title="Primeira página" rel="tooltip">
+                        &laquo;
+                    </a>
+                </li>
+                <li>
+                    <a href="?{% url_replace_tarefas page=page_obj.previous_page_number %}" title="Página anterior" rel="tooltip">
+                        &lsaquo;
+                    </a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <a href="#" title="Primeira página" rel="tooltip">
+                        &laquo;
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a href="#" title="Página anterior" rel="tooltip">
+                        &lsaquo;
+                    </a>
+                </li>
+            {% endif %}
+
+            <!-- Loop para criar links de página para páginas intermediárias -->
+            {% for page in page_obj.paginator.page_range %}
+                {% if page >= page_obj.number|add:"-2" and page < page_obj.number %}
+                    <li><a href="?{% url_replace_tarefas page=page %}">{{ page }}</a></li>
+                {% endif %}
+                {% ifequal page_obj.number page %}
+                    <li class="active"><a href="#">{{ page_obj.number }}</a></li>
+                {% endifequal %}
+                {% if page <= page_obj.number|add:"2" and page > page_obj.number %}
+                    <li><a href="?{% url_replace_tarefas page=page %}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            <!-- Verifica se existe uma próxima página -->
+            {% if page_obj.has_next %}
+                <li>
+                    <a href="?{% url_replace_tarefas page=page_obj.next_page_number %}" title="Próxima página" rel="tooltip">
+                        &rsaquo;
+                    </a>
+                </li>
+                <li>
+                    <a href="?{% url_replace_tarefas page=page_obj.paginator.num_pages %}" title="Última página" rel="tooltip">
+                        &raquo;
+                    </a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <a href="#" title="Próxima página" rel="tooltip">
+                        &rsaquo;
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a href="#" title="Última página" rel="tooltip">
+                        &raquo;
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
