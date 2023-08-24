@@ -1,0 +1,66 @@
+{% extends "default.html" %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block titulo %}GED{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+        <link type="text/css" href="{% static "css/sisat.css" %}" rel="stylesheet">
+        <link type="text/css" href="{% static "css/jquery.pnotify.default.css" %}" rel="stylesheet">
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link rel="stylesheet" href="{% static 'luzfcb_djdocuments/js/vendor/izimodal/1.5.0/css/iziModal.css' %}">
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2><i class="helper-font-24 elusive-file-edit"></i> GED - Gestor de Documentos
+        <small></small>
+        <div class="pull-right">
+            <a href="{% url 'ged:painel_geral_documentos_modelo' %}" class="btn btn-primary" title="Procurar atendimentos" rel="tooltip" data-placement="left">
+                Modelos de Documentos
+            </a>
+        </div>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/controller_gestordocs.js" %}?v={{ config.JSVERSION }}"></script>
+    <script src="{% static 'luzfcb_djdocuments/js/luzfcb_djdocuments.js' %}"></script>
+
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_app %}
+
+        {% block js_ready_pag %}
+        {% endblock %}
+
+    {% endblock %}
+
+</script>

@@ -1,0 +1,327 @@
+{% extends "gestordocs/default.html" %}
+{% load humanize %}
+{% load staticfiles %}
+
+{% block css_pag %}
+<style>
+    .url_link:link {
+    	color: #0645AD;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .url_link:visited {
+        color: #0645AD;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .url_link:visited {
+        color: #0645AD;
+    }
+
+    .url_link:visited:active {
+        color: #0645AD;
+    }
+</style>
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <input hidden id="search_url" name="search_url" ng-model="search_url" value="{% url 'gestordocs:buscar_documentos' %}" />
+    <div ng-controller="GestorDocs">
+        <div class="navbar navbar-mb0">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="navbar-form">
+                        <div class="row-fluid no-space">
+                            <form class="navbar-form">
+                                {% csrf_token %}
+                                <div class="span2">
+                                    <input type="text" id="titulo_documento" name="titulo_documento" class="span12" placeholder="Título do Documento" title="Título do Documento" rel="tooltip" ng-model="titulo_documento" upper-text>
+                                </div>
+                                <div class="span2">
+                                    <input type="text" id="numero_documento" name="numero_documento" class="span12" placeholder="Número do Documento" title="Número do Documento" rel="tooltip" ng-model="numero_documento" upper-text>
+                                </div>
+                                <div class="span2">
+                                    <input type="text" id="numero_atendimento" name="numero_atendimento" class="span12" placeholder="Número do Atendimento" title="Número do Atendimento" rel="tooltip" ng-model="numero_atendimento" upper-text>
+                                </div>
+                                <div class="span2">
+                                    <input class="span12 datepicker ng-pristine ng-valid" title="Data Inicial" rel="tooltip" data-date-format="dd/mm/yyyy" id="data_inicial" name="data_inicial" ng-model="data_inicial" placeholder="Data Inicial" type="text">
+                                </div>
+                                <div class="span2">
+                                    <input class="span12 datepicker ng-pristine ng-valid" title="Data Final" rel="tooltip" data-date-format="dd/mm/yyyy" id="data_final" name="data_final" ng-model="data_final" placeholder="Data Final" type="text">
+                                </div>
+                                <div class="span2">
+                                    <select name="status_documento" id="status_documento" ng_model="status_documento" class="span12" title="Status do Documento" rel="tooltip">
+                                        <option ng-repeat="status in lst_status_documento" value="[[ status.id ]]">[[ status.status ]]</option>
+                                    </select>
+                                </div>
+                                <button ng-disabled="carregando" title="Buscar" rel="tooltip" class="btn actions-f12" type="submit" ng-click="buscar()">
+                                    <i ng-hide="carregando" class="icon-search"></i>
+                                    <img ng-show="carregando" src="{% static "img/loader_16.gif" %}">
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{#        LOADER#}
+        <div ng-if="carregando"><img src="{% static "img/loader_16.gif" %}"> Carregando...</div>
+{#        POR MENUS#}
+        <a href="{% url 'gestordocs:index' %}" ng-hide="qtd_documentos==0"  class="btn"><i class="icofont-arrow-left"></i> Voltar </a>
+        <div class="span4" ng-hide="qtd_documentos>0 || carregando">
+                <hr>
+                <table class="table table-hover responsive">
+                    <tbody>
+{#                        EM EDIÇÃO#}
+                        <tr style="cursor: pointer;">
+                            <td>
+                                <a ng-click="status_documento = 1; buscar()" class="row-fluid">
+                                    <div class="span1">
+                                        <i class="helper-font-24 icofont-folder-close color-yellow"></i>
+                                    </div>
+                                    <div class="span10">
+                                        <div>
+                                            EM EDIÇÃO <span class="badge">{{ documentos_em_edicao_qtd }}</span>
+                                        </div>
+                                        <small class="muted">
+                                            Documentos sendo editados
+                                        </small>
+                                    </div>
+                                    <div class="span1">
+                                        <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+
+{#                        PRONTOS PARA ASSINAR#}
+                        <tr style="cursor: pointer;">
+                            <td>
+                                <a ng-click="status_documento =2; buscar()" class="row-fluid">
+                                    <div class="span1">
+                                        <i class="helper-font-24 icofont-folder-close color-silver-dark"></i>
+                                    </div>
+                                    <div class="span10">
+                                        <div>
+                                            PRONTOS PARA ASSINAR <span class="badge">{{ documentos_prontos_para_assinar_qtd }}</span>
+                                        </div>
+                                        <small class="muted">
+                                            Documentos aguardando assinatura
+                                        </small>
+                                    </div>
+                                    <div class="span1">
+                                        <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+
+{#                        ASSINADOS#}
+                        <tr style="cursor: pointer;">
+                            <td>
+                                <a ng-click="status_documento = 3; buscar()" class="row-fluid">
+                                    <div class="span1">
+                                        <i class="helper-font-24 icofont-folder-close color-silver-dark"></i>
+                                    </div>
+                                    <div class="span10">
+                                        <div>
+                                            COM ASSINATURAS PENDENTES <span class="badge">{{ documentos_assinados_qtd }}</span>
+                                        </div>
+                                        <small class="muted">
+                                            Documentos assinados mas possuem assinaturas pendentes
+                                        </small>
+                                    </div>
+                                    <div class="span1">
+                                        <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+
+{#                        PRONTOS PARA FINALIZAR#}
+                        <tr style="cursor: pointer;">
+                            <td>
+                                <a ng-click="status_documento = 4; buscar()" class="row-fluid">
+                                    <div class="span1">
+                                        <i class="helper-font-24 icofont-folder-close color-yellow"></i>
+                                    </div>
+                                    <div class="span10">
+                                        <div>
+                                            PRONTOS PARA FINALIZAR <span class="badge">{{ documentos_prontos_para_finalizar_qtd }}</span>
+                                        </div>
+                                        <small class="muted">
+                                            Documentos aguardando conclusão
+                                        </small>
+                                    </div>
+                                    <div class="span1">
+                                        <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+
+{#                        FINALIZADOS#}
+                        <tr style="cursor: pointer;">
+                            <td>
+                                <a ng-click="status_documento = 5; buscar()" class="row-fluid">
+                                    <div class="span1">
+                                        <i class="helper-font-24 icofont-folder-close color-yellow"></i>
+                                    </div>
+                                    <div class="span10">
+                                        <div>
+                                            FINALIZADOS <span class="badge">{{ documentos_finalizados_qtd }}</span>
+                                        </div>
+                                        <small class="muted">
+                                            Documentos concluídos e publicados
+                                        </small>
+                                    </div>
+                                    <div class="span1">
+                                        <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+
+{#                        HOJE#}
+                        <tr style="cursor: pointer;">
+                            <td>
+                                <a ng-click="data_inicial = (hoje | date:'dd/MM/yyyy'); buscar()" class="row-fluid">
+                                    <div class="span1">
+                                        <i class="helper-font-24 icofont-folder-close color-yellow"></i>
+                                    </div>
+                                    <div class="span10">
+                                        <div>
+                                            DE HOJE
+                                        </div>
+                                        <small class="muted">
+                                            Documentos do dia atual
+                                        </small>
+                                    </div>
+                                    <div class="span1">
+                                        <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+{#        ========================#}
+        <div id="conteudo" class="row-fluid">
+            <div class="span4"></div>
+            <div class="span8">
+                <div ng-if="documento">
+                    <hr />
+                    <div class="pull-left">
+                        <span class="label label-info">[[ documento.tipo_documento ]]</span>
+                        <span class="label label-info" title="[[ documento.grupo_dono ]]" rel="tooltip">
+                            [[ documento.grupo_dono ]]
+                        </span>
+                        <h4 class="text-info" style="margin: 0;">
+                            <i class="icofont-cloud"></i>
+                            [[ documento.doc_num_versao ]] - [[ documento.assunto ]]
+                        </h4>
+                        <div>
+                            <span class="muted">Criado por [[ documento.criado_por ]] em [[ documento.criado_em ]]</span>
+                        </div>
+                    </div>
+                    <div class="pull-right">
+                        <a href="/ged/docs/d/[[ documento.pk_uuid ]]/editar/" class="btn djpopup djfullscreen" ng-if="documento.pode_editar_documento">
+                            <i class="icon-pencil"></i>
+                            <br>
+                            <small>Editar</small>
+                        </a>
+                        <a href="/ged/docs/d/[[ documento.pk_uuid ]]/validar-detail/" class="btn djpopup djfullscreen reloadparentonclose" ng-hide="documento.pode_editar_documento">
+                            <i class="icon-edit"></i>
+                            <br>
+                            <small>Assinar</small>
+                        </a>
+{#                        <a href="/ged/docs/d/[[ documento.pk_uuid ]]/assinaturas/finalizar/"  class="btn djpopup djfullscreen reloadparentonclose" data-ajaxmodal="true" data-ajaxmodal-prefetch="true" ng-if="!documento.esta_assinado && documento.pronto_para_finalizar">#}
+{#                            <i class="icon-edit"></i>#}
+{#                            <br>#}
+{#                            <small>Finalizar</small>#}
+{#                        </a>#}
+                        <a href="[[ documento.atendimento.url ]]#/documento/[[ documento.atendimento.documento_id ]]/modal-documento-agendar" id="btn-documento-agendar" type="button" class="btn" data-placement="top" title="Agendar resposta" rel="tooltip" ng-if="!documento.atendimento.atividade">
+                            <i class="icon-calendar"></i>
+                            <br/>
+                            <small>Agendar</small>
+                        </a>
+                        <a href="[[ documento.atendimento.url ]]#/documento/[[ documento.atendimento.documento_id ]]/modal-nucleo-diligencia" id="btn-documento-enviar-diligencia" type="button" class="btn" data-placement="top" title="Enviar para diligência" rel="tooltip" ng-if="documento.esta_assinado">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <br/>
+                            <small>Diligência</small>
+                        </a>
+                        <a href="[[ documento.atendimento.url ]]#/documento/[[ documento.atendimento.documento_id ]]" class="btn" data-placement="top" title="Abrir Atendimento vinculado" rel="tooltip" ng-if="documento.atendimento">
+                            <i class="icofont-comments-alt"></i>
+                            <br>
+                            <small>Atendimento</small>
+                        </a>
+                        <a href="/nucleo/procedimento/codigo/[[ documento.pk_uuid ]]/" class="btn" data-placement="top" title="Abrir PROPAC vinculado" rel="tooltip" ng-if="documento.documento_propac">
+                            <i class="icofont-folder-open color-yellow"></i>
+                            <br>
+                            <small>PROPAC</small>
+                        </a>
+                        <a href="/ged/docs/d/[[ documento.pk_uuid ]]/validar-detail/pdf?download=true" class="btn" ng-if="documento.esta_assinado">
+                            <i class="icon-download"></i>
+                            <br>
+                            <small>Baixar</small>
+                        </a>
+                        <a href="/ged/docs/d/[[ documento.pk_uuid ]]/validar-detail/" class="btn djpopup djfullscreen">
+                            <i class="icon-info-sign"></i>
+                            <br>
+                            <small>Detalhes</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span4">
+                <hr>
+                <div id="tabela">
+                    <table class="table table-hover responsive">
+                        <tbody>
+                            <tr style="cursor: pointer;" ng-repeat="documento in documentos">
+                                <td ng-click="buscar_documento([[ documento.pk_uuid ]])">
+                                    <a href="" class="row-fluid">
+                                        <div class="span1">
+                                            <i class="helper-font-24 icofont-cloud"></i>
+                                        </div>
+                                        <div class="span10">
+                                            <div>
+                                                [[ documento.titulo_documento ]]
+                                            </div>
+                                            <small class="muted">
+                                                [[ documento.numero_documento ]]v[[ documento.numero_versao ]] - <span title="[[ documento.atendente ]]" rel="tooltip">[[ documento.atendente_login ]]</span> em [[ documento.criado_em ]]
+                                            </small>
+                                        </div>
+                                        <div class="span1">
+                                            <i class="icofont-chevron-right pull-right" style="margin-top:40%;"></i>
+                                        </div>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+                </div>
+            </div>
+            <div class="span8">
+                <hr>
+                <object ng-show="documento" id="pre-visualizacao" data="" type="text/html"
+                    width="100%" height="680px">
+                    Visualização Indisponível
+                </object>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+
+{% endblock %}
