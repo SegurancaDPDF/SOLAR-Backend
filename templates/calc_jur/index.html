@@ -1,0 +1,105 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="cache-control" content="max-age=86400" />
+    <meta http-equiv="Content-Language" content="pt-br" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="{% static 'css/calc.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' />
+    <!-- Include Bootstrap Datepicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+
+    <title>SOLAR - Calculadora DPE-{{sigla_uf}}</title>
+</head>
+
+<body>
+    <div id="main" class="container">
+        <header>
+            <h2>
+                <i class="fas fa-calculator"></i>
+                SOLAR - Calculadora Jurídica da DPE-{{sigla_uf}}
+            </h2>
+        </header>
+        <div class="tab">
+            <!-- aba Pensão Por Datas de Vencimento -->
+            <button
+                id="btn-tab-datas-vencimento"
+                class="tablinks active"
+                value="1"
+                onclick="openTab(event, 'tab-datas-vencimento')"
+            >
+                Pensão Por Datas de Vencimento
+            </button>
+            <!-- aba Pensão Por Período -->
+            <button
+                id="btn-tab-periodo"
+                class="tablinks"
+                value="0"
+                onclick="openTab(event, 'tab-periodo')"
+            >
+                Pensão Por Período
+            </button>
+             <!-- aba Executória -->
+            <button
+                id="btn-tab-executoria"
+                class="tablinks"
+                value="0"
+                onclick="openTab(event, 'tab-executoria')"
+            >
+                Execução Penal
+         </button>
+        </div> <!-- fim .tab -->
+        {% include "calc_jur/tab_pensao_por_datas_vencimento.html" %}
+        {% include "calc_jur/tab_pensao_por_periodo.html" %}
+        {% include "calc_jur/tab_execucao_penal.html" %}
+
+    </div> <!-- fim .container #main -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="{% static 'js/calc_jur/jquery.maskMoney.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/calc_jur/controller_calculadora.js' %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $(() => {
+            $('#outro_valor_base').maskMoney({
+                    prefix:'R$ ',
+                    allowNegative: true,
+                    thousands:'.',
+                    decimal:',',
+                    affixesStay: false
+            });
+            $('#outro-valor-base-periodo').maskMoney({
+                prefix:'R$ ',
+                allowNegative: true,
+                thousands:'.',
+                decimal:',',
+                affixesStay: false
+            });
+            $('.input_valor_pago').maskMoney({
+                prefix:'R$ ',
+                allowNegative: true,
+                thousands:'.',
+                decimal:',',
+                affixesStay: false
+            });
+            $('dataVencimento-0').datepicker({
+                uiLibrary: 'bootstrap4'
+            });
+        })
+    </script>
+</body>
+</html>
+
+

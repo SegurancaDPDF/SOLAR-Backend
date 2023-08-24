@@ -1,0 +1,217 @@
+<div id="tab-executoria" class="tabcontent">
+    <div class="flex-container-column">
+        <input type="hidden" id="tokencsrf" value="{{ csrf_token }}">
+
+        <div class="flex-container-row2">
+            <h3>Dados Básicos</h3>
+        </div>
+
+        <div class="flex-container-row2">
+
+            <!-- Primeiro bloco de informações: Pena -->
+            <div class="dados-basicos-container flex-container-column">
+                <div class="flex-container-row2">
+                    <h4 class="required">Pena</h4>
+                </div>
+
+                <div class="flex-container-row2">
+                    <div class="flex-container-column">
+                        <label for="input_anos" class="label_duracao">Anos:</label>
+                        <input type="number" id="input_duracao_anos" value="0" class="input_number" min="0" />
+                    </div>
+                    <div class="flex-container-column">
+                        <label for="input_meses" class="label_duracao">Meses:</label>
+                        <input type="number" id="input_duracao_meses" value="0" class="input_number" min="0" />
+                    </div>
+                    <div class="flex-container-column">
+                        <label for="input_dias" class="label_duracao">Dias:</label>
+                        <input type="number" id="input_duracao_dias" value="0" class="input_number" min="0" />
+                    </div>
+                </div>
+                <br/>
+                <!-- Bloco com campo para inserção da data de início da condenação -->
+                <div class="flex-container-row2">
+                    <div class="flex-container-column">
+                        <label class="required" for="inicio-pena">Data de Início da Condenação:</label>
+                        <input type="date" id="input_inicio_pena">
+                    </div>
+
+                </div>
+                <br/>
+            </div>
+            <!-- Segundo bloco de informações: Interrupção -->
+            <div class="dados-basicos-container flex-container-column-grey">
+                <div class="flex-container-row2">
+                    <h4>Interrupção</h4>
+                </div>
+                <div class="flex-container-row2">
+                    <!-- Bloco com campos para inserção da duração da interrupção -->
+                    <div class="flex-container-column">
+                        <label for="input_anos" class="label_duracao">Anos:</label>
+                        <input type="number" id="input_interrup_anos_remidos" value="0" class="input_number" min="0">
+                    </div>
+                    <div class="flex-container-column">
+                        <label for="input_meses" class="label_duracao">Meses:</label>
+                        <input type="number" id="input_interrup_meses_remidos" value="0" class="input_number" min="0">
+                    </div>
+                    <div class="flex-container-column">
+                        <label for="input_dias" class="label_duracao">Dias:</label>
+                        <input type="number" id="input_interrup_dias_remidos" value="0" class="input_number" min="0">
+                    </div>
+                </div>
+            </div>
+            <!-- Terceiro bloco de informações: Detração -->
+            <div class="dados-basicos-container flex-container-column">
+                <div class="flex-container-row2">
+                    <h4>Detração</h4>
+                </div>
+                <div class="flex-container-row2">
+                    <div class="flex-container-column">
+                        <label for="input_anos" class="label_duracao">Anos:</label>
+                        <input type="number" id="input_detracao_anos" value="0" class="input_number" min="0" />
+                    </div>
+                    <div class="flex-container-column">
+                        <label for="input_meses" class="label_duracao">Meses:</label>
+                        <input type="number" id="input_detracao_meses" value="0" class="input_number" min="0" />
+                    </div>
+                    <div class="flex-container-column">
+                        <label for="input_dias" class="label_duracao">Dias:</label>
+                        <input type="number" id="input_detracao_dias" value="0" class="input_number" min="0" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <br /><br />
+        <div class="flex-container-row2">
+
+            <div class="flex-container-column">
+                <label for="inicio-pena">Data do Fato:</label>
+                    <input type="date" id="input_data_fato" onchange="sugerirPercentualOuFracao()" >
+
+            </div>
+
+            <div class="flex-container-column">
+                <label for="dias-descontados">Dias Remidos:</label>
+                    <input type="number" id="input_dias_remidos" value="0" class="input_number_remidos" />
+
+            </div>
+            <div class="flex-container-column">
+                <label for="dias-descontados">
+                    Retirar Dias Remidos <br/>Após o Cálculo das Frações?
+                </label>
+                <input type="checkbox" id="dias_remidos_is_checked" value="E" checked />
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="flex-container-row2">
+            <h3>Cálculo de Progressão de Regime</h3>
+        </div>
+
+        <div class="flex-container-row2">
+            <div class="flex-container-column">
+                <div class="flex-container-row2-centered">
+                    <h4>Fração</h4>
+                </div>
+                <div class="flex-container-row2">
+                    <div class="flex-container-column">
+                        <input type="number" id="input_numerador" value="3" class="input_number" />
+                    </div>
+                    <div class="flex-container-column">
+                        <span class="label_barra">/</span>
+                    </div>
+                    <div class="flex-container-column">
+                        <input type="number" id="input_denominador" value="4" class="input_number" />
+                    </div>
+                </div>
+            </div>
+            <div class="flex-container-column">
+                <div class="flex-container-row2-centered">
+                    <h4>Percentual</h4>
+                </div>
+                <div class="flex-container-row2">
+                    <div class="flex-container-column">
+                        <input type="number" id="input_percentual" value="0" class="input_number_remidos" min="0" />
+                    </div>
+                    <div class="flex-container-column">
+                        <span class="label_barra">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if URL_CARTILHA_EXEC_PENAL %}
+        <div class="flex-container-row2-centered">
+            <a href='{{ URL_CARTILHA_EXEC_PENAL }}' target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>Cartilha Execução Penal</a>
+        </div>
+        <br />
+        {% endif %}
+        <div id="span_sugestao_lei" class="sugestao_lei"></div>
+
+    </div>
+
+    <div class="footer footer2">
+        <button id="btn_calcular_penal" class="btn-calcular">
+            <span class="fas fa-equals texto_azul"></span> Calcular
+        </button>
+        <button id="btn-calculando-datas" class="btn-calcular buttonload" disabled=true style="display: none">
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+            Calculando
+        </button>
+    </div> <!-- fim .footer-->
+
+
+    <div id="div-calculando-pena" class="div_resultado_parcelas">
+
+        <table id="tabela_parcelas_penal">
+            <tr>
+                <td colspan="2">
+                    <h4 id="header_parcelas" class="header_parcelas">
+                        <i class="fas fa-table"></i>
+                        Cálculo<span id="span_termino_pena"></span>
+                    </h4>
+                </td>
+            </tr>
+            <tr>
+                <td><b>1/2</b></td>
+                <td><span id="span_fracao_1_2"></span></td>
+            </tr>
+            <tr>
+                <td><b>1/3</b></td>
+                <td><span id="span_fracao_1_3"></span></td>
+            </tr>
+            <tr>
+                <td><b>3/5</b></td>
+                <td><span id="span_fracao_3_5"></span></td>
+            </tr>
+            <tr>
+                <td><b>2/5</b></td>
+                <td><span id="span_fracao_2_5"></span></td>
+            </tr>
+            <tr>
+                <td><b>1/6</b></td>
+                <td><span id="span_fracao_1_6"></span></td>
+            </tr>
+            <tr>
+                <td><b>Fração <span id="fracao_valor"></span></b></td>
+                <td><span id="span_fracao_personalizada"></span></td>
+            </tr>
+            <tr>
+                <td><b>Percentual <span id="percentual_valor"></span></b></td>
+                <td><span id="span_percentual"></span></td>
+            </tr>
+
+        </table>
+        <div class="header_parcelas">
+            <button id="btn_gerar_excel_penal" class="btn_gerar_excel">
+                <i class="fas fa-file-excel texto_verde"></i>
+                Salvar como Excel
+            </button>
+        </div>
+    </div> <!-- fim #div-calculando-pena-->
+
+
+</div> <!-- fim .tabcontent -->

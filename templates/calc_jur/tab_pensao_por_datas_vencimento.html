@@ -1,0 +1,83 @@
+<div id="tab-datas-vencimento" class="tabcontent">
+    <div id="content-1" class="flex-container-column">
+    
+        <!-- Título e botões relacionados às datas de vencimento -->
+        <div id="div-datas-vencimento-titulo" class="flex-container-row2">
+            <h4><b>Datas de Vencimento</b></h4>
+            <div style="margin: 10px;">
+                <button class="btn_vencimento_excluir" value="1" id="btn-excluir-data-vencimento"><span class="fas fa-times-circle texto_vermelho"></span> Excluir Data</button>
+                <button class="btn_vencimento_adicionar" value="0" id="btn-add-data-vencimento-0"><span class="fas fa-plus-circle texto_verde"></span> Adicionar Data</button>
+            </div>
+            
+        </div>
+            
+        <!-- Container para exibir uma data de vencimento -->
+        <div id="div-datas-vencimento" class="flex-container-row">
+            <input type="date" class="data_vencimento" id="dataVencimento-0" />
+        </div>
+            
+        
+        <hr>
+           
+        
+        <div id="div-formas-cobranca-titulo" class="flex-container-row">
+            <h4><b>Forma de Cobrança</b></h4>
+        </div>
+
+        <!-- Container para opções de formas de cobrança -->
+        <div id="div-formas-cobranca" class="flex-container-row2">
+            <div class="flex-container-column">
+                <label for="select_valor_base">Valor base de cálculo:</label>
+                <select id="select_valor_base" class="input_combobox">
+                    <option value="salario_minimo">Salário mínimo vigente</option>
+                    <option value="outro_valor">Outro valor base de salário</option>
+                    <option value="valor_fixo">Valor fixo para parcelas</option>
+                </select>
+            </div>
+            <div class="flex-container-column">
+                <label for="outro_valor_base">Valor:</label>
+                <input type="text" class="input_calculo" id="outro_valor_base" placeholder="0,00" disabled />
+            </div>
+            <div class="flex-container-column">
+                <label for="percentual">% de salário:</label>
+                <input type="text" class="input_calculo" id="percentual" value="30,0">
+            </div>
+            <div class="flex-container-column">
+                <label for="percentual_juros">% de Juros:</label>
+                <input type="text" class="input_calculo" id="percentual_juros" value="0,00"/>
+            </div>
+
+        </div>
+        
+        <div class="footer">
+            <button id="btn_calcular" class="btn-calcular">
+                <span class="fas fa-equals texto_azul"></span> Calcular
+            </button>
+            <button
+                id="btn-calculando-datas"
+                class="btn-calcular buttonload"
+                style="display: none"
+                disabled=true>
+                <i class="fa fa-circle-o-notch fa-spin"></i>Calculando
+            </button>
+        </div>
+
+        <div id="resultado_parcelas" class="div_resultado_parcelas">
+            
+            <h4 id="header_parcelas" class="header_parcelas">
+                <i class="fas fa-table"></i>
+                Parcelas
+            </h4>
+                  
+            <table id="tabela_parcelas" class="tabela_parcelas"></table>
+            
+            <div class="header_parcelas">
+                <button id="btn_gerar_excel" class="btn_gerar_excel">
+                    <i class="fas fa-file-excel texto_verde"></i>
+                    Salvar como Excel
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

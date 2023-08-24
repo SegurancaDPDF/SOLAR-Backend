@@ -1,0 +1,93 @@
+<div id="tab-periodo" class="tabcontent">
+    <div class="flex-container-column">
+        
+        <h4>Período de Cobrança</h4>
+        
+        <div class="flex-container-row2">
+
+            <div class="flex-container-column">
+                <label for="mes-inicio">De:</label>
+                <input type="month" id="mes-inicio" class="input_calculo_lg" placeholder="aaaa-mm" />
+            </div>
+
+            <div class="flex-container-column">
+                <label for="mes-fim">Até:</label>
+                <input type="month" id="mes-fim" class="input_calculo_lg" placeholder="aaaa-mm" />
+            </div>
+            
+            <div class="flex-container-column">
+                <label for="dia-vencimento">Dia de vencimento da parcela:</label>
+                <select id="dia-vencimento" class="input_calculo_lg"></select>
+            </div>
+            
+        </div>
+        
+        <hr>
+        
+        <h4>Forma de Cobrança</h4>
+        <!-- Container de coluna flexível -->
+        <div class="flex-container-row2">
+
+            <div class="flex-container-column">
+                <label for="select-valor-base-periodo">Valor base de cálculo:</label>
+                <select id="select-valor-base-periodo" class="input_combobox">
+                    <option value="salario_minimo">Usar salário mínimo vigente</option>
+                    <option value="outro_valor">Usar outro valor base de salário</option>
+                    <option value="valor_fixo">Usar valor fixo para parcelas</option>
+                </select>
+            </div>
+
+            <div class="flex-container-column">
+                <label for="outro-valor-base-periodo">Valor:</label>
+                <input type="text" class="input_calculo" id="outro-valor-base-periodo" placeholder="0,00" disabled />
+            </div>
+
+            <div class="flex-container-column">
+                <label for="percentual-periodo">Percentual de salário:</label>
+                <input type="text" class="input_calculo" id="percentual-periodo" value="30,0" />
+            </div>
+
+            <!-- Container de coluna flexível -->
+            <div class="flex-container-column">
+                <label for="percentual-juros-periodo">Percentual de Juros:</label>
+                <input type="text" class="input_calculo" id="percentual-juros-periodo" value="0,00" />
+            </div>
+        
+        </div>
+       
+         <div class="footer">
+            <button id="btn-calcular-periodo" class="btn-calcular">
+                <span class="fas fa-equals texto_azul"></span> Calcular
+            </button>
+            
+            <button
+                id="btn-calculando-periodo"
+                class="btn-calcular buttonload"
+                style="display: none"
+                disabled=true
+            >
+                <i class="fa fa-circle-o-notch fa-spin"></i>Calculando
+            </button>
+        </div>
+
+        <!-- Div para exibir o resultado das parcelas do período -->
+        <div id="resultado_parcelas_periodo" class="div_resultado_parcelas">
+            
+            <h4 id="header-parcelas-periodo" class="header_parcelas_periodo">
+                <i class="fas fa-table"></i>
+                Parcelas
+            </h4>
+
+            
+            <table id="tabela_parcelas_periodo" class="tabela_parcelas"></table>
+            
+            <div class="header_parcelas_periodo">
+                <button id="btn-gerar-excel-periodo" class="btn_gerar_excel">
+                    <i class="fas fa-file-excel texto_verde"></i>
+                    Salvar como Excel
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
