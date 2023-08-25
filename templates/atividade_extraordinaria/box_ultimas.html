@@ -1,0 +1,113 @@
+<style>
+    .form-horizontal .control-label { width: 105px; }
+    .form-horizontal .controls { margin-left: 115px; }
+</style>
+
+{% include "atendimento/partials/modal/confirm-delete.html" %}
+{% include "atividade_extraordinaria/modal_atividade.html" %}
+{% include "atividade_extraordinaria/modal_atividade_brinquedoteca.html" %}
+
+<div id="atividades-extraordinarias">
+    <div class="row-fluid">
+        <div class="pull-right" style="margin-top: 8px;">
+            <a  class="btn btn-small btn-success" data-target="#modal-atividade" data-toggle="modal" ng-click="atividade_modal_cadastrar('modal-atividade')" ng-if="!perms.pode_registrar_tipo_brinquedoteca">
+                <i class="fas fa-plus-circle"></i> Nova
+            </a>
+            <!-- Dropdown para adicionar nova atividade (com opções diferentes) -->
+            <div class="btn-group" ng-if="perms.pode_registrar_tipo_brinquedoteca">
+                <button id="btn-relatorios" class="btn btn-small btn-success dropdown-toggle" data-toggle="dropdown">
+                    <i class="fas fa-plus-circle"></i> Nova
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li>
+                        <a data-target="#modal-atividade" data-toggle="modal" ng-click="atividade_modal_cadastrar('modal-atividade')">
+                            Atividade Comum
+                        </a>
+                    </li>
+                    <li>
+                        <a data-target="#modal-atividade-brinquedoteca" data-toggle="modal" ng-click="atividade_modal_cadastrar('modal-atividade-brinquedoteca')">
+                            Atividade Brinquedoteca
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <a href="{% url 'atividade_extraordinaria:buscar' %}?defensoria=[[ params.defensoria[0] ]]{% if not mostrar_todas %}&defensor={{ request.user.servidor.defensor.id }}{% endif %}" class="btn btn-small">
+                <i class="fas fa-search"></i> Buscar
+            </a>
+        </div>
+        <h5>
+            <i class="fas fa-list"></i> Últimas Atividades Extraordinárias Cadastradas
+        </h5>
+    </div>
+    <div class="box-tab corner-all">
+        <div class="box-header corner-top"></div>
+        <div class="box-body" ng-hide="carregando_atividades">
+            <!-- INI Prateleria por defensoria -->
+            <!-- Laço para exibir atividades por defensoria -->
+            <div class="accordion-group"    
+                    ng-repeat="defensoria in defensorias"
+                    ng-cloak>
+                <div class="accordion-heading">
+                    <a class="accordion-toggle more collapsed bg-silver color-black"
+                        data-toggle="collapse" data-parent="#accordion_atividades"
+                        href="#collapse_atividades[[defensoria.id]]"
+                        style="text-align: left;">
+                        <i class="helper-font-18 fas fa-chevron-down pull-right"></i>
+                        <i class="helper-font-18 fas fa-chevron-up pull-right"></i>
+                        <!--
+                        <span class="label label-success" title="Titular" bs-tooltip ng-show="atuacao.atuacao==2">T</span>
+                        <span class="label label-success" title="Acumulação" bs-tooltip ng-show="atuacao.atuacao==1">A</span>
+                        <span class="label label-info" title="Substituição" bs-tooltip ng-show="atuacao.atuacao==0">S</span>
+                        -->
+                        [[ defensoria.nome ]]
+                        <span class="text-error">([[ (atividades | filter:{setor_criacao: {id:defensoria.id}}).length ]])</span>
+                    </a>
+                </div>
+                <div id="collapse_atividades[[defensoria.id]]" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <div class="tab-pane fade in active">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr ng-repeat="atividade in atividades | filter:{setor_criacao: {id:defensoria.id}}">
+                                        <td>
+                                            <div>
+                                                <b>[[ atividade.titulo ]]</b>
+                                            </div>
+                                            <small>
+                                                <b>Tipo:</b> [[ atividade.tipo.nome ]]
+                                            </small>
+                                            <br>
+                                            <small>
+                                                <b>Data:</b> [[ atividade.data_referencia_pt_br ]]
+                                            </small>
+                                            <br>
+                                            <!-- Informações do cadastrador e data de cadastro -->
+                                            <small class="muted">Cadastrado por <span bs-tooltip="atividade.cadastrado_por.nome">[[ atividade.cadastrado_por.username ]]</span> em [[atividade.cadastrado_em | date:'dd/MM/yyyy HH:mm' ]]</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default btn-small ng-scope" title="Encerrar" ng-click="encerrar(atividade)" ng-if="atividade.tipo.eh_brinquedoteca && !atividade.encerrado_em"><i class="fas fa-check"></i></button>
+                                                <a href="[[ enviar_documentos_url(atividade, '{{ request.get_full_path }}') ]]" class="btn btn-default btn-small" title="Enviar Documentos"><i class="fas fa-file-upload"></i></a>
+                                                <button type="button" class="btn btn-default btn-small ng-scope" title="Editar" ng-click="atividade_modal_editar(atividade)"><i class="fas fa-pencil-alt"></i></button>
+                                                <button type="button" class="btn btn-danger btn-small modal-confirm-delete" title="Excluir" data-callback="callback_atividade_confirmed_delete" data-id="[[atividade.id]]" data-message="Tem certeza que deseja excluir a atividade <strong>[[atividade.titulo]]</strong>?"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="!(atividades | filter:{setor_criacao: {id:defensoria.id}}).length">
+                                        <td>
+                                            <p class="text-center">
+                                                <b>Nenhuma atividade cadastrada</b>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIM Prateleria por defensoria -->
+        </div>
+        <div class="text-center" ng-show="carregando_atividades"><img src="/static/img/loader_16.gif"> Carregando...</div>
+    </div>
+</div>

@@ -1,0 +1,167 @@
+{% extends "atividade_extraordinaria/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block css_pag %}
+    <link rel="stylesheet" href="{% static "css/redactor.min.css" %}">
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+            {{ formulario.texto }}
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <form id="FormularioNucleoForm" name="FormularioNucleoForm" method="post" action="?" class="form form-horizontal">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% for sessao in sessoes %}
+            <fieldset>
+                <legend>
+                    {% if request.user.is_superuser %}
+                        <!-- Link para editar pergunta (somente para superusuário) -->
+                        <a href="{% url 'admin:nucleo_pergunta_change' sessao.id %}" target="_blank" title="Pergunta Admin" rel="tooltip">
+                            <i class="fas fa-link"></i>
+                        </a>
+                    {% endif %}
+                    {{ sessao.texto }}
+                </legend>
+                {% for pergunta in sessao.perguntas %}
+                    <div class="clearfix">
+                        <label>
+                            {% if request.user.is_superuser %}
+                                <a href="{% url 'admin:nucleo_pergunta_change' pergunta.id %}" target="_blank" title="Pergunta Admin" rel="tooltip">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                            {{ pergunta.texto }}
+                            <small class="muted">{{ pergunta.texto_complementar | default:"" }}</small>
+                        </label>
+                        {% if pergunta.tipo == 0 %}
+                            <!-- Texto (Curto) -->
+                            <input type="text" id="p{{ pergunta.id }}" name="{{ pergunta.id }}" value="{{ pergunta.resposta }}" class="{{ pergunta.classe_css }}" maxlength="255" autocomplete="off">
+                        {% elif pergunta.tipo == 6 %}
+                            <!-- Texto (Longo) -->
+                            <textarea id="p{{ pergunta.id }}" name="{{ pergunta.id }}" class="{{ pergunta.classe_css }}" rows="5">{{ pergunta.resposta }}</textarea>
+                        {% elif pergunta.tipo == 1 %}
+                            <!-- Número -->
+                            <input type="number" name="{{ pergunta.id }}" value="{{ pergunta.resposta }}">
+                        {% elif pergunta.tipo == 2 %}
+                            <!-- Data -->
+                            <input type="date" name="{{ pergunta.id }}" value="{{ pergunta.resposta }}">
+                        {% elif pergunta.tipo == 3 and pergunta.alternativas_url %}
+                            <!-- Lista (Única escolha) (AJAX) -->
+                            <input type="text" id="p{{ pergunta.id }}" name="{{ pergunta.id }}" value="{{ pergunta.resposta }}" class="{{ pergunta.classe_css }}" maxlength="255" autocomplete="off" data-provide="typeahead" data-source="{{ pergunta.alternativas_url }}" data-source-key="{{ pergunta.alternativas.0 }}">
+                        {% elif pergunta.tipo == 3 %}
+                            <!-- Lista (Única escolha) -->
+                            <select name="{{ pergunta.id }}" class="{{ pergunta.classe_css }} ativar-select2">
+                                <option value="" >Selecione...</option>
+                                {% for alternativa in pergunta.alternativas %}
+                                    <option value="{{ alternativa }}" {% if alternativa == pergunta.resposta %}selected="selected"{% endif %}>{{ alternativa }}</option>
+                                {% endfor %}
+                            </select>
+                        {% elif pergunta.tipo == 5 and pergunta.alternativas_url %}
+                            <!-- Lista (Múltipla escolha) -->
+                            <input type="text" id="p{{ pergunta.id }}" name="{{ pergunta.id }}" value="{{ pergunta.resposta }}" class="{{ pergunta.classe_css }}" maxlength="255" autocomplete="off" placeholder="Selecione uma ou mais opções ou adicione uma nova..." data-provide="select2" data-source="{{ pergunta.alternativas_url }}" data-source-key="{{ pergunta.alternativas.0 }}">
+                        {% elif pergunta.tipo == 5 %}
+                            <!-- Lista (Múltipla escolha) -->
+                            <select name="{{ pergunta.id }}" class="{{ pergunta.classe_css }} ativar-select2" multiple placeholder="Selecione uma ou mais opções...">
+                                {% for alternativa in pergunta.alternativas %}
+                                    <option value="{{ alternativa }}" {% if alternativa in pergunta.respostas %}selected="selected"{% endif %}>{{ alternativa }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </fieldset>
+        {% endfor %}
+    </form>
+
+    <div class="form-actions">
+        <div class="pull-right">
+            <a href="#" onclick="javascript:window.history.back();" class="btn">
+                <i class="fas fa-ban"></i> Cancelar
+            </a>
+            <button class="btn btn-primary" name="acao" value="salvar" type="submit" form="FormularioNucleoForm" title="Salva formulário sem gerar documento ged" rel="tooltip">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+            <button class="btn btn-primary" name="acao" value="salvar_e_assinar" type="submit" form="FormularioNucleoForm" title="Salva formulário e gera documento ged para assinatura e impressão" rel="tooltip">
+                <i class="fas fa-save"></i> Salvar e Assinar
+            </button>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('[data-provide="typeahead"]').each(function () {
+        var data_source_url = $(this).attr('data-source');
+        var data_source_key = $(this).attr('data-source-key');
+        $(this).typeahead({
+            minLength: 3,
+            source: function (query, process) {
+                $.get(data_source_url, {search: query}, function (data) {
+                    var results = [];
+                    data.results.forEach((item) => {
+                        results.push(item[data_source_key]);
+                    });
+                    return process(results);
+                }, 'json');
+            }
+        });
+    });
+
+    $('[data-provide="select2"]').each(function () {
+        var input = $(this);
+        var data_source_url = $(this).attr('data-source');
+        var data_source_key = $(this).attr('data-source-key');
+        $.get(data_source_url, function (data) {
+            var results = [];
+            data.results.forEach((item) => {
+                Array.prototype.push.apply(results, item[data_source_key].split(','));
+            });
+            $(input).select2({
+                dropdownAutoWidth: true,
+                tags: results
+            });
+        }, 'json');
+    });
+
+    $('textarea').redactor({
+        buttons: [
+            'bold',
+            'italic',
+            'underline',
+            '|',
+            'alignleft',
+            'aligncenter',
+            'alignright',
+            'justify',
+            '|',
+            'unorderedlist',
+            'orderedlist',
+            'outdent',
+            'indent',
+            '|',
+            'table',
+            'horizontalrule'
+        ],
+        lang: 'pt_br',
+        plugins: ['fullscreen'],
+        minHeight: 300
+    });
+
+{% endblock %}
+
+{% block js_pag %}
+    <!-- Carregamento de scripts JavaScript -->
+    <script type="text/javascript" src="{% static "js/redactor/redactor.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_pt_br.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_fullscreen.min.js" %}"></script>
+
+{% endblock %}

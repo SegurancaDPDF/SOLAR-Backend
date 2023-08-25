@@ -1,0 +1,101 @@
+<div id="modal-atividade" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Atividade Extraordinária</h3>
+    </div>
+    <form action="{% url 'atividade_extraordinaria:salvar' %}" class="form form-horizontal mb-0" data-is-ajax data-inside-modal data-callback-success="callback_atividade_salvar">
+        <!-- Formulário de criação de atividade, com chamada AJAX e manipulador de sucesso -->
+        <input type="hidden" name="id" id="atividade-id" value="">
+        <!-- Campo oculto para armazenar o ID da atividade -->
+
+        <div class="modal-body">
+            <!-- Grupo de controle para um campo -->
+            <div class="control-group">
+                <label for="atividade-titulo" class="control-label">Título</label>
+                <div class="controls">
+                    <input type="text" name="titulo" id="atividade-titulo" class="span12" placeholder="Informe título da atividade" required>
+                    <span class="help-inline hide"></span>
+                    <!-- Elemento para exibir mensagens de ajuda ou erro -->
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="atividade-data_referencia" class="control-label">Data</label>
+                <div class="controls">
+                    <input type="text" name="data_referencia" id="atividade-data_referencia" class="datepicker span12" data-date-format="dd/mm/yyyy" data-toggle="datepicker" mask="99/99/9999" required>
+                </div>
+            </div>
+
+            {% if config.AREA_NO_CADASTRO_ATIVIDADE_EXTRAORDINARIA %}
+            <!-- Verifica se a configuração de área está habilitada para cadastro de atividade -->
+            <div class="control-group">
+                <label for="area" class="control-label">Área</label>
+                <div class="controls">
+                    <select name="area" id="area" class="span12" required>
+                        <option value="">--- Selecione uma opção ---</option>
+                        <option ng-repeat="tipo in areas" value="[[tipo.id]]">[[tipo.nome]]</option>
+                    </select>
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="control-group">
+                <label for="atividade-tipo" class="control-label">Tipo</label>
+                <div class="controls">
+                    <select name="tipo" id="atividade-tipo" class="span12" required>
+                        <option value="">--- Selecione uma opção ---</option>
+                        <option ng-repeat="tipo in atividades_tipos | filter: {eh_brinquedoteca: false}" value="[[tipo.id]]">[[tipo.nome]]</option>
+                    </select>
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="atividade-numero-presentes" class="control-label">Nº Presentes</label>
+                <div class="controls">
+                    <input type="number"  min="0" max="9999" name="numero" id="atividade-numero" class="span12" placeholder="Informe o nº de pessoas presentes na atividade">
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+            <div class="control-group" ng-hide="defensorias.length==1">
+                <label for="atividade-setor_criacao" class="control-label">Setor</label>
+                <div class="controls">
+                    <select name="setor_criacao" id="atividade-setor_criacao" class="span12" data-child="#atividade-participantes" required>
+                        <option value="">--- Selecione uma opção ---</option>
+                        <option ng-repeat="defensoria in defensorias" value="[[defensoria.id]]">[[defensoria.nome]]</option>
+                    </select>
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+            <div class="control-group" ng-if="!defensor.eh_defensor && defensores.length > 1">
+                <label for="atividade-participantes" class="control-label">Responsáveis</label>
+                <div class="controls">
+                    <label class="checkbox" ng-repeat="defensor in defensores">
+                        <input type="checkbox" id="atividade-participantes-[[defensor.usuario_id]]" name="participantes" value="[[defensor.usuario_id]]" data-parent-id="[[defensor.defensoria_id]]" checked> [[defensor.nome]]
+                    </label>
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="atividade-historico" class="control-label">Descrição</label>
+                <div class="controls">
+                    <textarea type="text" name="historico" id="atividade-historico" class="span12" rows="4" placeholder="Digite uma descrição da(s) atividade(s) desenvolvida(s)"></textarea>
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="atividade-inserir-documentos" class="control-label"></label>
+                <div class="controls">
+                    <label class="checkbox">
+                        <input type="checkbox" id="atividade-inserir-documentos" name="inserir-documentos" checked> Inserir documentos?
+                    </label>
+                    <span class="help-inline hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-success" data-loading-text="Salvando...">Salvar</button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+            <!-- Botão para cancelar e fechar o modal -->
+        </div>
+    </form>
+</div>

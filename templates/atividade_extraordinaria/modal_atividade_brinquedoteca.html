@@ -1,0 +1,66 @@
+<div id="modal-atividade-brinquedoteca" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Atividade Brinquedoteca</h3>
+    </div>
+    <!-- Formulário para salvar a atividade -->
+    <form class="form form-horizontal mb-0" ng-submit="salvar()">
+        <!-- Grupo de controle para a data e hora de entrada -->
+        <div class="modal-body">
+            <div class="control-group">
+                <label for="atividade-data_referencia" class="control-label">Entrada</label>
+                <div class="controls">
+                    <input type="text" name="data_referencia" class="span4" ng-model="data_referencia" bs-datepicker data-date-format="dd/mm/yyyy" autocomplete="off" required>
+                    <input type="text" name="hora_referencia" class="span2" ng-model="hora_referencia" ng-pattern="/^([01][0-9]|2[0-3]):([0-5][0-9])$/" data-mask="99:99" maxlength="5" required>
+                </div>
+            </div>
+            <!-- Grupo de controle para a data e hora de saída -->      
+            <div class="control-group">
+                <label for="atividade-data_encerrado" class="control-label">Saída</label>
+                <div class="controls">
+                    <input type="text" name="data_encerrado" class="span4" ng-model="data_encerrado" bs-datepicker data-date-format="dd/mm/yyyy" autocomplete="off" >
+                    <input type="text" name="hora_encerrado" class="span2" ng-model="hora_encerrado" ng-pattern="/^([01][0-9]|2[0-3]):([0-5][0-9])$/" data-mask="99:99" maxlength="5">
+                </div>
+            </div>
+            <div class="control-group" ng-hide="atividades_tipos_filtrado.length==1">
+                <label for="atividade-tipo" class="control-label">Tipo</label>
+                <div class="controls">
+                    <select name="tipo" ng-model="atividade.tipo" ng-options="i.id as i.nome for i in atividades_tipos_filtrado" class="span12" required>
+                        <option value="">--- Selecione uma opção ---</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group" ng-hide="defensorias.length==1">
+                <label for="atividade-setor_criacao" class="control-label">Setor</label>
+                <div class="controls">
+                    <select name="setor_criacao" ng-model="atividade.setor_criacao" ng-options="i.id as i.nome for i in defensorias" class="span12" required>
+                        <option value="">--- Selecione uma opção ---</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="atividade-complemento-nome_crianca" class="control-label">Criança</label>
+                <div class="controls">
+                    <input type="text" name="complemento-nome_crianca" ng-model="complemento.nome_crianca" class="span12" placeholder="Nome da criança" required>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="atividade-complemento-nome_responsavel" class="control-label">Responsável</label>
+                <div class="controls">
+                    <input type="text" name="complemento-nome_responsavel" ng-model="complemento.nome_responsavel" class="span12" placeholder="Nome do responsável pela criança" required>
+                </div>
+            </div>
+            <!-- Grupo de controle para inserir a descrição da atividade -->
+            <div class="control-group">
+                <label for="atividade-historico" class="control-label">Descrição</label>
+                <div class="controls">
+                    <textarea type="text" name="historico"  ng-model="atividade.historico" class="span12" rows="4" placeholder="Digite uma descrição da(s) atividade(s) desenvolvida(s)"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </form>
+</div>
