@@ -1,0 +1,45 @@
+<div id="modal-visualizar-pessoa" class="modal hide fade" tabindex="-1" role="dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Informações da pessoa</h3>
+    </div>
+    <div class="modal-body">
+        <div class="media">
+            <a href="#" class="pull-left">
+                <div>
+                    <img class="media-object img-polaroid" alt="[[pessoa_visualizacao.nome]]" width="128"
+                         height="128" ng-src="[[pessoa_visualizacao.foto]]">
+                </div>
+            </a>
+
+            <div class="media-body">
+                <h4 class="media-heading">
+                    [[pessoa_visualizacao.nome]]
+                </h4>
+                <p>[[ pessoa_visualizacao.eh_pessoa_fisica ? 'CPF' : 'CNPJ' ]]: [[pessoa_visualizacao.cpf && pessoa_visualizacao.cpf || 'Não informado' | cpf_cnpj ]]</p>
+                <p ng-show="pessoa_visualizacao.eh_pessoa_fisica">RG: [[pessoa_visualizacao.rg && pessoa_visualizacao.rg || 'Não informado']]</p>
+                <p ng-show="pessoa_visualizacao.eh_pessoa_fisica">Data de nascimento: [[pessoa_visualizacao.data_nascimento|utc|date]]</p>
+                <p ng-show="pessoa_visualizacao.eh_pessoa_fisica">Filiação:</p>
+                <ul>
+                    <li ng-repeat="filiacao in pessoa_visualizacao.filiacao">[[filiacao.nome]]</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <span class="btn-group" ng-show="editar_cadastrado">
+            <a href="#" class="btn btn-danger" ng-click="remover_pessoa()">
+                <i class="fas fa-trash"></i> Desvincular
+            </a>
+        </span>
+        <button class="btn btn-primary confirma_pessoa"
+                ng-hide="editar_cadastrado"
+                data-set-user="0"
+            ng-click="adicionar_pessoa()">
+            <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>

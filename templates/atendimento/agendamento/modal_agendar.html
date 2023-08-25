@@ -1,0 +1,121 @@
+{% load humanize static %}
+<div id="modal-agendar" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Agendar Horário [[ dia.data | date:'dd/MM/yyyy' ]]</h3>
+    </div>
+    <div class="modal-body" style="padding-top: 0px;">
+        <form id="ConfirmarAgendamentoForm" method="POST" action="agendar/">
+            {% csrf_token %}
+            <input type="hidden" name="atendimento" value="{{ atendimento.numero }}">
+            <input type="hidden" name="atuacao" ng-value="dia.atuacao_id || atuacao.id">
+            <input type="hidden" name="horario" ng-value="horario | date:'yyyy-MM-dd\THH:mm:ss'">
+            <input type="hidden" name="categoria_de_agenda" ng-value="categoria_de_agenda">
+            <input type="hidden" name="forma_atendimento" ng-value="dia.forma_atendimento">
+            <input type="hidden" name="indeferimento_uuid" ng-value="indeferimento_uuid">
+            <input type="hidden" name="indeferimento_nucleo_id" ng-value="indeferimento_nucleo_id">
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <h5>
+                <div>
+                    <small class="muted">Assistido</small>
+                    {% if pessoa.is_idoso %}
+                        <div class="label label-important">Idoso</div>
+                    {% endif %}
+                    {% if pessoa.pne %}
+                        <div class="label label-important">PNE</div>
+                    {% endif %}
+                </div>
+                {{ pessoa.nome }}
+            </h5>
+            <h5>
+                <small class="muted" style="display:block;">Núcleo/Defensoria</small>
+                [[ atuacao.defensoria ]]
+                <div class="row-fluid" ng-hide="itinerante">
+                    <span>[[ atuacao.substituto | default: atuacao.defensor ]]</span>
+                    <span class="label label-success" bs-tooltip="'Titular'" ng-if="!atuacao.substituto">T</span>
+                    <span class="label label-info" bs-tooltip="'Substituindo:<br/>' + atuacao.defensor" ng-if="atuacao.substituto">S</span>
+                </div>
+            </h5>
+
+            {% if config.EXIBIR_OFICIO_AGENDAMENTO %}
+                <h5>
+                    <small class="muted" style="display:block;">Há Necessidade de Ofício?</small>
+                </h5>
+                <label class="checkbox">
+                    <input name="oficio" ng-model="oficio" ng-init="oficio=false" type="checkbox" class="ng-pristine ng-valid">Sim
+                </label>
+
+                <div>
+                    <label class="muted">Detalhes do Ofício</label>
+                    <textarea name="detalhes" rows="2" class="span12" ng-model="detalhes" ng-disabled="!oficio"></textarea>
+                </div>
+            {% endif %}
+
+            <h5 class="text-error">O atendimento tem prazo e/ou prioridade?</h5>
+            <div class="control-group row-fluid">
+                <div class="controls span6">
+                    <input type="radio" name="prioridade" ng-model="prioridade" value="0"> Sem prioridade<br>
+                    <input type="radio" name="prioridade" ng-model="prioridade" value="10"> Prioridade<br>
+                    <input type="radio" name="prioridade" ng-model="prioridade" value="20"> Prioridade +80
+                </div>
+                <div class="span6">
+                    <label class="checkbox">
+                        <input name="prazo" ng-model="prazo" type="checkbox" class="ng-pristine ng-valid">Prazo
+                    </label>
+                </div>
+            </div>
+            <div>
+                <h5>
+                    [[ (atuacao.categorias_de_agendas | filter:{id:categoria_de_agenda}:true)[0].nome ]] - Horários disponíveis
+                </h5>
+                <div ng-show="dia.simultaneos">
+                    <div class="btn-group" ng-repeat="h in dia.horarios"
+                         bs-tooltip="dia.vagas[h] + ' vaga(s) livre(s)'">
+                        <button type="button" class="btn btn-small" ng-click="selecionar(h)"
+                                ng-class="{true:'disabled'}[h==horario_str]">[[ h | date:'HH:mm' ]]
+                        </button>
+                        <button type="button" class="btn btn-small dropdown" ng-click="selecionar(h)"
+                                ng-class="{true:'disabled'}[h==horario_str]">
+                            <span class="text-error"><b>[[ dia.vagas[h] ]]</b></span>
+                        </button>
+                    </div>
+                </div>
+                <div ng-hide="dia.simultaneos">
+                    <div class="btn-group" ng-repeat="h in dia.horarios"
+                         bs-tooltip="dia.vagas[h] + ' vaga(s) livre(s)'">
+                        <button type="button" class="btn btn-small" ng-click="selecionar(h)"
+                                ng-class="{true:'disabled'}[h==horario_str]">[[ h | date:'HH:mm' ]]
+                        </button>
+                    </div>
+                </div>
+                <div class="alert" ng-hide="dia.horarios"><b>Pauta lotada!</b> Para agendar mesmo assim, marque na Extra
+                    Pauta.
+                </div>
+            </div>
+            <div>
+                <textarea name="anotacoes" rows="5" class="span12" ng-model="anotacoes" placeholder="Digite aqui as anotações do agendamento..."></textarea>
+            </div>
+            {% if config.USAR_SMS and config.SERVICO_SMS_DISPONIVEL %}
+                {% if not atendimento and pessoa.pode_receber_sms or atendimento and atendimento.telefone_para_sms %}
+                <div ng-hide="dia.horarios" ng-show="horario">
+                    <h5>SMS a ser enviado para o telefone {% if not atendimento %} {{pessoa.telefone_para_sms}} {% endif %} {% if atendimento %} {{atendimento.telefone_para_sms.telefone}} {% endif %} </h5>
+                    <pre><code id="conteudo_sms" style="white-space: pre-line" #conteudoSms>{{conteudo_sms_angular}}</code></pre>
+                </div>
+                {% endif %}
+            {% endif %}
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div ng-hide="salvando">
+            <button class="btn btn-primary" disabled ng-show="dia.horarios.length && !horario_str">Agendar Pauta</button>
+            <button type="submit" form="ConfirmarAgendamentoForm" class="btn btn-primary" ng-show="dia.horarios.length && horario_str" ng-click="salvando=true">Agendar Pauta</button>
+            <button type="submit" form="ConfirmarAgendamentoForm" class="btn btn-warning" ng-hide="dia.horarios.length" ng-click="salvando=true">Agendar Extra Pauta</button>
+            <a class="btn" target="_blank" href="/atendimento/buscar/?data_ini=[[ dia.data | date:'dd/MM/yyyy' ]]&data_fim=[[ dia.data | date:'dd/MM/yyyy' ]]&defensor=[[ atuacao.defensor_id ]]&defensoria=[[ atuacao.defensoria_id ]]">Ver Agendamentos</a>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+        </div>
+        <div ng-show="salvando" class="pull-left">
+            <img src="{% static "img/loader_16.gif" %}"> Salvando...
+        </div>
+    </div>
+</div>

@@ -1,0 +1,116 @@
+{% extends 'atendimento/precadastro/default.html' %}
+
+{% block cabecalho_pag %}
+
+    <h2>Acompanhamento de Reclamações</h2>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Bairro</th>
+                    <th>Comercial</th>
+                    <th>Industrial</th>
+                    <th>Residencial</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+            <tbody>
+
+            {% for bairro in bairros %}
+                <tr>
+                    <td>{{ bairro.nome }}</td>
+                    <td>{{ bairro.total_comercial }}</td>
+                    <td>{{ bairro.total_industrial }}</td>
+                    <td>{{ bairro.total_residencial }}</td>
+                    <td>{{ bairro.total_reclamacoes }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+
+<h3>Reclamações por Tipo</h3>
+
+{% endblock %}
+
+{% block cabecalho_app %}
+    <h2><i class="helper-font-24 far fa-thumbs-down"></i>Reclamações</h2>
+{% endblock %}
+
+{% block conteudo_pag %}
+
+{% include 'atendimento/precadastro/painel_reclamacao_box_totais.html' %}
+
+<div class="row-fluid">
+    <div class="span12">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th class="span1">#</th>
+                    <th class="span2">Nome</th>
+                    <th class="span2">Tipo</th>
+                    <th class="span3">Denunciante</th>
+                    <th class="span3">Atendente</th>
+                    <th class="span12">Reclamação</th>
+                    <th class="span10">Endereço</th>
+                    <th class="span1">Data</th>
+                    <th class="span1">Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reclamacao in reclamacao_lst %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ reclamacao.nome_estabelecimento|upper }}</td>
+                    <td>{{ reclamacao.get_tipo_estabelecimento_display|upper }}</td>
+                    <td>{{ reclamacao.assistido|upper }}</td>
+                    <td>{{ reclamacao.atendente|upper }}</td>
+                    <td>{{ reclamacao.reclamacao|upper }}</td>
+                    <td>{{ reclamacao.endereco_estabelecimento|upper }}</td>
+                    <td>{{ reclamacao.data|date:'d/m/Y' }}</td>
+                    <td>{{ reclamacao.data|date:'H:i' }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">Não existem reclamações</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="pagination">
+    <div class="pull-left">
+        Página {{ page_obj.number }} de {{ paginator.num_pages }}
+    </div>
+    <div class="pagination-right">
+        <ul>
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% else %}
+                <li class="disabled"><a href="#">Anterior</a></li>
+            {% endif %}
+                {% for page in paginator.page_range %}
+                    {% if page >= page_obj.number|add:"-2" and page < page_obj.number %}
+                        <li><a href="?page={{ page }}">{{ page }}</a></li>
+                    {% endif %}
+                    {% ifequal page_obj.number page %}
+                        <li class="active"><a href="#">{{ page_obj.number }}</a></li>
+                    {% endifequal %}
+                    {% if page <= page_obj.number|add:"2" and page > page_obj.number %}
+                        <li><a href="?page={{ page }}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+            {% else %}
+                <li class="disabled"><a href="#">Próxima</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock conteudo_pag %}

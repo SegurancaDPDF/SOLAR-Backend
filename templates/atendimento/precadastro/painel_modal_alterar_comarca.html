@@ -1,0 +1,48 @@
+<!-- modal alterar comarca  -->
+<div id="modal-alterar-comarca" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">
+            <i class="fas fa-trash"></i> Alterar Comarca
+        </h3>
+    </div>
+    <!-- CARREGANDO -->
+    <div class="tab-content" style="margin: 100px 0;" ng-show="atendimento==null">
+        <div class="span6 offset3">
+            <h4 class="text-center">Carregando...</h4>
+            <div class="bar-st bar-stripe">
+                <span class="active" style="width: 100%;"></span>
+            </div>
+        </div>
+    </div>
+    <!-- FIM CARREGANDO -->
+    <div class="modal-body" ng-hide="atendimento==null">
+        <div>
+            <p>
+                Número: <b>[[atendimento.numero | atendimento]]</b><br/>
+                Requerente: <b>[[atendimento.requerente]]</b><br/>
+                Defensoria: <b>[[atendimento.defensoria]]</b><br/>
+                Comarca: <b>[[atendimento.comarca]]</b><br/>
+                Área/Pedido: <b>[[atendimento.area]]/[[atendimento.pedido]]</b><br/>
+            </p>
+            <form id="AlterarComarcaForm" method="post" type="submit" action="[[ '/atendimento/129/painel/' + atendimento.numero + '/alterar-comarca/' ]]">
+                <label>Para qual comarca deseja redistribuir?</label>
+                {% csrf_token %}
+                <input type="hidden" name="comarca" ng-value="comarca">
+                <select class="span12" ng-model="comarca" ng-options="i.id as i.nome for i in comarcas" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" id="btn-modal-alterar-comarca" form="AlterarComarcaForm" ng-if="atendimento.pode_excluir">
+            <i class="fas fa-save"></i> Confirmar
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- modal excluir atendimento -->

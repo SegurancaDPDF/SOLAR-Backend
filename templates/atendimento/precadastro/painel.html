@@ -1,0 +1,226 @@
+{% extends "atendimento/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block css_pag %}
+    <style>
+        #popover_pessoa .popover{width: 500px;}
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <form class="navbar-form" action="{% url 'precadastro_painel' %}" method="GET">
+                    {{ form.data_inicial }}
+                    {{ form.data_final }}
+                    {{ form.comarca }}
+                    {{ form.responsavel }}
+                    {% if existe_categoria_crc %}
+                        {{ form.agenda }}
+                    {% endif %}
+                    {{ form.situacao }}
+                    <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title clearfix">
+        <h3>
+            <span class="pull-left">
+                Painel CRC ({{ paginator.count|intcomma }})
+            </span>
+        </h3>
+        <span class="pull-right">
+            <button type="submit" form="PainelDistribuirForm" class="btn btn-success">
+                <i class="fas fa-save" aria-hidden="true"></i> Salvar
+            </button>
+            <div class="btn-group">
+                <button class="btn dropdown-toogle" data-toggle="dropdown">
+                    <i class="fas fa-table"></i> Mais opções
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li class="text-left">
+                        <a href="{% url 'encaminhamento_index' %}">Órgãos p/ encaminhamento</a>
+                    </li>
+                </ul>
+            </div>
+        </span>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    {% include 'atendimento/acompanhamento/painel_box_totais.html' %}
+
+    <form id="PainelDistribuirForm" name="PainelDistribuirForm" action="?" method="POST">
+        {% csrf_token %}
+        <table class="table table-striped table-hover responsive display-data">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Número</th>
+                <th>Requerentes</th>
+                <th>Área/Pedido</th>
+                <th>Data Registro</th>
+                <th>Comarca</th>
+                <th>Responsável</th>
+                <th>Anotações</th>
+                {% if existe_categoria_crc %}
+                    <th>Categoria</th>
+                {% endif %}
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for registro in object_list %}
+                    <tr class="{% if registro.tipo_painel == PainelForm.SITUACAO_PENDENTE and registro.qualificacao.especializado is None %}warning{% endif%}
+                    {% if registro.qualificacao.especializado is not None %}error{% endif%}">
+                        <td>
+                            <small class="muted">{{ forloop.counter }}</small>
+                        </td>
+                        <td>
+                            <b>{{ registro.numero | form_numero_atendimento }}</b>
+                            {% if request.user.is_superuser %}
+                            <a href="{% url 'admin:atendimento_defensor_change' registro.id %}" target="_blank" class="text-info" title="Acessar Admin" rel="tooltip">
+                                <i class="fas fa-link"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for requerente in registro.requerentes %}
+                                {% if forloop.first and config.EXIBIR_ALERTA_HIPOSSUFICIENCIA and not requerente.pessoa.avaliar %}
+                                    <small class="label label-important" title="Atenção! Pelas informações fornecidas, esta pessoa não se enquadra na condição de necessitada." rel="tooltip">Não hipossuficiente</small>
+                                {% endif %}
+                                <div>
+                                    <a href="{% url 'assistido_editar' requerente.pessoa_id %}?next=/atendimento/listar/?ligacao_numero={{ registro.numero }}" class="btn-link" data-container="#popover_pessoa" data-placement="bottom" data-title="{{ requerente | upper }}" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'" ng-mouseover="get_pessoa({{ requerente.pessoa_id }})">
+                                        <b>{{ requerente | upper }}</b>
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <small class="muted">{{ registro.qualificacao.area }}</small>
+                            <div>{{ registro.qualificacao }}</div>
+                        </td>
+                        <td>
+                            {{ registro.data_cadastro|date:'d/m/Y' }}<br/>
+                            {{ registro.data_cadastro|date:'H:i' }}
+                        </td>
+                        <td>
+                            {% if registro.tipo_painel == PainelForm.SITUACAO_PENDENTE or registro.tipo_painel == PainelForm.SITUACAO_DISTRIBUIDO %}
+                                <a href="#modal-alterar-comarca" class="btn-link" title="Alterar Comarca" bs-tooltip data-toggle="modal" ng-click="carregar_comarcas(); get_atendimento('{{ registro.numero }}');">
+                                    <b>{{ registro.comarca }}</b>
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            {% else %}
+                                {{ registro.comarca }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span rel="tooltip" title="{{ registro.responsavel | default:'Não informado' }}">
+                                {{ registro.responsavel.servidor.usuario.username | default:'Não informado' }}
+                            </span>
+                        </td>
+                        <td>
+                            {{ registro.historico_recepcao | safe | linebreaks }}
+                        </td>
+                        {% if existe_categoria_crc %}
+                            <td>
+                                {% if registro.tipo_painel == PainelForm.SITUACAO_PENDENTE or registro.tipo_painel == PainelForm.SITUACAO_DISTRIBUIDO %}
+                                    <input type="hidden" name="atendimentos" value="{{ registro.id }}" />
+                                    <select name="categoria-{{ registro.id }}" class="input-large">
+                                        <option value="">Selecione...</option>
+                                        {% for x, y in categorias %}
+                                            {% if registro.agenda.id == x %}
+                                                <option value="{{ x }}" selected="selected">{{ y }}</option>
+                                            {% else %}
+                                                <option value="{{ x }}">{{ y }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                {% elif registro.tipo_painel == PainelForm.SITUACAO_AGENDADO or registro.tipo_painel == PainelForm.SITUACAO_BAIXADO  %}
+                                    {{ registro.agenda | safe | linebreaks }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                        <td>
+                            {% if registro.tipo_painel == PainelForm.SITUACAO_PENDENTE %}
+                                <input type="hidden" name="atendimentos" value="{{ registro.id }}" />
+                                <select name="responsavel-{{ registro.id }}" class="input-large">
+                                    <option value="">Selecione...</option>
+                                    {% for x, y in responsaveis %}
+                                        <option value="{{ x }}">{{ y }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% elif registro.tipo_painel == PainelForm.SITUACAO_DISTRIBUIDO %}
+                                <div class="btn-group">
+                                    <a href="{% url 'atendimento_listar' %}?pessoa_id={{ registro.requerente.pessoa_id }}&ligacao_numero={{ registro.numero }}" class="btn btn-small btn-success" title="Agendar atendimento" rel="tooltip">
+                                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="{% url 'encaminhamento_ligacao' registro.numero %}?next={{ request.path }}" class="btn btn-small" title="Encaminhar p/ outro órgão" rel="tooltip">
+                                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="#modal-excluir" class="btn btn-small btn-danger" title="Excluir" bs-tooltip data-toggle="modal" ng-click="get_atendimento('{{ registro.numero }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            {% elif registro.tipo_painel == PainelForm.SITUACAO_AGENDADO %}
+                                <a href="{% url 'atendimento_listar' %}?pessoa_id={{ registro.requerente.pessoa_id }}">
+                                    <span class="label label-success">Agendado</span>
+                                </a>
+                            {% elif registro.tipo_painel == PainelForm.SITUACAO_BAIXADO %}
+                                <span class="label label-important">Baixado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">Nenhum registro encontrado</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>#</th>
+                <th>Número</th>
+                <th>Requerente</th>
+                <th>Área/Pedido</th>
+                <th>Data Registro</th>
+                <th>Comarca</th>
+                <th>Responsável</th>
+                <th>Anotações</th>
+                {% if existe_categoria_crc %}
+                    <th>Categoria</th>
+                {% endif %}
+                <th>Ações</th>
+            </tr>
+            </tfoot>
+        </table>
+    </form>
+
+    {% include 'components/pagination.html' with page_obj=page_obj %}
+
+    {% include 'atendimento/precadastro/painel_modal_alterar_comarca.html' %}
+    {% include 'atendimento/buscar_modal_excluir.html' with next_excluir=request.get_full_path %}
+
+    <!-- espaçamento necessário no final da página para não cortar a exibição dos popovers -->
+    <div id="popover_pessoa" style="width: 500px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+    $('.datepicker').datepicker();
+{% endblock %}

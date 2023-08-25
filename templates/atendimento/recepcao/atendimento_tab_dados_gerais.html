@@ -1,0 +1,124 @@
+{% load static %}
+
+<div class="media">
+    <div class="pull-left">
+        <img class="media-object img-polaroid" height="150" width="150"
+             ng-src="[[atendimento.defensor.foto]]" alt="foto do defensor">
+    </div>
+    <div class="media-body">
+        {% if tipo_processo %}
+            <h4 class="media-heading">
+                {{ atendimento.defensoria }}
+            </h4>
+            <h5>
+                {{ atendimento.defensor }}
+            </h5>
+            <p>
+                Área / Classe: <b> {{ atendimento.processo.area | default_if_none:"" }} / {{ atendimento.processo.acao | default_if_none:"Não informada" }}</b>
+            </p>
+            <p>
+                Número: <b>{{ atendimento.processo.numero }}</b>
+            </p>
+        {% else %}
+            <h4 class="media-heading">
+                [[atendimento.atendimento.defensoria]]
+            </h4>
+            <h5>
+                [[atendimento.defensor.nome]]
+            </h5>
+
+            {% if not atendimento.realizado %}
+                <h5> Alterar Defensoria? </h5>
+                <select id="atuacao" name="atuacao" class="span6" ng-model="atuacao" ng-change="alterar_defensoria(atuacao)" ng-init="atuacao={{atuacao_atual.id}}">
+                    {% for atuacao in atuacoes_predio %}
+                        <option value="{{ atuacao.id }}">{{ atuacao.defensoria.nome }}/{{ atuacao.defensor.nome }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+
+            <p>
+                <small class="label label-info" title="Tipo de atendimento" bs-tooltip>{{ atendimento.get_tipo_display }}</small>
+                {% if config.EXIBIR_PRESENCIAL_REMOTO_AGENDAMENTO %}
+                    {% if atendimento.forma_atendimento.presencial %}
+                        <span class="label label-success" title="Forma de Atendimento" bs-tooltip>Presencial</span>
+                    {% elif atendimento.forma_atendimento %}
+                        <span class="label label-info" title="Forma de Atendimento" bs-tooltip>Remoto</span>
+                    {% endif %}
+                {% endif %}
+                {% if atendimento.prioridade != atendimento.PRIORIDADE_0 %}
+                    <small class="label label-important" title="Prioridade de atendimento" bs-tooltip>
+                        {{ atendimento.get_prioridade_display }}
+                    </small>
+                {% endif %}
+
+                <br/><b>Núcleo: </b> {{ atendimento.nucleo|default_if_none:"Nenhum" }}
+            </p>
+            {% if atendimento.tipo == atendimento.TIPO_NUCLEO %}
+                <p>
+                    <b>Área / Pedido: </b>{{ atendimento.at_origem.qualificacao.area|default_if_none:"" }} / {{ atendimento.at_origem.qualificacao.titulo|default_if_none:"" }}
+                </p>
+                <span>
+                    <b>Especializado: </b>{{ atendimento.at_origem.qualificacao.especializado|default_if_none:"Não" }}
+                </span>
+            {% else %}
+                <p>
+                    <b>Área / Pedido: </b>
+                    {% if not atendimento.realizado %}
+                        <a href="{% url 'qualificacao_index' atendimento.numero %}?next={% url 'recepcao_atendimento' atendimento.numero %}"
+                           title="Clique para alterar a qualificação do agendamento"
+                           class="btn-link" bs-tooltip>
+                            {{ atendimento.qualificacao.area|default_if_none:"" }} / {{ atendimento.qualificacao.titulo|default_if_none:"" }}
+                        <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    {% else %}
+                        {{ atendimento.qualificacao.area|default_if_none:"" }} / {{ atendimento.qualificacao.titulo|default_if_none:"" }}
+                    {% endif %}
+                </p>
+                <p>
+                    <b>Especializado: </b>{{ atendimento.qualificacao.especializado|default_if_none:"Não" }}
+                </p>
+            {% endif %}
+            {% if atendimento.data_atendimento %}
+                <blockquote class="bq-success">
+                    <h5 class="text-success">
+                        <i class="fas fa-calendar-alt"></i>
+                        Atendido em {{ atendimento.data_atendimento }}
+                    </h5>
+                </blockquote>
+            {% else %}
+                <blockquote class="bq-info">
+                    <h5 class="text-info">
+                        <i class="fas fa-calendar-alt"></i>
+                        Agendado para {{ atendimento.data_agendamento }}
+                    </h5>
+                </blockquote>
+            {% endif %}
+            <blockquote class="muted">
+                <div>
+                    <b>Agendado por </b>{{ atendimento.cadastrado_por }}
+                    <b>em</b> {{ atendimento.data_cadastro }}
+                </div>
+                {% if atendimento.recepcao %}
+                    <div>
+                        <b>Liberado por </b>{{ atendimento.recepcao.atendido_por }}
+                        <b>em</b> {{ atendimento.recepcao.data_atendimento }}
+                    </div>
+                {% endif %}
+                {% if atendimento.data_atendimento %}
+                    <div>
+                        <b>Realizado por </b>{{ atendimento.atendido_por }}
+                        <b>em</b> {{ atendimento.data_atendimento }}
+                    </div>
+                {% endif %}
+            </blockquote>
+            <blockquote class="bq-alert text-warning">
+                <i class="fas fa-exclamation-circle"></i>
+                A anotação do agendamento pode ser vista e alterada na aba "Anotações".
+                <br/>
+                <i class="fas fa-exclamation-circle"></i>
+                O envio de Carta Convite pode ser feito na aba "Documentos".
+            </blockquote>
+        {% endif %}
+    </div>
+</div>
+

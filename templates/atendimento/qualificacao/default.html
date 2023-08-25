@@ -1,0 +1,68 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Qualificação{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    {% include "atendimento/header_ligacao.html" %}
+    <h2><i class="helper-font-24  fas fa-check-circle"></i>Qualificação
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_atendimento.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_qualificacao.js" %}?v={{ config.JSVERSION }}"></script>
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% if ligacao and ligacao.tipo == ligacao.TIPO_LIGACAO %}
+        var ini = new Date();
+        var seconds = {{ ligacao.cronometro.duracao }};
+
+        var timer = setInterval(function(){
+        seconds++;
+        timer = new Date(2000, 1, 1, 0, 0, 0, seconds * 1000)
+        $('#timer').html(timer.toLocaleTimeString());
+        }, 1000);
+
+        var updater = setInterval(function(){
+        $.get('{% url "atendimento_cronometro" %}').success(function(data){
+        });
+        }, 30000);
+    {% endif %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

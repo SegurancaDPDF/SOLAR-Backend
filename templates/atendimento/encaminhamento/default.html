@@ -1,0 +1,94 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Encaminhamento{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    {% include "atendimento/header_ligacao.html" %}
+    <h2><i class="helper-font-24 fas fa-sign-out-alt"></i>Encaminhamento
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a data-target=".navbar-responsive-collapse" data-toggle="collapse" class="btn btn-navbar">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+
+                <div class="nav-collapse collapse navbar-responsive-collapse">
+                    <ul class="nav pull-left span5">
+                        <form class="navbar-search span12">
+                            <div class="input-append">
+                                <input type="text" value="" placeholder="Digite o nome do órgão para encaminhamento"
+                                       class="span12" name="q">
+                                <button data-original-title="Buscar órgão" data-placement="bottom" rel="tooltip"
+                                        class="btn actions-f12" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </ul>
+                </div>
+                <!-- /.nav-collapse -->
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_atendimento.js" %}?v={{ config.JSVERSION }}"></script>
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    var ini = new Date();
+    var seconds = {{ ligacao.cronometro.duracao | default:0 }};
+
+    var timer = setInterval(function(){
+    seconds++;
+    timer = new Date(2000, 1, 1, 0, 0, 0, seconds * 1000)
+    $('#timer').html(timer.toLocaleTimeString());
+    }, 1000);
+
+    var updater = setInterval(function(){
+    $.get('{% url "atendimento_cronometro" %}').success(function(data){
+    });
+    }, 30000);
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

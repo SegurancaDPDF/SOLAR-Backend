@@ -1,0 +1,350 @@
+{% extends "atendimento/recepcao/default.html" %}
+{% load humanize static contrib_tags %}
+
+{% block css_pag %}
+
+    <link rel="stylesheet" href="{% static "css/redactor.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/bootstrap-fileupload.min.css" %}">
+
+    <style>
+
+        #pre-atendimento {
+            margin-top: 10px;
+        }
+
+        #popover_pessoa .popover{width: 500px;}
+
+    </style>
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="page-title">
+        <h3 class="pull-left">
+            {% if tipo_processo %}
+                Detalhes do Processo nº {{ atendimento.processo.numero }} <small>Atendimento à Parte {{ atendimento.processo_parte.get_parte_display }}</small>
+            {% else %}
+                Detalhes do {{config.NOME_MODULO_ATENDIMENTO}} nº {{ atendimento.numero | form_numero_atendimento }}
+                {% if request.user.is_superuser %}
+                    <a href="/admin/atendimento/defensor/{{ atendimento.id }}/" target="_blank" class="text-info">
+                        <i class="fas fa-link"></i>
+                    </a>
+                {% endif %}
+            {% endif %}
+        </h3>
+    </div>
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="clearfix"></div>
+    <div class="row-fluid" ng-init="init('{{ atendimento }}', {% if request.GET.tab %} {{request.GET.tab}} {% else %} {{ tipo }} + 1 {% endif %}, '{{ request.user.servidor.defensor.id }}')">
+        <div class="span3">
+            <div ng-show="requerente_responsavel" ng-cloak>
+                <div>
+                    <img class="media-object img-polaroid" ng-src="[[requerente_responsavel.foto]]"
+                         alt="foto do assistido">
+                </div>
+                <h4 ng-show="requerente_responsavel.nome_social" class="color-red">
+                    [[requerente_responsavel.nome_social]] <span title="Nome Social" class="label label-important">NS</span>
+                </h4>
+                <h6 ng-show="requerente_responsavel.nome_social">[[requerente_responsavel.nome]]</h6>
+                <h4 ng-hide="requerente_responsavel.nome_social">[[requerente_responsavel.nome]]</h4>
+                <div>
+                    [[ requerente_responsavel.eh_pessoa_fisica ? 'CPF' : 'CNPJ' ]]: <b>[[requerente_responsavel.cpf | default: 'Não informado' | cpf_cnpj]]</b>
+                </div>
+                <div ng-show="requerente_responsavel.eh_pessoa_fisica">Nascimento: <b>[[requerente_responsavel.data_nascimento|utc|date]]</b></div>
+                <div ng-show="requerente_responsavel.eh_pessoa_fisica">Filiação:
+                    <ul>
+                        <li ng-repeat="filiacao in requerente_responsavel.filiacao"><b>[[ filiacao.nome ]]</b></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="span9">
+            <ul class="nav nav-tabs" id="myTab">
+                <li><a href="#dados-gerais" ng-click="alterar_tab(0)">Dados gerais</a></li>
+                <li><a href="#requerentes" ng-click="alterar_tab(1)">Requerentes</a></li>
+                <li><a href="#requeridos" ng-click="alterar_tab(2)">Requeridos</a></li>
+                {% if perms.atendimento.view_recepcao %}
+                    <li>
+                        <a href="#documentos" ng-click="alterar_tab(3)">
+                            Documentos
+                            <span ng-show="[[documentos | filter:{documento_arquivo:null}]]"
+                                  class="badge badge-important" ng-cloak>
+                                [[(documentos | filter:{documento_arquivo:null}).length]]
+                            </span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if perms.atendimento.view_recepcao and not tipo_processo %}
+                    <li><a href="#historico" ng-click="alterar_tab(4)">Anotações</a></li>
+                {% endif %}
+            </ul>
+            <div class="tab-content" ng-controller="ImprimirCtrl" ng-init="init()">
+
+                {% include 'relatorios/modal_imprimir.html' %}
+
+                <div class="tab-pane" id="dados-gerais">
+                    {% include 'atendimento/recepcao/atendimento_tab_dados_gerais.html' %}
+                </div>
+                <div class="tab-pane" id="requerentes">
+                    {% include 'atendimento/recepcao/atendimento_tab_requerentes.html' %}
+                </div>
+                <div class="tab-pane" id="requeridos">
+                    {% include 'atendimento/recepcao/atendimento_tab_requeridos.html' %}
+                </div>
+                {% if perms.atendimento.view_recepcao %}
+                    <div class="tab-pane" id="documentos">
+                        {% include 'atendimento/recepcao/atendimento_tab_documentos.html' %}
+                    </div>
+                {% endif %}
+                {% if perms.atendimento.view_recepcao and not tipo_processo %}
+                    <div class="tab-pane" id="historico">
+                        {% include 'atendimento/recepcao/atendimento_tab_historico.html' %}
+                    </div>
+                {% endif %}
+
+            </div>
+            <div class="form-actions" ng-cloak>
+                {% if perms.atendimento.view_recepcao %}
+                    <a class="btn" href="{{ request.session.recepcao_atendimento_voltar_url }}"
+                    title="Volta a página anterior" bs-tooltip>
+                        <i class="fas fa-chevron-left"></i> Voltar
+                    </a>
+                    {% if pode_excluir and not atendimento.arquivado %}
+                        <button data-target="#modal-excluir" class="btn btn-danger" title="Exclui agendamento" bs-tooltip data-toggle="modal"
+                            ng-click="get_atendimento('{{ atendimento.numero }}')" ng-disabled="atendimento.pode_excluir">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    {% elif pode_excluir and atendimento.arquivado %}
+                        <button disabled class="btn btn-danger" title="Ação bloqueada (Atendimento arquivado)" bs-tooltip>
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    {% endif %}
+                    {% if liberado %}
+                        <button data-target="#modal-atendimento-prioridade" data-toggle="modal" class="btn btn-success"
+                            ng-show="liberar_atendimento_pj_sem_pf"
+                            title="Salva e libera para atendimento do defensor" bs-tooltip>
+                            <i class="fas fa-lock-open"></i> Salvar e Liberar
+                        </button>
+                        <button class="btn btn-success"
+                                title="Adicione ao menos uma Pessoa Física como Requerente"
+                                ng-hide="liberar_atendimento_pj_sem_pf" disabled>
+                            <i class="fas fa-lock-open"></i> Salvar e Liberar
+                        </button>
+                    {% elif atendimento.data_cadastro.date == hoje and atendimento.cadastrado_por == request.user.servidor %}
+                        <button class="btn btn-success" form="pre-atendimento" type="submit" name="agendamento" value="true">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    {% endif %}
+                {% endif %}
+                {% if tipo_processo %}
+                    <a class="btn" href="{% url 'atendimento_atender' atendimento.numero %}#/processo/{{ atendimento.processo.numero_puro }}/grau/{{ atendimento.processo.grau }}" title="Ver a ficha de processo completa" bs-tooltip ng-if="requerentes.length">
+                        <i class="fas fa-folder"></i> Ver Processo
+                    </a>
+                    <a class="btn btn-danger" href="#" title="Inclua ao menos um requerente para continuar" disabled ng-if="!requerentes.length">
+                        <i class="fas fa-folder"></i> Ver Processo
+                    </a>
+                {% elif perms.atendimento.view_defensor %}
+                    <a class="btn" href="{% url 'atendimento_atender' atendimento.numero %}" title="Ver a ficha de atendimento completa" bs-tooltip ng-if="requerentes.length">
+                        <i class="fas fa-comments"></i> Ver {{config.NOME_MODULO_ATENDIMENTO}}
+                    </a>
+                    <a class="btn btn-danger" href="#" title="Inclua ao menos um requerente para continuar" disabled ng-if="!requerentes.length">
+                        <i class="fas fa-comments"></i> Ver {{config.NOME_MODULO_ATENDIMENTO}}
+                    </a>
+                {% endif %}
+                {% if processo and processo.area.penal %}
+                    {% if processo_parte.prisoes.count %}
+                        <a class="btn btn-danger"
+                           href="[[ gerar_link('nadep_visualizar_pessoa', requerentes[0].pessoa_id) ]]" title="Visualizar ficha penal" rel="tooltip" ng-if="requerentes.length">
+                            <i class="fas fa-leaf"></i> Ficha Penal
+                        </a>
+                    {% else %}
+                        <a class="btn btn-danger"
+                           href="[[ gerar_link('nadep_cadastrar_prisao', requerentes[0].pessoa_id) ]]?processo={{ processo.numero_puro }}&parte={{ processo_parte.id }}" ng-if="requerentes.length">
+                            <i class="fas fa-lock"></i> Cadastrar Prisão
+                        </a>
+                    {% endif %}
+                {% endif %}
+                {% if fonezap and not atendimento.arquivado %}
+                    <div class="btn-group">
+                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" title="Enviar mensagem via whatsapp">
+                            <i class="fab fa-whatsapp"></i> Enviar Whatsapp
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="https://api.whatsapp.com/send/?phone={{fonezap}}&text={{ mensagem_whatsapp_com_documentos }}" target="_blank">Com lista de documentos</a>
+                            </li>
+                            <li>
+                                <a href="https://api.whatsapp.com/send/?phone={{fonezap}}&text={{ mensagem_whatsapp_sem_documentos }}" target="_blank">Sem lista de documentos</a>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="#" target="_blank" class="btn" title="Assistido não possui whatsapp" disabled>
+                        <i class="fab fa-whatsapp"></i> Enviar Whatsapp
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% include 'atendimento/recepcao/atendimento_modal_visualizar_pessoa.html' %}
+    {% include 'atendimento/recepcao/atendimento_modal_prioridade.html' %}
+    {% include 'atendimento/buscar_modal_excluir.html' %}
+    {% include 'atendimento/atender_modal_excluir_documento.html' %}
+
+    {% if config.ATIVAR_BOTAO_PRE_CADASTRO %}
+        <div ng-controller="BuscarPessoaModel">
+            <div ng-init="init({{ endereco_form_initial.estado.id }}, false, true, {'id': {{ atendimento.id}}, 'numero': '{{ atendimento.numero }}'})">
+                {% include 'atendimento/atender_modal_pre_cadastro.html' %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div id="popover_pessoa" style="width: 500px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script type="text/javascript" src="{% static "js/redactor/redactor.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_pt_br.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_fullscreen.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_atendimento.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_precadastro.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "luzfcb_djdocuments/js/luzfcb_djdocuments.js" %}"></script>
+
+{% endblock %}
+<script type="text/javascript">
+    {% block js_ready_pag %}
+
+        $(".confirma_pessoa").click(function () {
+            if ($(this).data("datahref")) {
+                $(this).attr('href', '#');
+            }
+            else {
+                $(this).data("datahref", true)
+            }
+        });
+
+        $('#myTab2 a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('#myTab2 a:first').tab('show');
+
+        // $('#myTab_requerido a').click(function (e) {
+        //     e.preventDefault();
+        //     $(this).tab('show');
+        // });
+
+        // $('#myTab_requerido a:first').tab('show');
+        $('#myTab a[href="#requerentes"]').on('shown.bs.tab', function(){
+            document.getElementById("tipo_cadastro").innerHTML = '<i class="fas fa-user-plus"></i>'+' Pré-Cadastro Requerente';
+            document.getElementById("tipo_cadastro").setAttribute('value', 0);
+        });
+
+        $('#myTab a[href="#requeridos"]').on('shown.bs.tab', function(){
+            document.getElementById("tipo_cadastro").innerHTML = '<i class="fas fa-user-plus"></i>'+' Pré-Cadastro Requerido';
+            document.getElementById("tipo_cadastro").setAttribute('value', 1);
+        }); 
+
+        $('#myTab2 a:first').on('shown.bs.tab', function(){
+            document.getElementById("myTab2").setAttribute('value', 0);
+        });
+
+        $('#myTab2 a:last').on('shown.bs.tab', function(){
+            document.getElementById("myTab2").setAttribute('value', 1);
+        });
+
+        $('#CadastroFormPJ').validate({
+            errorPlacement: function (error, element) {
+            },
+            highlight: function (e) {
+                $(e).closest('.control-group').addClass('error');
+            },
+            unhighlight: function (e) {
+                $(e).closest('.control-group').removeClass('error');
+            }
+        });
+
+        $('#CadastroForm').validate({
+            errorPlacement: function (error, element) {
+            },
+            highlight: function (e) {
+                $(e).closest('.control-group').addClass('error');
+            },
+            unhighlight: function (e) {
+                $(e).closest('.control-group').removeClass('error');
+            }
+        });
+
+        /* utilizado para limpar o arquivo de upload de documento após clicar no Enviar */
+        $("#btn-enviar-doc").click(function(e) {
+            setTimeout(function(){
+                $('#botao_limpar_upload').click();
+            }, 500);
+        });
+
+        {% if tipo_processo and not atendimento.requerentes %}
+            needToConfirm = true;
+            window.onbeforeunload = askConfirm;
+
+            $(".confirma_pessoa").click(function () {
+                needToConfirm = false;
+            });
+
+            function askConfirm(evt) {
+                if (needToConfirm) {
+                    var message =
+                            '--------------------------------------------------------------------------------\n\n' +
+                            'CADASTRO INCOMPLETO! Adicione ao menos um REQUERENTE para finalizar o gerenciamento do processo!\n\n' +
+                            'Caso não adicione, o processo estará cadastrado de forma errada, sob a responsabilidade de:\n{{ request.user.servidor.nome }}\n\n' +
+                            '--------------------------------------------------------------------------------\n\n';
+                    if (typeof evt == 'undefined') {
+                        evt = window.event;
+                    }
+                    if (evt) {
+                        evt.returnValue = message;
+                    }
+                    return message;
+                }
+            }
+        {% endif %}
+
+        $('#myTab a').click(function (e) {
+            e.preventDefault();
+        });
+
+        // bloquear multiplas submissoes do mesmo form
+        $('#pre-atendimento').submit(function(){
+            $(this).submit(function()
+            {
+                return false;
+            });
+            return true;
+        });
+
+        // redactor
+        $('#historico_recepcao').redactor({
+            buttons: [
+                'bold',
+                'italic',
+                'underline',
+                'unorderedlist',
+                'orderedlist',
+            ],
+            lang: 'pt_br',
+            plugins: ['fullscreen'],
+            minHeight: 115
+        });
+
+    {% endblock %}
+</script>

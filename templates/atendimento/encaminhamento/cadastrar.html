@@ -1,0 +1,91 @@
+{% extends "atendimento/encaminhamento/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+            Cadastrar Órgão para Encaminhamento
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <!-- cadastrar predio -->
+        <div class="span9">
+            <form method="POST" action="{% url "encaminhamento_salvar" %}" name="MyForm" id="MyForm" class="box corner-all form-horizontal">
+                {% csrf_token %}
+                <input type="hidden" id="id_orgao-id" name="orgao-id" value="{{ orgao.id }}">
+                <fieldset>
+                    <legend>Órgão</legend>
+                    {{ form.as_bs }}
+                </fieldset>
+                <fieldset>
+                    <legend>Endereço</legend>
+                    {{ form_endereco.as_bs }}
+                </fieldset>
+                <fieldset>
+                    <legend>Telefone</legend>
+                    {{ form_telefone.as_bs }}
+                </fieldset>
+                <div class="form-actions">
+                    <a href="{% url "encaminhamento_index" %}" class="btn" type="button"><i class="fas fa-ban"></i> Cancelar</a>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- cadastrar predio -->
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript" src="{% static "js/app/utils.js" %}"></script>
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+
+        $('#{{ form_endereco.cep.auto_id }}').blur(function () {
+            buscar_cep($(this).val(), 'endereco-');
+        });
+
+        $('#{{ form_endereco.estado.auto_id }}').change(function () {
+            listar_municipios($(this).val(), '#{{ form_endereco.municipio.auto_id }}');
+        });
+
+        $('#{{ form_endereco.bairro_nome.auto_id }}').typeahead({
+            minLength: 3,
+            source: function (query, process) {
+                $.get('/bairro/listar', {
+                    q: query,
+                    municipio_id: $('#{{ form_endereco.municipio.auto_id }}').val()
+                }, function (data) {
+                    return process(data);
+                }, 'json');
+            }
+        });
+
+        $('#{{ form_endereco.logradouro.auto_id }}').typeahead({
+            minLength: 3,
+            source: function (query, process) {
+                $.get('/logradouro/listar', {
+                    q: query,
+                    municipio_id: $('#{{ form_endereco.municipio.auto_id }}').val()
+                }, function (data) {
+                    return process(data);
+                }, 'json');
+            }
+        });
+
+    {% endblock %}
+</script>

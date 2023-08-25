@@ -1,0 +1,39 @@
+<!-- modal excluir atendimento  -->
+<div id="modal-excluir" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">
+            <i class="fas fa-trash"></i> Excluir atendimento
+        </h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            Número: <b>[[atendimento.numero | atendimento ]]</b><br/>
+            Requerente: <b>[[atendimento.requerente.nome]]</b><br/>
+            Requerido: <b>[[atendimento.requerido.nome]]</b><br/>
+            Defensoria: <b>[[atendimento.defensoria.nome]]</b><br/>
+            Área/Pedido: <b>[[atendimento.area]]/[[atendimento.pedido]]</b><br/>
+            Horário: <b>[[atendimento.horario]]</b>
+        </p>
+        <form id="ExcluirAtendimentoForm" method="post" type="submit" action="/atendimento/excluir/?next={% url 'recepcao_index' %}">
+            <label>Informe o motivo da exclusão:</label>
+            {% csrf_token %}
+            <input type="hidden" name="atendimento" ng-value="atendimento.numero">
+            <input type="hidden" name="tipo_motivo_exclusao" ng-value="motivo_exclusao">
+            <select  class="span12" ng-model="motivo_exclusao" ng-options="i.id as i.nome for i in motivos_exclusao" required>
+                <option value="">Selecione...</option>
+            </select>
+            <textarea name="motivo_exclusao" rows="3" class="span12" maxlength="255" placeholder="Descrição (opcional)"></textarea>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" id="btn-modal-excluir" form="ExcluirAtendimentoForm">
+            <i class="fas fa-trash"></i> Excluir
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- modal excluir atendimento -->

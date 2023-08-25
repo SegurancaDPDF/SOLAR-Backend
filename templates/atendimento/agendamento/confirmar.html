@@ -1,0 +1,127 @@
+{% extends "atendimento/agendamento/default.html" %}
+{% load humanize %}
+{% load static %}
+{% load contrib_tags %}
+
+{% block titulo %}Confirmar Agendamento{% endblock %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <h3>Confirmar Agendamento</h3>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <div class="well well-small">
+                <p>
+                    <span class="block"><strong>Requerente:</strong></span>
+                    {{ atendimento.requerente }}
+                </p>
+
+                <p>
+                    <span class="block"><strong>Requerido:</strong></span>
+                    {{ atendimento.requerido | default_if_none:"Não Informado" }}
+                </p>
+
+                <p>
+                    <span class="block"><strong>Núcleo:</strong></span>
+                    {{ atendimento.nucleo | default_if_none:"Não Informado" }}
+                </p>
+
+                <p>
+                    <span class="block"><strong>Comarca:</strong></span>
+                    {{ atendimento.defensoria.comarca }}
+                </p>
+
+                <p>
+                    <span class="block"><strong>Área/Pedido:</strong></span>
+                    {{ atendimento.qualificacao.area }}/{{ atendimento.qualificacao.nome }}
+                </p>
+
+                <p>
+                    <span class="block"><strong>Defensor:</strong></span>
+                    {{ atendimento.defensor }}
+                </p>
+
+                <p>
+                    <span class="block"><strong>Agendado para:</strong></span>
+                    {{ atendimento.data_agendamento }}
+                </p>
+            </div>
+
+        </div>
+        <div class="span6">
+            <div class="well well-small">
+                <span class="block"><strong>Lembrete:
+                    <small class="muted"> (Apenas se necessário)</small>
+                </strong></span>
+
+                <form id="RelatorioForm" name="RelatorioForm" class="form">
+                    {% csrf_token %}
+                    <textarea name="lembrete_texto" class="span12" rows="9"
+                              placeholder="Digite o lembrete para o assistido ou o requerido..."
+                              ng-model="lembrete_text" ng-change="relatorio.status=null"></textarea>
+                    <input type="hidden" name="numero_atendimento" value="{{ atendimento.numero }}">
+
+                    <div class="controls" ng-init="lembrete_type=0">
+                        <label class="radio">
+                            <input type="radio" checked name="lembrete" value="0"
+                                   ng-model="lembrete_type" ng-change="relatorio.status=null">Lembrete para requerentes
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="lembrete" value="1" ng-model="lembrete_type"
+                                   ng-change="relatorio.status=null">Lembrete para requeridos
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="lembrete" value="2" ng-model="lembrete_type"
+                                   ng-change="relatorio.status=null">Lembrete para todos
+                        </label>
+                    </div>
+                    <hr/>
+                    <div>
+                        <div class="btn-group" ng-init="init();">
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="!RelatorioForm.$valid" ng-hide="relatorio.status">
+                                Gerar
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% for relatorio in relatorios %}
+                                    <li>
+                                        <a href="#" class="text-left" ng-click="imprimir({user:'{{ request.user.username }}', params:{atendimento_numero:'{{ atendimento.numero }}', lembrete_type:lembrete_type, lembrete_text:lembrete_text, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}')">{{ relatorio.titulo }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-primary" ng-show="relatorio.status.pending" disabled>
+                            Gerando...
+                        </button>
+                        <button type="button" class="btn btn-danger" ng-show="relatorio.status.fail"
+                                bs-tooltip="relatorio.status.reason">Erro!
+                        </button>
+                        <a class='btn btn-success' target='_blank' href="[[ relatorio.status.report ]]"
+                           ng-show="relatorio.status.success">Baixar</a>
+                        {% if atendimento.origem %}
+                            <a href="{% url 'atendimento_atender' atendimento.origem.numero %}"
+                               class="btn">Continuar</a>
+                        {% else %}
+                            <a href="{% url 'atendimento_atender' atendimento.at_inicial.numero %}" class="btn">Continuar</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

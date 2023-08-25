@@ -1,0 +1,109 @@
+{% load humanize %}
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de atendimentos - {{ config.NOME_INSTITUICAO }}</title>
+    <link type="text/css" href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    <style type="text/css">
+
+        .ativo {
+            color: red;
+        }
+
+        .ativo img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .nome-ativo {
+            display: block;
+            font-size: 500%;
+            font-weight: bold;
+            line-height: 100%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+            text-rendering: optimizelegibility;
+        }
+
+        .proximo {
+            padding-bottom: 10px;
+        }
+
+        .foto {
+            width: 100%;
+            margin-right: 10px;
+        }
+
+        .nome {
+            font-size: 300%;
+            line-height: 100%;
+            padding-top: 10px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .propaganda {
+            padding-top: 20px;
+        }
+
+        #logo {
+            color: red;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+    </style>
+    <!-- <link type="text/css" href="{% static "css/bootstrap-responsive.css" %}" rel="stylesheet" > -->
+</head>
+<body ng-app="SisatApp">
+
+<audio id="beep">
+    <source src="{% static "audio/beep2.mp3" %}" type="audio/mpeg"/>
+    Seu navegador não suporta a API de áudio do HTML5. Atualize.
+</audio>
+
+<div class="container-fluid" ng-controller="RecepcaoPublicoCtrl">
+    <div class="row-fluid">
+        <div class="span12 ativo">
+            <div ng-show="atendimento">
+                <div class="nome-ativo">Guichê [[ atendimento.guiche ]]</div>
+                <div>
+                    <img ng-src="[[atendimento.foto]]" alt="Nome do assistido">
+                </div>
+                <div class="nome-ativo">[[ atendimento.requerente ]]</div>
+            </div>
+            <div ng-hide="atendimento" class="logo center">
+                <img src="{% static "img/logo500.jpg" %}" alt="logo" width="480">
+
+                <h1>Aguardando atendentes</h1>
+            </div>
+        </div>
+        <!--
+        <div class="span8" class="center propaganda">
+            <iframe src="https://docs.google.com/presentation/d/1RgWpGHDcUssaPW-FxVo9xUAP2i9qrTmaG5bedJfgRWY/embed?start=true&loop=true&delayms=5000" frameborder="0" width="800" height="479" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+        </div>
+        -->
+    </div>
+</div>
+{% csrf_token %}
+
+<script type="text/javascript">
+    var comarca_id = {{ comarca }};
+    var NODE_SERVER = "http://solar.defensoria.to.def.br:8082";
+</script>
+
+{#	<script src="http://solar.defensoria.to.def.br:8082/socket.io/socket.io.js"></script>#}
+<script type="text/javascript" src="{% static "js/jquery.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/angular.1.2.14.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/ui-utils.0.1.1.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/angular-sanitize.js" %}"></script>
+<script type="text/javascript" src="{% static "js/app.js" %}?v={{ config.JSVERSION }}"></script>
+<script type="text/javascript" src="{% static "js/app/controllers_recepcao.js" %}?v={{ config.JSVERSION }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% load static contrib_tags %}
+
+<div class="row-fluid">
+    <form action="{% url "recepcao_salvar_atendimento" %}" id="pre-atendimento" class="form form-horizontal" method="POST">
+        <input type="hidden" id="numero_atendimento" name="numero_atendimento" value="{{ atendimento.numero }}">
+        <input type="hidden" id="id_atendimento" name="id_atendimento" value="{{ atendimento.id }}">
+        {% csrf_token %}
+        {% if atendimento.data_cadastro.date == hoje and atendimento.cadastrado_por == request.user.servidor and not liberado %}
+            <label>
+                <b>Anotações do Agendamento</b>
+                <small class="muted">Digite as anotações do agendamento do assistido</small>
+            </label>
+            <textarea id="historico_recepcao" name="historico_recepcao" rows="5">
+                {{ atendimento.historico_recepcao | default:'Não informado' }}
+            </textarea>
+            <small class="muted">
+                &mdash; Registrado por <b>{{ atendimento.cadastrado_por | default:'Não informado' }}</b> em <b>{{ atendimento.data_cadastro }}</b>
+            </small>
+        {% else %}
+            <blockquote class="bq-success">
+                <b class="text-success">Anotações do Agendamento</b>
+                <div>{{ atendimento.historico_recepcao | default:'Não informado' | striptags }}</div>
+                <small>
+                    Registrado por <b>{{ atendimento.cadastrado_por | default:'Não informado'  }}</b> em <b>{{ atendimento.data_cadastro }}</b>
+                </small>
+            </blockquote>
+        {% endif %}
+        <hr/>
+        {% if not liberado %}
+            {% if atendimento.recepcao %}
+            <blockquote class="bq-success">
+                <b class="text-success">Anotações da Recepção</b>
+                <div>{{ atendimento.recepcao.historico | default:'Não informado' |striptags }}</div>
+                <small>
+                    Registrado por <b>{{ atendimento.recepcao.atendido_por | default:'Não informado' }}</b> em <b>{{ atendimento.recepcao.data_atendimento }}</b>
+                </small>
+            </blockquote>
+            {% endif %}
+        {% else %}
+            <label>
+                <b>Anotações da Recepção</b>
+                <small class="muted">Digite as anotações do pré-atendimento ao assistido</small>
+            </label>
+            <textarea id="historico_recepcao" name="historico_recepcao" rows="5">
+                {% if atendimento.recepcao %}
+                    {{ atendimento.recepcao.historico | default:'Não informado'  }}
+                {% endif %}
+            </textarea>
+            {% if atendimento.recepcao %}
+            <small class="muted">
+                &mdash; Registrado por <b>{{ atendimento.recepcao.atendido_por | default:'Não informado' }}</b> em <b>{{ atendimento.recepcao.data_atendimento }}</b>
+            </small>
+            {% endif %}
+        {% endif %}
+    </form>
+</div>

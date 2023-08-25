@@ -1,0 +1,159 @@
+{% extends "atendimento/qualificacao/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="pull-right" style="margin-top: 20px;">
+        {% if ligacao.procedimentos %}
+            <a href="{% url "precadastro_encerrar" ligacao.numero 0 %}" class="btn btn-danger">
+                <i class="fas fa-phone-slash"></i> Encerrar ligação
+            </a>
+        {% else %}
+            <div class="btn-group dropup" style="display:none;">
+                <button class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
+                    <i class="fas fa-phone-slash"></i> Encerrar ligação
+                </button>
+                <ul class="dropdown-menu">
+                    {% for motivo in ligacao.cronometro.LISTA_MOTIVO %}
+                        <li>
+                            <a href="{% url "precadastro_encerrar" ligacao.numero motivo.0 %}">{{ motivo.1 }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar qualificação ([[ itens_qualificacao.length ]])
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block menu_app %}
+<div class="navbar navbar-mb0" ng-init="buscar('{{ titulo|safe }}')">
+    <div class="navbar-inner">
+        <div class="container">
+            <div class="navbar-form">
+                <div class="row-fluid no-space">
+                    <form class="navbar-form">
+                        {% csrf_token %}
+                        <div class="span3">
+                            <select class="span12" ng-model="filtro.area" ng-change="buscar_area()" ng-options="area as area.nome for area in areas track by area.id">
+                                <option value="">TODAS AS ÁREAS</option>
+                            </select>
+                        </div>
+                        <div class="span6">
+                            <input type="text" value="" placeholder="Digite o nome da solicitação" class="span12"
+                                title="Pressione ENTER para buscar" rel="tooltip" data-trigger="focus"
+                                ng-model="filtro.query"
+                                ng-keypress="buscar_key($event)" ng-disabled="filtro.id" upper-text />
+                        </div>
+                        <button ng-disabled="carregando" data-original-title="Buscar solicitação"
+                                data-placement="bottom" rel="tooltip" class="btn actions-f12" type="submit"
+                                ng-click="buscar()">
+                            <i ng-hide="carregando" class="fas fa-search"></i>
+                            <img ng-show="carregando" src="{% static "img/loader_16.gif" %}">
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th class="span6">Título/Área</th>
+            <th class="span3">Descrição</th>
+            <th class="span1">Perguntas?</th>
+            <th class="span1">Documentos?</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in itens_qualificacao">
+            <td>
+                <a href="#modal-item-qualificacao" data-toggle="modal" class="btn-link" ng-click="visualizar(item)">
+                    [[ item.titulo ]]
+                </a>
+                <div><small>Área: <b>[[item.area__nome]]</b></small></div>
+                <div ng-if="item.nucleo__nome"><small>Núcleo: <b>[[item.nucleo__nome]]</b></small></div>
+                <div ng-if="item.especializado__nome"><small>Especializado: <b>[[item.especializado__nome]]</b></small></div>
+            </td>
+            <td>
+                <small>[[ item.texto ]]</small>
+            </td>
+            <td>
+                <div class="label label-success" ng-if="item.perguntas">Sim</div>
+                <div class="label label-important" ng-if="!item.perguntas" ng-if="!item.perguntas">Não</div>
+            </td>
+            <td>
+                <div class="label label-success" ng-if="item.documentos">Sim</div>
+                <div class="label label-important" ng-if="!item.documentos">Não</div>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <a href="#modal-item-qualificacao" data-toggle="modal" class="btn btn-small" ng-click="visualizar(item)"
+                    bs-tooltip data-original-title="Visualizar">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    {% if request.user.is_staff and perms.atendimento.change_qualificacao %}
+                        <a href="/admin/atendimento/qualificacao/[[ item.id ]]/" target="_blank" role="button"
+                           class="btn btn-small" bs-tooltip data-placement="top" data-original-title="Alterar">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        <tr ng-hide="itens_qualificacao.length">
+            <td colspan="5" ng-show="carregando"><img src="{% static "img/loader_16.gif" %}"> Carregando...</td>
+            <td colspan="5" ng-hide="carregando">Nenhum registro encontrado</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {% if next or perms.atendimento.add_qualificacao %}
+        <div class="form-actions">
+            {% if next %}
+                <a href="{{ next }}" class="btn">Voltar</a>
+            {% endif %}
+            {% if perms.atendimento.add_qualificacao %}
+                <a href="#modal-nova-qualificacao" role="button" class="btn btn-primary" data-toggle="modal">
+                    <i class="fas fa-plus-circle"></i> Nova
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% include 'atendimento/qualificacao/modal_item_qualificacao.html' %}
+    {% include 'atendimento/qualificacao/modal_nova_qualificacao.html' %}
+    {% include 'atendimento/qualificacao/modal_vincular_processo.html' %}
+
+{% endblock %}
+
+{% block js_pag %}
+
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+
+        {% if form.errors %}
+
+            $('#modal-nova-qualificacao').modal();
+
+        {% endif %}
+
+    {% endblock %}
+</script>

@@ -1,0 +1,51 @@
+{% extends "atendimento/recepcao/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="page-title">
+        <h3>
+            <span class="pull-left">Selecionar guichê</span>
+        </h3>
+        {% if comarca.predios.count %}
+            <span class="pull-right">
+        <a href="{% url 'recepcao_index_predio' %}" class="btn" title="Clique para alterar o prédio">
+            <i class="fas fa-map-marker-alt"></i> {{ predio }}
+        </a>
+ </span>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <div class="clearfix"></div>
+    {% if guiches %}
+        <div class="btn-group shortcut-group">
+            {% for g in guiches %}
+                <a class="btn btn-large" href="{% url 'recepcao_guiche_set' g.numero %}">
+                    {{ g.numero }}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        Não há nenhum guichê cadastrado para essa comarca. Entre em contato com o responsável pela sua comarca.
+    {% endif %}
+
+{% endblock %}
+
+{% block js_pag %}
+
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+
+
+    {% endblock %}
+</script>

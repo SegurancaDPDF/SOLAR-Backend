@@ -1,0 +1,45 @@
+<div id="modal-atendimento-prioridade" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Esse assistido tem prioridade?</h3>
+    </div>
+    <div class="modal-body">
+        <h4 ng-show="requerente_responsavel.nome_social" class="color-red">
+            [[requerente_responsavel.nome_social]] <span title="Nome Social" class="label label-important">NS</span>
+        </h4>
+        <h4>[[requerente_responsavel.nome]]</h4>
+        <p>
+            [[ requerente_responsavel.eh_pessoa_fisica ? 'CPF' : 'CNPJ']]:
+            [[requerente_responsavel.cpf && requerente_responsavel.cpf || 'Não informado' | cpf_cnpj ]]
+        </p>
+        <p>Idade: <b>[[ requerente_responsavel.idade ?  requerente_responsavel.idade + ' anos' : 'Cadastre a data de nascimento']]</b> </p>
+
+
+        <p ng-class="{true:'text-error'}[requerente_responsavel.idoso]">
+            É idoso?
+            <b>[[ requerente_responsavel.idoso ? 'Sim' : 'Não' ]] </b>
+        </p>
+        <p ng-class="{true:'text-error'}[requerente_responsavel.pne]">
+            É PNE?
+            <b>[[ requerente_responsavel.pne ? 'Sim' : 'Não' ]] </b>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="submit"
+                title="Comum"
+                form="pre-atendimento" name="prioridade" value="0">
+            <i class="fas fa-male"></i> Sem prioridade
+        </button>
+        <button class="btn" type="submit"
+                title="Idoso, PNE, Gestante"
+                form="pre-atendimento" name="prioridade" value="10">
+            <i class="fas fa-wheelchair"></i> Prioridade
+        </button>
+        <button class="btn" type="submit"
+                title="Idoso acima de 80 anos"
+                form="pre-atendimento" name="prioridade" value="20">
+            <i class="fas fa-blind"></i> Prioridade +80
+        </button>
+    </div>
+</div>

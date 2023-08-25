@@ -1,0 +1,43 @@
+{% extends "atendimento/recepcao/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="page-title">
+        <h3 class="pull-left">
+            Selecionar Prédio
+        </h3>
+    </div>
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="clearfix"></div>
+    <ul class="unstyled">
+        {% for predio in predios %}
+            <li>
+                <a class="btn btn-link" href="{% url 'recepcao_predio_set' predio.id %}">
+                    <i class="fas fa-map-marker-alt"></i> {{ predio.nome }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
+
+{% block js_pag %}
+
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+
+
+    {% endblock %}
+</script>

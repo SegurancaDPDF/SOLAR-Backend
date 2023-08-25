@@ -1,0 +1,208 @@
+{% extends "atendimento/tarefa/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block css_pag %}
+    <style>
+        #popover_pessoa .popover{width: 500px;}
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <form class="navbar-form" action="{% url 'atendimento_tarefas_buscar' %}" method="GET">
+                    {{ form.data_inicial }}
+                    {{ form.data_final }}
+                    {{ form.setor_responsavel }}
+                    {{ form.responsavel }}
+                    Status: {{ form.situacao }}
+                    Prioridade: {{ form.prioridade }}
+                    <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar Tarefas ({{ paginator.count | intcomma }})
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Número</th>
+            <th>Tipo</th>
+            <th>Título</th>
+            <th>Defensoria</th>
+            <th>Responsável</th>
+            <th>Prioridade</th>
+            <th>
+                <a href="?{% url_replace_tarefas ordering=ordering %}">Prazo Final <span class="fas fa-sort"></span></a>
+            </th>
+            <th>Atraso (dias)</th>
+            <th>Situação</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for registro in object_list %}
+                <tr class="{% if not registro.ativo %}muted{% elif registro.atrasada %}error{% endif %}">
+                    <td>
+                        <small class="muted">{{ forloop.counter0|add:page_obj.start_index }}</small>
+                    </td>
+                    <td>
+                        <b>{{ registro.id }}</b>
+                        {% if request.user.is_superuser %}
+                        <a href="{% url 'admin:atendimento_tarefa_change' registro.id %}" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>
+                            <i class="fas fa-link"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if registro.eh_alerta %}
+                            <span class="label label-important">Alerta</span>
+                        {% elif registro.eh_cooperacao %}
+                            <span class="label label-warning">Cooperação</span>
+                        {% elif registro.movimento %}
+                            <span class="label label-info" title="Tarefa oriunda de Propac">Tarefa Propac</span>
+                        {% else %}
+                            <span class="label label-info">Tarefa</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ registro.titulo | default:"Não informado" | upper }}
+                        <div>
+                            <small class="muted">Cadastrado por
+                                <b title="{{ registro.cadastrado_por.nome }}" rel="tooltip">
+                                    {{ registro.cadastrado_por.usuario|default:'Não Informado' }}
+                                </b> em
+                                <b>{{ registro.data_cadastro|date:"d/m/Y H:i"|default:"Não informado" }}</b>
+                            </small>
+                        </div>
+                    </td>
+                    <td>
+                        <span title="{{ registro.setor_responsavel.nome }}" rel="tooltip">
+                            {{ registro.setor_responsavel.codigo|default:"Não informado" }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if registro.responsavel %}
+                            <span title="{{ registro.responsavel.nome }}" rel="tooltip">
+                                {{ registro.responsavel.usuario }}
+                            </span>
+                        {% else %}
+                            <span title="{{ registro.setor_responsavel.nome }}" rel="tooltip">
+                                {{ registro.setor_responsavel.codigo|default:"Não informado" }}
+                            </span>
+                        {% endif %}
+                        {% if registro.respondido_por %}
+                            <div>
+                                <small class="muted">Respondido por
+                                    <b title="{{ registro.respondido_por }}" rel="tooltip">
+                                        {{ registro.respondido_por_username }}
+                                    </b>
+                                </small>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ registro.get_prioridade_display }}</td>
+                    <td>{{ registro.data_final|date:'d/m/Y'|default:"Não informado" }}</td>
+                    <td>{{ registro.dias_atrasada }}</td>
+                    <td>
+                        {% if not registro.ativo %}
+                            <span class="label">Excluída</span>
+                        {% elif registro.finalizada %}
+                            <span class="label label-success">Finalizada</span>
+                        {% elif registro.cumprida %}
+                            <span class="label label-info">Cumprida</span>
+                        {% elif registro.com_pendencia %}
+                            <span class="label label-warning">C/ Pedência</span>
+                        {% elif registro.atrasada %}
+                            <span class="label label-important">Atrasada</span>
+                        {% else %}
+                            <span class="label">Aguardando</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            {# link para tarefas de movimento (Propac) #}
+                            {% if registro.movimento %}
+                            <a href="{% url 'procedimentos:movimento_tarefas' uuid=registro.movimento.procedimento.uuid pk=registro.movimento.pk %}#/?tarefa={{ registro.id }}" class="btn btn-small" title="Visualizar" rel="tooltip">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </a>
+                            {% else %}
+                            {# link para tarefas de atendimento #}
+                            <a href="{% url 'atendimento_atender' registro.atendimento.numero %}#/tarefa/{{ registro.id }}" class="btn btn-small" title="Visualizar" rel="tooltip">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10">Nenhum registro encontrado</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>#</th>
+            <th>Número</th>
+            <th>Tipo</th>
+            <th>Título</th>
+            <th>Defensoria</th>
+            <th>Responsável</th>
+            <th>Prioridade</th>
+            <th>Prazo Final</th>
+            <th>Atraso (dias)</th>
+            <th>Situação</th>
+            <th>Ações</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    {% include 'components/pagination.html' with page_obj=page_obj %}
+
+    <div id="popover_pessoa" style="width: 500px; min-height: 300px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+    $('.datepicker').datepicker();
+    
+    $('#id_data_final').on('change', function (e) {
+        var data1 = $("#id_data_inicial").val();
+        var data2 = $("#id_data_final").val();
+        
+        var dataInicial = ConverteParaData(data1);
+        var dataFinal   = ConverteParaData(data2);
+        
+        if (dataInicial > dataFinal) {
+            show_stack_error("Erro! A data final não pode ser menor do que a data inicial.");
+       }
+           
+    });
+       
+   function ConverteParaData(data){
+     var dataArray = data.split('/');
+     var novaData = new Date(dataArray[2], dataArray[1], dataArray[0]);
+     
+     return novaData;
+   }
+{% endblock %}

@@ -1,0 +1,16 @@
+{% load humanize %}
+<div class="row-fluid">
+    {% for item in totais %}
+    <div class="span3">
+        <a href="{{ item.url }}" class="painel small-box {{ item.cor }} {% if not item.selecionado %}op-50{% endif %}" style="cursor: pointer;">
+            <div class="inner">
+                <h3>{{ item.valor|intcomma }}</h3>
+                <p>{{ item.texto }}</p>
+            </div>
+            <div class="icon">
+                <i class="{{ item.icone }}"></i>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>

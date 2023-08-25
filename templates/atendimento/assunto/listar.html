@@ -1,0 +1,177 @@
+{% extends "atendimento/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+    <style>
+        .children_move {width: 16px;height: 33px;display: inline-block;vertical-align: top;margin-top: -5px;}
+        .children_arrow {width: 16px;height: 8px}
+
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            <i class="icofont-align-left"></i> Gerenciar Assuntos
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div ng-init="init()">
+        <input name="titulo" type="text" class="span12 ng-pristine ng-invalid ng-invalid-required" required="" placeholder="Digite aqui um assunto para pesquisar..." ng-model="filtro_assuntos" ng-change="abrir_arvore_assuntos()">
+        <div class="">
+            <script type="text/ng-template" id="tree_childrens">
+                <a href="#" ng-click="filho.sel=!filho.sel">
+                    <i class="color-yellow" ng-class="{true:'icofont-folder-open',false:'icofont-folder-close'}[filho.sel==true]" ng-show="filho.filhos.length"></i>
+                    [[ filho.titulo ]]
+                </a>
+                <a href="#" ng-click="excluir(filho)" ng-hide="filho.filhos.length">
+                    <i class="color-red icofont-remove-sign" bs-tooltip="'remover'"></i>
+                </a>
+                <div class="children_move">
+                    <div class="children_arrow">
+                        <a href="#" ng-click="">
+                            <i class="icofont-caret-up color-silver" ng-show="$first"></i>
+                            <i class="icofont-caret-up color-black" ng-hide="$first" ng-click="mover_item(filho, -1)" bs-tooltip="'subir'"></i>
+                        </a>
+                    </div>
+                    <div class="children_arrow">
+                        <a href="#" ng-click="">
+                            <i class="icofont-caret-down color-silver" ng-show="$last"></i>
+                            <i class="icofont-caret-down color-black" ng-hide="$last" ng-click="mover_item(filho, 1)" bs-tooltip="'descer'"></i>
+                        </a>
+                    </div>
+                </div>
+                <ul ng-show="filho.sel">
+                    <li ng-repeat="filho in filho.filhos | filter:filtro_assuntos | orderBy:'ordem'" ng-include="'tree_childrens'"></li>
+                    <li>
+                        <a href="#modal-arvore-assuntos" data-toggle="modal" ng-click="adicionar(filho)">
+                            <i class="color-green icofont-plus-sign"></i> Adicionar
+                        </a>
+                    </li>
+                </ul>
+            </script>
+            <ul class="tree">
+                <li>
+                    ASSUNTOS
+                    <ul>
+                        <li ng-repeat="assunto in assunto.arvore | filter:filtro_assuntos | orderBy:'ordem' ">
+                            <a href="#" ng-click="assunto.sel=!assunto.sel">
+                                <i class="color-yellow" ng-class="{true:'icofont-folder-open',false:'icofont-folder-close'}[assunto.sel==true]" ng-show="assunto.filhos.length"></i>
+                                [[ assunto.titulo ]]
+                            </a>
+                            <a href="#" ng-click="excluir(assunto)" ng-hide="assunto.filhos.length">
+                                <i class="color-red icofont-remove-sign" bs-tooltip="'remover'"></i>
+                            </a>
+                            <div  class="children_move">
+                                <div class="children_arrow">
+                                    <a href="#" ng-click="">
+                                        <i class="icofont-caret-up color-silver" ng-show="$first"></i>
+                                        <i class="icofont-caret-up color-black" ng-hide="$first" ng-click="mover_item(assunto, -1)" bs-tooltip="'subir'"></i>
+                                    </a>
+                                </div>
+                                <div class="children_arrow">
+                                    <a href="#" ng-click="">
+                                        <i class="icofont-caret-down color-silver" ng-show="$last"></i>
+                                        <i class="icofont-caret-down color-black" ng-hide="$last" ng-click="mover_item(assunto, 1)" bs-tooltip="'descer'"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <ul ng-show="assunto.sel">
+                                <li ng-repeat="filho in assunto.filhos | filter:filtro_assuntos | orderBy:'ordem' " ng-include="'tree_childrens'"></li>
+                                <li>
+                                    <a href="#modal-arvore-assuntos" data-toggle="modal" ng-click="adicionar(assunto)">
+                                        <i class="color-green icofont-plus-sign"></i> Adicionar
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#modal-arvore-assuntos" data-toggle="modal" ng-click="adicionar(assunto)">
+                                <i class="color-green icofont-plus-sign"></i> Adicionar
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- Modal Adicionar Assunto -->
+    <div id="modal-arvore-assuntos" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3><i class="icofont-align-left"></i> Adicionar Assunto</h3>
+        </div>
+        <div class="modal-body">
+            <form class="" name="AdicionarAssuntoFrom">
+                {% csrf_token %}
+                <div class="row-fluid">
+
+                    <div class="control-group">
+                        <label class="control-label">Código</label>
+                        <div class="controls">
+                            <input type="text" name="codigo" ng-model="novo.codigo" class="span4">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Título</label>
+                        <div class="controls">
+                            <input type="text" name="titulo" ng-model="novo.titulo" class="span12" required>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Pai</label>
+                        <div class="controls">
+                            <input type="text" name="titulo" ng-model="novo.pai.descricao" class="span12" disabled>
+                        </div>
+                    </div>
+
+
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" data-dismiss="modal" aria-hidden="true" ng-click="salvar()" ng-disabled="!AdicionarAssuntoFrom.$valid">Salvar</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+        </div>
+    </div>
+    <!-- Modal Adicionar Assunto -->
+
+    <!-- Modal Excluir Assunto -->
+    <div id="modal-excluir-assunto" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 class="text-error"><i class="icofont-warning-sign"></i> Excluir Assunto</h3>
+        </div>
+        <div class="modal-body">
+            <h5>Título: [[ selecionado.titulo ]]</h5>
+            <h6>Descrição: [[ selecionado.descricao ]]</h6>
+            <p class="bold">Deseja realmente EXCLUIR o assunto "[[ selecionado.titulo ]]"?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true" ng-click="excluir_confirmar()">Excluir</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+        </div>
+    </div>
+    <!-- Modal Excluir Assunto -->
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+    $('a[data-toggle=popover]').popover();
+
+{% endblock %}

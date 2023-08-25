@@ -1,0 +1,638 @@
+{% extends "atendimento/precadastro/default.html" %}
+{% load humanize static contrib_tags %}
+
+{% block css_pag %}
+
+    <style>
+        input.error {
+            background-color: #F2DEDE;
+            border-color: #B94A48;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+        }
+
+        input.error::-webkit-input-placeholder {
+            color: #B94A48;
+        }
+
+        input.error::-moz-placeholder {
+            color: #B94A48;
+        }
+
+        /* firefox 19+ */
+        input.error:-ms-input-placeholder {
+            color: #B94A48;
+        }
+
+        /* ie */
+        input.error:-moz-placeholder {
+            color: #B94A48;
+        }
+
+        .dropdown-toggle span[ng-bind] {
+            display: block;
+            float: left;
+            width: 92px;
+            text-align: left;
+        }
+    </style>
+
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+            {% if ligacao.requerente %}
+                {{ ligacao.requerente.nome }}
+            {% else %}
+                Buscar Pessoa
+            {% endif %}
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="pull-right">
+        {% if ligacao.procedimentos %}
+            <a href="{% url "precadastro_encerrar" ligacao.numero 0 %}" class="btn btn-danger">
+                <i class="fas fa-phone-slash"></i> Encerrar ligação
+            </a>
+        {% else %}
+            <div class="btn-group dropup">
+                <button class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
+                    <i class="fas fa-phone-slash"></i> Encerrar ligação
+                </button>
+                <ul class="dropdown-menu">
+                    {% for motivo in ligacao.cronometro.LISTA_MOTIVO %}
+                        <li>
+                            <a href="{% url "precadastro_encerrar" ligacao.numero motivo.0 %}">{{ motivo.1 }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    <div class="clearfix" ng-init="init('{{ endereco_form_initial.estado.id }}', true, false, null, {{ config.ASSISTIDO_TELEFONE_TIPO_PADRAO }})">
+        <ul class="nav nav-tabs" id="myTab">
+            {% if not ligacao.requerente %}
+                <li><a href="#buscar" data-toogle="tab">Buscar</a></li>
+            {% endif %}
+            <li><a href="#confirmar" data-toogle="tab">Confirmar</a></li>
+        </ul>
+        <div class="tab-content">
+            {% if not ligacao.requerente %}
+                <div class="tab-pane" id="buscar">
+                    <form novalidate ng-submit="formBuscaPessoas.$valid" id="PesquisaForm" name="PesquisaForm" class="form-inline row-fluid">
+                        {% csrf_token %}
+                        <div class="row-fluid no-space">
+                            <div class="span2">
+                                <label><strong>CPF / CNPJ</strong></label>
+                                <input type="text" id="cpf" name="cpf" class="span12" data-trigger="focus"
+                                       ng-model="filtro.cpf" ng-keypress="buscar_key($event)" ng-disabled="filtro.id"
+                                       ui-mask="[[ filtro.cpf.length == 14 ? '99.999.999/9999-99' : '999.999.999-99?999' ]]"
+                                       cpf-cnpj-validator>
+                            </div>
+                            <div class="span4">
+                                <label><strong>Nome</strong></label>
+                                <input type="text" id="nome" name="nome" class="span12"
+                                       title="Pressione ENTER para buscar" bs-tooltip data-trigger="focus"
+                                       ng-model="filtro.nome" ng-keypress="buscar_key($event)" ng-disabled="filtro.id"
+                                       data-validate="{required:true}" upper-text>
+                            </div>
+                            <div class="span2">
+                                <label><strong>Data Nascimento</strong></label>
+                                <input type="text" id="data_nascimento" name="data_nascimento" class="span12 datepicker"
+                                       placeholder="dd/mm/aaaa" ng-model="filtro.data_nascimento" ng-keypress="buscar_key($event)"
+                                       ng-disabled="filtro.id" data-validate="{required:true,date:true}"
+                                       data-date-format="dd/mm/yyyy" data-mask="99/99/9999" bs-datepicker>
+                            </div>
+                            <div class="span2">
+                                <label><strong>Filiação</strong></label>
+                                <input type="text" id="mae" name="mae" class="span12" ng-model="filtro.filiacao[0].nome"
+                                       ng-keypress="buscar_key($event)" ng-disabled="filtro.id" upper-text>
+                            </div>
+                            <div class="span2">
+                                <label><strong>Ações</strong></label>
+
+                                <div class="span12">
+                                    <button ng-disabled="carregando" title="Buscar" rel="tooltip"
+                                            class="btn actions-f12" type="submit" ng-click="buscar()">
+                                        <i ng-hide="carregando" class="fas fa-search"></i>
+                                        <img ng-show="carregando" src="{% static "img/loader_16.gif" %}">
+                                    </button>
+                                    <button class="btn" title="Limpar" rel="tooltip" ng-click="limpar()">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button type="button" class="btn" title="Cadastrar pessoa" rel="tooltip"
+                                            ng-click="cadastrar('{{ endereco_form_initial.estado.id }}', '{{ endereco_form_initial.municipio.id }}')"
+                                            ng-show="buscou && !filtro.id" ng-disabled="salvando">
+                                        <i class="fas fa-user-plus"></i> <span
+                                            ng-bind="{true:'Carregando...',false:'Cadastrar'}[salvando]"></span>
+                                    </button>
+                                    <button type="button" class="btn" title="Visualizar pessoa" rel="tooltip"
+                                            ng-click="confirmar(filtro)" ng-show="filtro.id" ng-disabled="salvando">
+                                        <i class="fas fa-search"></i> <span
+                                            ng-bind="{true:'Carregando...',false:'Visualizar'}[salvando]"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <table id="assitidos"
+                           class="table table-bordered table-striped table-hover responsive display-data">
+                        <thead>
+                        <tr>
+                            <th class="span2">CPF/CNPJ</th>
+                            <th>Nome</th>
+                            <th class="span4">Filiação</th>
+                            <th class="span1">Nascimento</th>
+                            <th class="span1">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="pessoa in pessoas">
+                            <td>[[pessoa.cpf | cpf_cnpj]]</td>
+                            <td><a href="#" class="btn-link" ng-click="confirmar(pessoa)"
+                                   ng-bind-html="pessoa.nome_mark"></a></td>
+                            <td>
+                                <div class="helper-font-small" ng-repeat="mae in pessoa.filiacao"
+                                     ng-bind-html="mae.nome_mark"></div>
+                            </td>
+                            <td>[[pessoa.data_nascimento|date:'dd/MM/yyyy']]</td>
+                            <td>
+                                <div class="pull-center btn-group">
+                                    <a href="#" title="Visualizar pessoa" class="btn" bs-tooltip data-placement="left"
+                                       data-original-title="Confirmar" ng-click="confirmar(pessoa)">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-hide="pessoas.length">
+                            <td colspan="5" ng-show="carregando"><img src="{% static "img/loader_16.gif" %}">
+                                Carregando...
+                            </td>
+                            <td colspan="5" ng-hide="carregando">Nenhum registro encontrado</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div> <!-- /#buscar -->
+            {% endif %}
+            <div class="tab-pane" id="confirmar">
+                <div>
+                <ul class="nav nav-pills" id="myTab2" value=0>
+                    <li><a ng-if="!pessoa.nome ? !pessoal.nome : pessoa.tipo == 0" href="#pf" data-toogle="tab">Pessoa Física</a></li>
+                    <li><a ng-if="!pessoa.nome ? !pessoal.nome : pessoa.tipo == 1" href="#pj" data-toogle="tab">Pessoa Jurídica</a></li>
+                </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane" id="pf">
+                            <div>
+                                {% include 'atendimento/precadastro/iniciar_pessoa_fisica.html' %}
+                                <div class="span3">
+                                    <img class="img-polaroid" width="140" style="float:right;"
+                                         ng-src="[[ pessoa.foto && '{{ MEDIA_URL }}'+pessoa.foto || '{% static "img/sem-foto.gif" %}' ]]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="pj">
+                            <div>
+                            {% include 'atendimento/precadastro/iniciar_pessoa_juridica.html' %}
+                            <div class="span3">
+                                    <img class="img-polaroid" width="140" style="float:right;"
+                                         ng-src="[[ pessoa.foto && '{{ MEDIA_URL }}'+pessoa.foto || '{% static "img/sem-foto.gif" %}' ]]">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="clearfix">
+                    <div class="form-actions">
+                        <span class="label label-important"
+                              ng-hide="salvo">Salve as alterações para ter acesso às ações</span>
+                        {% if config.EXIBIR_ALERTA_AVALIACAO_ASSISTIDO_129 %}
+                        <a href="#modal-avaliacao" id="btn-modal-atendimento" data-toggle="modal" class="btn btn-primary" ng-disabled="salvando" ng-show="pessoa.id && salvo">
+                            <i class="fas fa-comments"></i> {{config.NOME_MODULO_ATENDIMENTO}}
+                        </a>
+                        {% else %}
+                        <a href="{% url "precadastro_atendimento" ligacao.numero %}" class="btn btn-primary" id="btn-modal-atendimento" ng-disabled="salvando" ng-show="pessoa.id && salvo">
+                            <i class="fas fa-comments"></i> {{config.NOME_MODULO_ATENDIMENTO}}
+                        </a>
+                        {% endif %}
+
+                        {% if config.ATIVAR_BOTAO_ATENDER_AGORA %}
+                            <button onclick="event.preventDefault();" ng-controller="AtendimentoSemAgendaCtrl" ng-click='criar_atendimento_inicial_sem_agenda({requerente_id: pessoa.id, comarca_servidor_id: {{request.user.servidor.comarca.id}}, servidor_defensor_id: {{request.user.servidor.defensor.id}}})' ng-show="pessoa.id && salvo"
+                                class="btn btn-warning">  <i class="fas fa-bolt"></i> Atendimento Inicial Agora
+                            </button>
+                        {% endif %}
+
+                        {% if perms.atendimento.view_encaminhamento %}
+                            <a href="{% url "encaminhamento_ligacao" ligacao.numero %}" class="btn"
+                            id="btn-modal-encaminhamento" ng-disabled="salvando" ng-show="pessoa.id && salvo">
+                                <i class="fas fa-sign-out-alt"></i> Encaminhamento
+                            </a>
+                        {% endif %}
+
+                        {% if perms.atendimento.view_informacao %}
+                            <a href="{% url "informacao_index" ligacao.numero %}" class="btn" id="btn-modal-duvidas"
+                            ng-disabled="salvando" ng-show="pessoa.id && salvo">
+                                <i class="fas fa-question-circle"></i> Dúvidas
+                            </a>
+                        {% endif %}
+
+                        {% if perms.atendimento.view_reclamacao %}
+                            <button class="btn" id="btn-modal-reclamacao" ng-show="pessoa.id && salvo">
+                                <i class="fas fa-exclamation-circle"></i> Reclamação
+                            </button>
+                        {% endif %}
+
+                        {% if perms.atendimento.view_informacao %}
+                            <button class="btn" id="btn-modal-informacao" ng-show="pessoa.id && salvo">
+                                <i class="fas fa-question-circle"></i> Informações
+                            </button>
+                        {% endif %}
+
+                        <div class="pull-right" ng-controller="ImprimirCtrl" ng-init="init()">
+
+                            {% if ligacao.get_procedimentos %}
+                                <button class="btn" id="btn-modal-procedimentos">
+                                    <i class="fas fa-comment"></i> Ver Procedimentos
+                                </button>
+                            {% endif%}
+
+                                <button class="btn btn-success" id="salvar" ng-click="salvar()" ng-disabled="salvando">
+                                    <i class="fas fa-save"></i>
+                                    <span ng-bind="{true:'Salvando...',false:'Salvar'}[salvando]"></span>
+                                </button>
+
+                            {% include 'relatorios/modal_imprimir.html' %}
+
+                            <div class="btn-group dropup">
+                                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="!salvo">
+                                    <i class="fas fa-print"></i> Imprimir
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu pull-right">
+                                    {% for relatorio in relatorios %}
+                                        <li>
+                                            <a href="#modal-imprimir" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{assistido_id:pessoa.id, comarca_id:{{ request.user.servidor.comarca.id }}, atendimento_id:{{ agendamento.id }}, usuario_id: {{ request.user.id }}, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}')">{{ relatorio.titulo }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- /#cadastrar -->
+        </div>
+    </div>
+
+    {% if config.ATIVAR_BOTAO_ATENDER_AGORA %}
+        {% include 'atendimento/atender_modal_inicial_sem_agenda.html' %}
+    {% endif %}
+
+    {% if config.EXIBIR_ALERTA_AVALIACAO_ASSISTIDO_129 %}
+    <!-- Modal confirmar -->
+    <div id="modal-avaliacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Atenção!</h3>
+        </div>
+        <div class="modal-body">
+            <h4>Leia para o assistido o texto a seguir</h4>
+            {{ config.MENSAGEM_ALERTA_AVALIACAO_ASSISTIDO_129 | safe }}
+            <label class="checkbox"><input type="checkbox" ng-model="confirmado"/><i>Confirmo que li o texto acima para
+                o assistido.</i></label>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url "precadastro_encerrar" ligacao.numero ligacao.cronometro.MOTIVO_DESISTENCIA %}" class="btn"
+               ng-show="confirmado">
+               <i class="fas fa-hand-paper"></i> Desistir
+            </a>
+            <a href="{% url "precadastro_atendimento" ligacao.numero %}" class="btn btn-primary" ng-show="confirmado">
+                <i class="fas fa-chevron-right"></i> Continuar
+            </a>
+        </div>
+    </div>
+    <!--/ Modal confirmar -->
+    {% endif %}
+
+    {% if ligacao.get_procedimentos %}
+        <!-- Modal procedimentos -->
+        <div id="modal-procedimentos" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel"><i class="fas fa-phone"></i> Procedimentos efetuados</h3>
+            </div>
+            <div class="modal-body">
+                {% for procedimento in ligacao.get_procedimentos %}
+                    <p>
+                        {% if procedimento.tipo == procedimento.TIPO_ENCAMINHAMENTO %}
+                            <h5><i class="fas fa-sign-out-alt"></i> {{ procedimento.get_tipo_display }}:</h5>
+                            {{ procedimento.encaminhamento }}
+                        {% elif procedimento.tipo == procedimento.TIPO_INFORMACAO %}
+                            <h5><i class="fas fa-question-circle"></i> {{ procedimento.get_tipo_display }}:</h5>
+                            {{ procedimento.informacao }}
+                        {% elif procedimento.tipo == procedimento.TIPO_INFORMACAO_ASSISTIDO %}
+                            <h5><i class="fas fa-question-circle"></i> {{ procedimento.get_tipo_display }}</h5>
+                        {% elif procedimento.tipo == procedimento.TIPO_RECLAMACAO %}
+                            <h5><i class="fas fa-exclamation-circle"></i> {{ procedimento.get_tipo_display }}:</h5>
+                            A Reclamação foi enviada para a corregedoria
+                        {% else %}
+                            <h5><i class="fas fa-comment"></i> {{ procedimento.get_tipo_display }}:</h5>
+                            <p>
+                                <b>Número:</b> {{ procedimento.agendamento.numero }}
+                                {% if request.user.is_superuser %}
+                                    <a href="/admin/atendimento/defensor/{{ procedimento.agendamento_id }}" target="_blank" class="text-info">
+                                        <i class="fas fa-link"></i> Admin
+                                    </a>
+                                {% endif %}
+                            </p>
+
+                            {% if config.EXIBIR_OFICIO_AGENDAMENTO %}
+                                <p>
+                                    <b style="color: #bd362f">Atendimento Necessita de Ofício: </b> {{ procedimento.agendamento.oficio|yesno:"SIM,NÃO" }}
+                                </p>
+                            {% endif %}
+
+                            {% if procedimento.agendamento.extra %}
+                                <p><b>Agendado para:</b> {{ procedimento.agendamento.data_agendamento|date:'d/m/Y' }}
+                                    <span class="label label-warning">Extra-Pauta</span></p>
+                            {% else %}
+                                <p><b>Agendado
+                                    para:</b> {{ procedimento.agendamento.data_agendamento|date:'d/m/Y H:i' }} <span
+                                        class="label label-success">Pauta</span></p>
+                            {% endif %}
+                            <p><b>Defensor:</b> {{ procedimento.agendamento.defensor }}</p>
+                            {% if procedimento.agendamento.defensoria.nucleo %}
+                                <p><b>Núcleo:</b> {{ procedimento.agendamento.defensoria.nucleo }}</p>
+                            {% else %}
+                                <p><b>Defensoria:</b> {{ procedimento.agendamento.defensoria }}</p>
+                            {% endif %}
+
+                            <p>
+                                <b>Telefone da Unidade:</b> {{ procedimento.agendamento.defensoria.telefone|default_if_none:'Não informado' }}
+                            </p>
+
+                            <p>
+                                <b>Endereço:</b> {{ procedimento.agendamento.defensoria.predio.endereco|default_if_none:'Não informado' }}
+                            </p>
+                            <p>
+                                <b>Área/Pedido:</b> {{ procedimento.agendamento.qualificacao.area }}/{{ procedimento.agendamento.qualificacao | safe }}
+                            </p>
+                            {% if procedimento.agendamento.tipo == procedimento.agendamento.TIPO_INICIAL %}
+                                <p>
+                                    <b>Documentos:</b> {{ procedimento.agendamento.qualificacao.documentos|default_if_none:''|linebreaks }}
+                                </p>
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                    {% if not forloop.last %}
+                        <hr>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="modal-footer">
+                {% if mensagem_whatsapp_com_documentos %}
+                    <div class="btn-group">
+                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" title="Enviar mensagem via whatsapp">
+                            Enviar Whatsapp
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="https://api.whatsapp.com/send/?phone={{fonezap}}&text={{ mensagem_whatsapp_com_documentos }}" target="_blank">Com lista de documentos</a>
+                            </li>
+                            <li>
+                                <a href="https://api.whatsapp.com/send/?phone={{fonezap}}&text={{ mensagem_whatsapp_sem_documentos }}" target="_blank">Sem lista de documentos</a>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if pessoa.email %}
+                    <button class="btn" id="btn-enviar-email" aria-hidden="true" ng-click="enviar_email('{{ pessoa.email }}') " ng-disabled="carregandoEmail" title="Enviar mensagem via e-mail">Enviar e-mail
+                        <img ng-show="carregandoEmail" src="{% static "img/loader_16.gif" %}">
+                    </button>
+                {% endif %}
+                <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Continuar</a>
+            </div>
+        </div>
+        <!--/ Modal procedimentos -->
+    {% endif %}
+
+    <div id="modal-reclamacao" class="modal hide fade" tabindex="-1" role="dialog" ng-controller="ReclamacaoCtrl">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3>Enviar Reclamação: </h3>
+        </div>
+        <div class="modal-body">
+            <div class="media">
+                <div class="media-body" id = "reclamacao-content">
+                    <h4 id="num_protocolo">Protocolo ligação: {{ ligacao.numero }}</h4>
+                    <!-- <p id="texto_editavel" contenteditable="true">Prezado(a), encaminho a reclamação do assistido a vossa senhoria para os devidos procedimentos internos. </p>  -->
+
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="denunciaAnonima"> <strong>O assistido deseja não ser identificado.</strong>
+                    </label>
+
+                    <br>
+
+                    <div ng-show="!denunciaAnonima">
+                        <strong>Assistido:</strong> <span id="assistido-nome"></span> <br />
+                        <strong>Telefone:</strong> <span id="assistido-telefone"></span> <br />
+                    </div>
+                    <div ng-show="denunciaAnonima">
+                        <strong>Denúncia Anônima</strong>
+                    </div>
+
+                    <hr />
+
+                    <form name="denunciaForm">
+                        <label>Nome do Estabelecimento:</label>
+                        <input class="span12" id="nomeDoEstabelecimento" ng-model="nomeDoEstabelecimento" maxlength="256" type="text" required />
+
+                        <label>Tipo do Estabelecimento:</label>
+                        <select class="span12" id="tipoDoEstabelecimento" ng-model="tipoDoEstabelecimento" required>
+                            <option value="1">COMERCIAL</option>
+                            <option value="2">INDUSTRIAL</option>
+                            <option value="3">RESIDENCIAL</option>
+                        </select>
+
+                        <label>CEP:</label>
+                        <input class="" type="text" id="cepDenuncia" ng-model="cepDenuncia" ng-change="consultarCep()" ui-mask="99999-999" required />
+                        <a href="http://www.buscacep.correios.com.br/sistemas/buscacep/" target="_blank">Não sabe  o CEP? <u>Clique aqui</u></a>
+
+                        <input class="span8" type="text" id="logradouroDenuncia" ng-model="logradouroDenuncia" placeholder="Logradouro" disabled/>
+                        <input class="span4" type="text" id="bairroDenuncia" ng-model="bairroDenuncia" placeholder="Bairro" disabled />
+
+                        <input class="span2" type="number" id="numeroDenuncia" ng-model="numeroDenuncia" placeholder="Número" required />
+                        <input class="span10" type="text" id="complementoDenuncia" ng-model="complementoDenuncia" maxlength="512" placeholder="Complemento" />
+
+                        <label>Detalhes: </label>
+                        <textarea class="span12" id="detalhes-reclamacao" contenteditable="true" placeholder="Digite aqui os detalhes da ocorrência..." ng-model="detalhesDenuncia" ng-change="detalhesToUpperCase()" required></textarea>
+
+                        <input type="hidden" id="bairroId" ng-model="bairroId" required />
+                        <input type="hidden" id="municipioId" ng-model="municipioId" required />
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+            <button class="btn btn-success" ng-click="enviarReclamacao()" ng-disabled="requisicaoAcontecendo || (denunciaForm.$invalid)">Enviar</button>
+        </div>
+    </div>
+
+    <div id="modal-informacao" class="modal hide fade" tabindex="-1" role="dialog">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Cadastrar Informação: </h3>
+        </div>
+        <form method="POST" class="form-horizontal" action="{% url "informacao_salvar" %}">
+                {% csrf_token %}
+        <div class="modal-body">
+            <textarea name="informacao" type="text" class="span12 ng-pristine ng-valid" ng-model="anotacoes" rows="4" placeholder="Digite aqui os detalhes da informação..."></textarea>
+        </div>
+        <div class="modal-footer" style="margin-bottom: -20px;">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+            <button class="btn btn-success" type="submit">
+                <i class="elusive-ok-sign"> </i><span class="ng-binding">Salvar</span>
+            </button>
+        </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+<script type="text/javascript">
+    {% block js_ready_pag %}
+
+        $('#PesquisaForm').validate({
+            errorPlacement: function (error, element) {
+            },
+            highlight: function (e) {
+                $(e).addClass('error');
+            },
+            unhighlight: function (e) {
+                $(e).removeClass('error');
+            }
+        });
+
+        $('#CadastroFormPJ').validate({
+            errorPlacement: function (error, element) {
+            },
+            highlight: function (e) {
+                $(e).closest('.control-group').addClass('error');
+            },
+            unhighlight: function (e) {
+                $(e).closest('.control-group').removeClass('error');
+            }
+        });
+
+        $('#CadastroForm').validate({
+            errorPlacement: function (error, element) {
+            },
+            highlight: function (e) {
+                $(e).closest('.control-group').addClass('error');
+            },
+            unhighlight: function (e) {
+                $(e).closest('.control-group').removeClass('error');
+            }
+        });
+
+        $('#myTab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('#myTab2 a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('#myTab a:first').tab('show');
+
+        if ( "{{pessoa.tipo}}" == 1){
+            $('#myTab2 a:last').tab('show');
+        }else{
+            $('#myTab2 a:first').tab('show');
+        }
+
+        $('#myTab2 a:first').on('shown.bs.tab', function(){
+            document.getElementById("myTab2").setAttribute('value', 0);
+        });
+
+        $('#myTab2 a:last').on('shown.bs.tab', function(){
+            document.getElementById("myTab2").setAttribute('value', 1);
+        });
+
+        $('#modal-procedimentos').modal('show');
+
+        // popover demo
+        $("a[rel=popover]").popover().click(function (e) {
+            e.preventDefault()
+        })
+
+        $('#btn-modal-informacao').click(function (e) {
+            e.preventDefault();
+            $('#modal-informacao').modal('show');
+        });
+
+        $('#btn-modal-procedimentos').click(function (e) {
+            e.preventDefault();
+            $('#modal-procedimentos').modal('show');
+        });
+
+        $('#btn-modal-reclamacao').click(function (e) {
+            e.preventDefault();
+
+            var assistido_nome = document.getElementsByName("nome");
+            if(assistido_nome.length == 1){
+                assistido_nome = assistido_nome[0].value;
+            }
+            else{
+                assistido_nome = assistido_nome[1].value;
+            }
+            assistido_nome = assistido_nome.length > 0 ?  assistido_nome  : "Não informado";
+            assistido_telefone = document.getElementById("telefone") ? (document.getElementById("telefone").value.length > 0 ?  document.getElementById("telefone").value  : "Não informado") : "Não informado";
+            document.getElementById("assistido-nome").innerHTML = assistido_nome;
+            document.getElementById("assistido-telefone").innerHTML = assistido_telefone;
+            $('#modal-reclamacao').modal('show');
+
+        });
+
+        $('#btn-modal-reclamacao_pj').click(function (e) {
+            e.preventDefault();
+
+            var assistido_nome = document.getElementsByName("nome_pj");
+            if(assistido_nome.length == 1){
+                assistido_nome = assistido_nome[0].value;
+            }
+            else{
+                assistido_nome = assistido_nome[1].value;
+            }
+            assistido_nome = assistido_nome.length > 0 ?  assistido_nome  : "Não informado";
+            assistido_telefone = document.getElementById("telefone_pj") ? (document.getElementById("telefone_pj").value.length > 0 ?  document.getElementById("telefone_pj").value  : "Não informado") : "Não informado";
+            document.getElementById("assistido-nome").innerHTML = assistido_nome;
+            document.getElementById("assistido-telefone").innerHTML = assistido_telefone;
+            $('#modal-reclamacao').modal('show');
+
+        });
+
+    {% endblock %}
+</script>

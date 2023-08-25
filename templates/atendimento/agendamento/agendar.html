@@ -1,0 +1,332 @@
+{% extends "atendimento/agendamento/default.html" %}
+{% load humanize static contrib_tags %}
+
+{% block titulo %}{% if consulta %}Calendário de Agendamentos{% else %}Agendar {{config.NOME_MODULO_ATENDIMENTO}}{% endif %}{% endblock %}
+
+{% block css_pag %}
+
+    <style>
+
+
+        .modal-body .btn-group {
+            margin: 0 0 5px 5px !important;
+        }
+
+        .table td {
+            height: 60px;
+            vertical-align: top !important;
+            text-align: center;
+        }
+
+        .table td span {
+            display: block;
+            text-align: left;
+            font-size: 14px;
+            font-weight: bold;
+            padding-bottom: 3px;
+        }
+
+        .table td i {
+            float: right;
+        }
+
+        .table td a {
+            font-size: 14px;
+        }
+
+        .table td p {
+            /*color: #333;*/
+            margin: 0;
+        }
+
+        .table td.error {
+            color: #B94A48 !important;
+        }
+
+        .table td.success {
+            color: #468847;
+        }
+
+        .table td.success:hover {
+            background-color: #DFF0D8;
+            cursor: pointer;
+        }
+
+        .table td.warning {
+            color: #c09853;
+        }
+
+        .table td.warning:hover {
+            background-color: #fcf8e3;
+        }
+
+        .table td.info {
+            color: #3a87ad;
+        }
+
+        .table td.info:hover {
+            background-color: #d9edf7;
+        }
+
+        .table td.disabled {
+            background-color: #F3F3F3;
+            color: #636363;
+        }
+
+        .modal-body button.btn, input.btn[type="submit"] {
+            margin: 0 -1px -1px 0;
+        }
+
+        .conciliacao-box {
+            color: #626262;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 5px;
+            display: block;
+            float: left;
+        }
+
+    </style>
+
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    {% if request.user.servidor.proximo_itinerante %}
+    <div class="pull-right" ng-init="itinerante={% if request.user.servidor.proximo_itinerante.em_andamento %}1{% else %}0{% endif %}" style="margin-left: 5px;">
+        <div class="btn-group">
+            <button class="btn" ng-click="set_itinerante($index); carregarMes(ano, mes);" ng-class="{'btn-info':(itinerante==$index)}" ng-repeat="item in ['Comum','Itinerante']">[[ item ]]</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <div ng-init="encaminhar={{ request.GET.encaminhar|default:'false' }};distribuir={{ request.GET.distribuir|default:'false' }};"></div>
+
+    {% if request.GET.indeferimento_uuid and request.GET.indeferimento_nucleo_id %}
+        <div ng-init="indeferimento_uuid='{{ request.GET.indeferimento_uuid }}';indeferimento_nucleo_id={{ request.GET.indeferimento_nucleo_id }}"></div>
+    {% endif %}
+
+    {% if consulta %}
+        <h3>Calendário de Agendamentos</h3>
+    {% else %}
+
+        <div class="pull-right" style="display: inline; margin-top: 15px;">
+            {% if perms.atendimento.view_129 %}
+                <a href="{% url "precadastro_encerrar" %}" class="btn btn-danger">
+                    <i class="fas fa-phone-slash"></i> Encerrar ligação
+                </a>
+            {% else %}
+                <div class="btn-group dropup" style="display:none;">
+                    <button class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
+                        <i class="fas fa-phone-slash"></i> Encerrar ligação
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for motivo in ligacao.cronometro.LISTA_MOTIVO %}
+                            <li>
+                                <a href="{% url "precadastro_encerrar" ligacao.numero motivo.0 %}">{{ motivo.1 }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if atendimento.data_agendamento %}
+            <h3 ng-init="{% if remarcando %}remarcando=true{% endif %}">
+                {% if retorno %}
+                    <span ng-if="encaminhar">Encaminhar</span>
+                    <span ng-if="!encaminhar">Marcar Retorno</span>
+                {% else %} Remarcar Atendimento
+                {% endif %}
+            </h3>
+        {% elif processo %}
+            <h3>Agendar Atendimento <small>(Processo nº {{ processo.numero }})</small></h3>
+        {% else %}
+            <h3>Agendar Atendimento</h3>
+        {% endif %}
+
+    {% endif %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <div class="row-fluid" ng-init="init({{ dados_iniciais|jsonify }})">
+    {% comment %}
+        {% if atendimento.data_agendamento and atendimento.data_agendamento > dia_um %}
+            <div class="row-fluid" ng-init="init({% if atendimento %}{{ atendimento.data_agendamento.year }},{{ atendimento.data_agendamento.month }},{{ atendimento.defensoria.comarca.id }},{{ atendimento.defensoria.id }},{{ atendimento.defensor.id }}{% endif %})">
+        {% else %}
+            <div class="row-fluid" ng-init="init({% if atendimento %}undefined,undefined,{{ atendimento.defensoria.comarca.id }},{{ atendimento.defensoria.id }},{{ atendimento.defensor.id }}{% endif %})">
+        {% endif %}
+    {% endcomment %}
+<form class="form">
+    {% csrf_token %}
+    <div class="row-fluid">
+        <div class="span3" ng-cloak>
+            <div ng-hide="itinerante">
+                <label>Comarca:</label>
+                <select id="agenda-comarca" class="agenda_select2" name="" ng-model="comarca" ng-options="i.id as i.nome for i in comarcas" ng-change="carregarMes(ano, mes)" ng-disabled="itinerante">
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div ng-show="itinerante" >
+                <label>Evento:</label>
+                <input type="text" class="span12" value="{{ request.user.servidor.proximo_itinerante }}" disabled>
+            </div>
+        </div>
+        <div class="span6" >
+            <label>Defensor/Defensoria:</label>
+            <select id="agenda-defensoria" name="" class="agenda_select2" ng-model="atuacao"
+                    ng-options="i as i.nome for i in atuacoes | orderBy:'nome'"
+                    ng-change="set_categoria()">
+                <option value="">Selecione...</option>
+            </select>
+        </div>
+        <div class="span3">
+            <label>Categoria de Agenda:</label>
+            <select id="agenda-categoria" name="" class="agenda_select2" ng-model="categoria_de_agenda" ng-options="i.id as i.nome for i in atuacao.categorias_de_agendas" ng-disabled="itinerante"  ng-change="carregarMes(ano, mes)">
+                <option value="">Selecione...</option>
+            </select>
+        </div>
+    </div>
+</form>
+<div class="alert alert-block" ng-if="atuacao.encaminando_area_diferente" ng-cloak>
+    <h4><i class="fas fa-exclamation-triangle"></i> Atenção!</h4>
+    Você está encaminhando o atendimento para uma defensoria que não atua na área <b>"{{ atendimento.qualificacao.area }}"</b>
+</div>
+</div>
+    <h4 class="text-center clearfix">
+
+        <span ng-hide="carregando" ng-cloak>[[ getMesStr() ]]</span>
+        <span ng-show="carregando"><img src="{% static "img/loader_16.gif" %}"/> Carregando...</span>
+        <div class="btn-group  pull-right">
+            <button class="btn" ng-click="prevMes()" title="Mês Anterior" rel="tooltip" ng-cloak><i class="fas fa-chevron-left"></i></button>
+            <button class="btn" ng-click="nextMes()" title="Próximo Mês" rel="tooltip" ng-cloak><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th class="span2" ng-repeat="dia in diasSemana" ng-cloak>
+                <div>[[ dia ]]</div>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="semana in semanas">
+            <td ng-repeat="dia in semana" ng-class="formatarDia(dia)" ng-click="visualizar(dia)" ng-style="[[dia.data.getTime() == hoje.getTime() ]] && {'background-color':'{{config.COR_HOJE_AGENDA}}'} || {'background-color':''}">
+                <div ng-hide="dia > 0" data-placement="top" data-animation="am-flip-x" bs-popover="popover(dia)"
+                     data-trigger="hover">
+                    <span ng-cloak>[[ dia.data | date:'dd' ]]
+                        <i class="fas fa-exclamation-circle text-error"
+                           ng-show="dia.conflitos && indeferimentos.length == 0" title="Existem conflitos nesse dia!"></i>
+                        {% if config.EXIBIR_PRESENCIAL_REMOTO_AGENDAMENTO %}
+                            <i class="label" ng-if="dia.forma_atendimento" ng-class="{false: 'label-info', true: 'label-success'}[dia.forma_atendimento == 'P']">
+                                [[ dia.forma_atendimento == 'P' ? 'Presencial' : 'Remoto' ]]
+                            </i>
+                        {% endif %}
+                    </span>
+                    <a href="#" ng-cloak
+                       ng-show="dia.evento == null && indeferimentos.length == 0 && dia.horarios != null && dia.horarios.length != 0">
+                        [[ dia.total_pauta - dia.agendamentos.length ]] pautas(s)
+                    </a>
+                    <a href="#" ng-cloak
+                       ng-show="dia.evento == null && indeferimentos.length == 0 && dia.horarios != null && dia.horarios.length == 0 && pode_agendar_extra">
+                        extra pauta
+                    </a>
+                    <a href="#" ng-cloak
+                       ng-show="dia.evento != null || !dia.horarios || indeferimentos.length || (!dia.horarios.length && !pode_agendar_extra)">
+                        indisponível
+                    </a>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    {% include 'atendimento/agendamento/modal_agendar.html' %}
+
+    <div id="modal-indeferimento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Indeferimento de Atendimento</h3>
+        </div>
+        <div class="modal-body">
+            <p class="text-error">O(A) defensor(a) <b>[[ atuacao.defensor ]]</b> está impedido(a) de atender o(a)
+                assistido(a) <b>{{ pessoa.nome }}</b>! Selecione outro defensor ou informe uma justificativa para
+                continuar com o agendamento deste atendimento.</p>
+            <hr>
+            <ul class="nav nav-tabs" id="myTab">
+                <li><a href="#indeferimentos" data-toogle="tab">indeferimentos</a></li>
+                <li><a href="#justificativa" data-toogle="tab">Justificativa</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane" id="indeferimentos">
+                    <label class="muted" ng-show="(indeferimentos | filter:{nivel:1}).length">Restrição do
+                        Defensor</label>
+
+                    <div ng-repeat="indeferimento in indeferimentos | filter:{nivel:1}">
+                        <ul>
+                            <li>Data: <b>[[ indeferimento.data_cadastro | date ]]</b></li>
+                            <li>Defensor: <b>[[ indeferimento.defensor ]]</b></li>
+                            <li>Assistido: <b>[[ indeferimento.assistido ]]</b></li>
+                            <li>Justificativa: <b>[[ indeferimento.justificativa ]]</b></li>
+                        </ul>
+                        <hr>
+                    </div>
+                    <label class="muted" ng-show="(indeferimentos | filter:{nivel:2}).length">Atendimentos como
+                        Requerido</label>
+
+                    <div ng-repeat="indeferimento in indeferimentos | filter:{nivel:2}">
+                        <ul>
+                            <li>Número: <b>[[ indeferimento.numero ]]</b></li>
+                            <li>Data: <b>[[ indeferimento.data_atendimento | date ]]</b></li>
+                            <li>Defensoria: <b>[[ indeferimento.defensoria ]]</b></li>
+                            <li>Defensor: <b>[[ indeferimento.defensor ]]</b></li>
+                            <li>Área/Pedido: <b>[[ indeferimento.area ]]/[[ indeferimento.pedido ]]</b></li>
+                            <li>Requerente: <b>[[ indeferimento.requerente ]]</b></li>
+                            <li>Requerido: <b>[[ indeferimento.requerido ]]</b></li>
+                        </ul>
+                        <hr>
+                    </div>
+                </div>
+                <div class="tab-pane" id="justificativa">
+                    <form name="" method="" action="">
+                        <label class="muted">Justificar agendamento para defensor com indeferimento</label>
+                        <textarea class="span12" rows="5" ng-model="justificativa"></textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" ng-click="justificar()"
+                    ng-disabled="!justificativa">Justificar
+            </button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Voltar</button>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+//Exibe/Oculta botoes de acordo com a tab selecionada
+$('#myTab a').click(function(e){
+    e.preventDefault();
+    $(this).tab('show');
+});
+
+$('#myTab a:first').tab('show');
+
+window.setTimeout(function()
+{
+    $("select.agenda_select2").select2({
+        width: '100%'
+    });
+}
+, 1000);
+
+{% endblock %}

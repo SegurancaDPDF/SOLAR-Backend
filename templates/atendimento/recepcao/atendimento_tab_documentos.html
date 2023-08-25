@@ -1,0 +1,192 @@
+{% load static static %}
+<h4>Documentos do Atendimento</h4>
+
+<div class="row-fluid">
+    <div class="alert">
+        <b>Enviar Carta Convite via diligência:</b>
+        crie um Novo GED do tipo Carta Convite, assine e finalize o GED criado e, em seguida, envie-o para diligência.
+    </div>
+    <div>
+        {% if not atendimento.arquivado %}
+            <button class="btn" data-target="#modal-carta-convite-recepcao" data-toggle="modal"
+                    title="Nova Carta Convite<br> para o assistido entregar" bs-tooltip data-html="true">
+                <b>
+                    <i class="fas fa-envelope"></i> Nova Carta Convite
+                </b>
+                <br/>
+                <small class="muted">P/ assistido entregar</small>
+            </button>
+            <button class="btn" data-target="#modal-documentos-atendimento" data-toggle="modal"
+                    title="Novo documento anexo" bs-tooltip>
+                <b class="text-success">
+                    <i class="fas fa-paperclip"></i> Novo Anexo
+                </b>
+                <br/>
+                <small class="muted">Enviar arquivo do computador</small>
+            </button>
+            <a class="btn djpopup djfullscreen reloadparentonclose"
+            href="{% url 'atendimento_ged_criar' atendimento_numero=atendimento.numero %}"
+            title="Novo documento online GED" rel="tooltip">
+                <b class="text-info">
+                    <i class="fas fa-cloud"></i> Novo GED
+                </b>
+                <br/>
+                <small class="muted">Criar documento online</small>
+            </a>
+        {% else %}
+            <button class="btn" disabled title="Ação bloqueada (Atendimento arquivado)"
+                bs-tooltip data-html="true">
+                <b>
+                    <i class="fas fa-envelope"></i> Nova Carta Convite
+                </b>
+                <br/>
+                <small class="muted">P/ assistido entregar</small>
+            </button>
+            <button class="btn" disabled title="Ação bloqueada (Atendimento arquivado)"
+                    bs-tooltip>
+                <b class="text-success">
+                    <i class="fas fa-paperclip"></i> Novo Anexo
+                </b>
+                <br/>
+                <small class="muted">Enviar arquivo do computador</small>
+            </button>
+            <a class="btn djpopup djfullscreen reloadparentonclose"
+            href="" disabled title="Ação bloqueada (Atendimento arquivado)"
+            rel="tooltip">
+                <b class="text-info">
+                    <i class="fas fa-cloud"></i> Novo GED
+                </b>
+                <br/>
+                <small class="muted">Criar documento online</small>
+            </a>
+        {% endif %}
+    </div>
+</div>
+<div>
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+            <tr>
+                <th>Documento</th>
+                <th class="span4">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="documento in documentos | orderBy:['-pendente','nome']" ng-class="{'error':(!documento.arquivo && !documento.documento_online_id)}">
+                <td>
+                    <div ng-hide="documento.arquivo || documento.documento_online_id">
+                        <i ng-class="documento.documento_online_id?'fas fa-cloud':'fas fa-paperclip'"></i>
+                        <span class="label label-important"
+                              bs-tooltip title="Arquivo pendente.<br> Clique em Editar<br> para enviar o arquivo" data-html="true">Pendente</span>
+                        <a href="#" class="text-error" ng-click="editar_documento(documento)">
+                            [[documento.nome]]
+                        </a>
+                    </div>
+                    <div ng-show="documento.arquivo || documento.documento_online_id">
+                        <i ng-class="documento.documento_online_id?'fas fa-cloud':'fas fa-paperclip'"></i>
+                        [[documento.nome]]
+                    </div>
+                    <small class="muted" ng-if="documento.data_cadastro && !documento.data_enviado">
+                        Cadastrado por <span bs-tooltip="documento.cadastrado_por_nome">[[ documento.cadastrado_por_username ]]</span> em [[ documento.data_cadastro|date:'dd/MM/yyyy HH:mm' ]]
+                    </small>
+                    <small class="muted" ng-if="documento.data_enviado">
+                        Enviado por <span bs-tooltip="documento.enviado_por_nome">[[ documento.enviado_por_username ]]</span> em [[ documento.data_enviado|date:'dd/MM/yyyy HH:mm' ]]
+                    </small>
+                </td>
+                <td>
+                    <div id="acoes_anexo" class="btn-group" ng-if="!documento.documento_online_id">
+                        <a href="[[ documento.arquivo ]]" target="_blank" class="btn btn-small"
+                           title="Baixar" bs-tooltip
+                           ng-if="documento.arquivo">
+                            <i class="fas fa-download"></i>
+                        </a>
+
+                        {% if not atendimento.arquivado %}
+                            <a data-toggle="modal" data-target="#modal-documentos-atendimento"
+                            class="btn btn-small" title="Alterar" bs-tooltip ng-click="editar_documento(documento)">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a data-target="#modal-excluir-documento" class="btn btn-small btn-danger"
+                            title="Excluir"
+                            data-toggle="modal" bs-tooltip ng-click="excluir(documento.id)">
+                            <i class="fas fa-trash"></i>
+                            </a>
+                        {% else %}
+                        <a data-toggle="modal" disabled
+                        class="btn btn-small" title="Ação bloqueada (Atendimento arquivado)" bs-tooltip>
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <a data-target="" class="btn btn-small btn-danger" disabled
+                           title="Ação bloqueada (Atendimento arquivado)" bs-tooltip>
+                           <i class="fas fa-trash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div id="acoes_ged" ng-if="documento.documento_online_id && documento.documento_online_pode_visualizar" class="btn-group">
+                        {% if config.SHOW_DJDOCUMENTS %}
+                            <a href="[[ gerar_link('documentos:validar-detail', {slug:documento.documento_online_pk_uuid}) ]]?next=[[ documentos.atendimento_url ]]"
+                                target="_blank" class="btn btn-small" title="Ver" bs-tooltip
+                                ng-if="documento.documento_online_esta_assinado">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="[[ gerar_link('documentos:editar', {slug:documento.documento_online_pk_uuid}) ]]?next=[[ documentos.atendimento_url ]]"
+                               class="btn btn-small djpopup djfullscreen reloadparentonclose" title="Editar" bs-tooltip
+                               ng-if="documento.documento_online_id && !documento.documento_online_esta_assinado">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="[[ gerar_link('documentos:validar-detail', {slug:documento.documento_online_pk_uuid}) ]]?next=[[ documentos.atendimento_url ]]"
+                               class="btn btn-small djpopup djfullscreen reloadparentonclose" title="Assinar e Finalizar" bs-tooltip
+                               ng-if="documento.documento_online_id && !documento.documento_online_esta_assinado">
+                                <i class="fas fa-file-signature"></i>
+                            </a>
+                            <a href="#" class="btn btn-small djpopup disabled btn-success" title="Assinado" bs-tooltip
+                               ng-if="documento.documento_online_id && documento.documento_online_esta_assinado">
+                                <i class="fas fa-file-signature"></i>
+                            </a>
+
+                            <a data-target="#modal-excluir-documento" data-toggle="modal"
+                               class="btn btn-danger btn-small" title="Excluir" bs-tooltip
+                               ng-click="excluir(documento.id)"
+                               ng-if="documento.atendimento_id && (!documento.documento_online_id || documento.documento_online_pode_excluir)">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            <a class="btn btn-danger btn-small" bs-tooltip="documento.documento_online_pode_excluir_msg"
+                               ng-if="documento.atendimento_id && (documento.documento_online_id && !documento.documento_online_pode_excluir)"
+                               ng-disabled="true">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        {% endif %}
+
+                        <a id="btn-documento-enviar-diligencia" type="button"
+                           data-toggle="modal" data-target="#modal-nucleo-diligencia"
+                           class="btn btn-small btn-success"
+                           ng-if="documento.atendimento_id && documento.documento_online_id && documento.documento_online_esta_assinado && !documento.diligencia"
+                            ng-click="carregar(documento, false)"
+                           title="Enviar para<br> diligência" bs-tooltip data-html="true">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                        </a>
+                        <a type="button" class="btn btn-success btn-small"
+                           title="Este documento<br> foi enviado<br> para diligência" bs-tooltip data-html="true"
+                           ng-if="documento.atendimento_id && documento.documento_online_id && documento.documento_online_esta_assinado && documento.diligencia"
+                            disabled>
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                        </a>
+                        <a type="button" class="btn btn-warning btn-small"
+                           title="Finalize o documento<br> antes de enviar<br> para diligência" bs-tooltip data-html="true"
+                           ng-if="documento.atendimento_id && documento.documento_online_id && !documento.documento_online_esta_assinado"
+                            disabled>
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr ng-hide="documentos.length">
+                <td colspan="2" ng-show="carregando_documentos"><img src="{% static "img/loader_16.gif" %}"> Carregando...</td>
+                <td colspan="2" ng-hide="carregando_documentos">Nenhum registro encontrado</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% include 'atendimento/atender_modal_atendimento_documentos.html' %}
+{% include 'atendimento/atender_modal_nucleo_diligencia.html' %}
+{% include 'atendimento/recepcao/atendimento_modal_carta_convite.html' %}

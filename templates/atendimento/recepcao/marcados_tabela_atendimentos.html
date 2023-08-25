@@ -1,0 +1,184 @@
+<style>
+    #popover_pessoa .popover{width: 500px;}
+</style>
+<table id="atendimentos" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Requerente</th>
+            <th>Requerido</th>
+            <th class="span2">Área/Pedido</th>
+            <th class="span2">Defensoria</th>
+            <th class="span2">Defensor</th>
+            <th>Tipo</th>
+            <th class="span1">Horário</th>
+            <th class="span1">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="a in atendimentos | filter:filtro_atendimento | filter:filtro_campos | idEquals:selected_defensoria:'defensoria'" id="[[ a.id ]]">
+            <td>
+                <div>
+                    <small class="bold">
+                        {% if request.user.is_superuser %}
+                            <a href="/admin/atendimento/defensor/[[ a.id ]]/" target="_blank" class="text-info">
+                                <i class="fas fa-link"></i></a>
+                        {% endif %}
+                        <a href="/atendimento/[[a.numero]]" target="_blank"
+                           title="Ver ficha de atendimento completa" bs-tooltip>
+                                [[ a.numero | atendimento ]]
+                        </a>
+                    </small>
+                    <small class="bold text-error" ng-show="a.prazo">Prazo</small>
+                    <small class="bold text-error" ng-if="a.prioridade==10" bs-tooltip>Prioridade</small>
+                    <small class="bold text-error" ng-if="a.prioridade==20" title="Mais de 80 anos" bs-tooltip>Prioridade +80</small>
+                </div>
+
+                <span class="label label-important" bs-tooltip title="Nome Social" ng-if="a.requerente.tipo==0 && a.requerente.nome_social">NS</span>
+                <span class="label label-info" bs-tooltip title="Nome Fantasia" ng-if="a.requerente.tipo==1 && a.requerente.apelido">NF</span>
+                <a ng-if="a.requerente.tipo==0 || a.requerente.tipo==null"
+                   href="/assistido/buscar/?nome=[[ a.requerente.nome | default: a.requerente.nome_social ]]"
+                   class="btn-link" data-container="#popover_pessoa" data-placement="top"
+                   data-title="[[ a.requerente.nome ]]" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                   ng-mouseover="get_pessoa(a.requerente.pessoa_id)">
+                    [[ a.requerente.nome_social | default: a.requerente.nome ]]
+                </a>
+                <a ng-if="a.requerente.tipo==1"
+                   href="/assistido/buscar/?nome=[[ a.requerente.apelido | default: a.requerente.nome ]]"
+                   class="btn-link" data-container="#popover_pessoa" data-placement="top"
+                   data-title="[[ a.requerente.nome ]]" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                   ng-mouseover="get_pessoa(a.requerente.pessoa_id)">
+                    [[ a.requerente.apelido | default: a.requerente.nome ]]
+                </a>
+
+                <i class="fas fa-comment" ng-if="a.historico_agendamento" bs-tooltip="a.historico_agendamento"></i>
+                <div ng-if="a.em_atendimento" class="text-success">
+                    <small>Sendo atendido por <b>[[ a.em_atendimento.servidor ]]</b> desde <b>[[ a.em_atendimento.data_inicio|date:'HH:mm' ]]</b></small>
+                </div>
+            </td>
+            <td>
+                <span class="label label-important" bs-tooltip title="Nome Social" ng-if="a.requerido.tipo==0 && a.requerido.nome_social">NS</span>
+                <span class="label label-info" bs-tooltip title="Nome Fantasia" ng-if="a.requerido.tipo==1 && a.requerido.apelido">NF</span>
+                <a ng-if="a.requerido.tipo==0 || a.requerido.tipo==null"
+                   href="/assistido/buscar/?nome=[[ a.requerido.nome | default: a.requerido.nome_social ]]"
+                   class="btn-link" data-container="#popover_pessoa" data-placement="top"
+                   data-title="[[ a.requerido.nome ]]" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                   ng-mouseover="get_pessoa(a.requerido.pessoa_id)">
+                    [[ a.requerido.nome_social | default: a.requerido.nome ]]
+                </a>
+                <a ng-if="a.requerido.tipo==1"
+                   href="/assistido/buscar/?nome=[[ a.requerido.apelido | default: a.requerido.nome ]]"
+                   class="btn-link" data-container="#popover_pessoa" data-placement="top"
+                   data-title="[[ a.requerido.nome ]]" data-trigger="hover" bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                   ng-mouseover="get_pessoa(a.requerido.pessoa_id)">
+                    [[ a.requerido.apelido | default: a.requerido.nome ]]
+                </a>
+            </td>
+            <td>
+                <span bs-tooltip="a.pedido">[[ a.area ]]</span>
+            </td>
+            <td>
+                <div bs-tooltip="a.defensoria.nome">[[ a.defensoria.codigo ]]</div>
+                <small class="muted">[[ a.agenda ]]</small>
+            </td>
+            <td>
+                <span class="label label-success" bs-tooltip="'Titular'" ng-if="!a.substituto.nome">T</span>
+                <span class="label label-info" bs-tooltip="'Substituindo:<br/>' + a.defensor.nome" ng-if="a.substituto.nome">S</span>
+
+                <span bs-tooltip="a.substituto.nome | default: a.defensor.nome">
+                    [[ a.substituto.username | default: a.defensor.username ]]
+                </span>
+            </td>
+            <td>
+                <span bs-tooltip="a.tipo">[[ a.tipo | limitTo:3 | uppercase ]]</span>
+            </td>
+            <td class="text-center">
+                {% if config.EXIBIR_PRESENCIAL_REMOTO_AGENDAMENTO %}
+                    <span class="label label-success" title="Presencial" bs-tooltip ng-if="a.forma_atendimento && formas_atendimento[a.forma_atendimento].presencial">P</span>
+                    <span class="label label-info" title="Remoto" bs-tooltip ng-if="a.forma_atendimento && !formas_atendimento[a.forma_atendimento].presencial">R</span>
+                {% endif %}
+                <b>
+                    <span class="text-warning" ng-if="a.extra && !a.apoio && a.status == 1"
+                          title="Extra Pauta - Sem horário" bs-tooltip>Extra</span>
+                    <span class="text-warning" ng-if="a.apoio && (a.status == 1 || a.status == 2)"
+                          title="Apoio Operacional - Sem horário" bs-tooltip>Apoio</span>
+                    <span ng-if="!a.extra && !a.apoio && (a.status == 1 || a.status == 2)">
+                        [[a.horario]]
+                    </span>
+                    <span ng-if="(a.status == 3 || a.status == 4)">
+                        [[ a.horario_atendimento_recepcao ]]
+                    </span>
+                    <span ng-if="a.status == 5">
+                        [[ a.horario_atendimento ]]
+                    </span>
+                </b>
+            </td>
+            <td>
+                <div class="btn-group">
+                    {% if perms.comarca.view_guiche %}
+                        <a href="#" class="btn btn-small btn-warning" ng-disabled="a.guiche != 0 || atendendo_id != null"
+                            ng-click="chamar(a)" title="Chamar" bs-tooltip data-placement="left">
+                            <i class="fas fa-bell"></i></i>
+                        </a>
+                    {% endif %}
+                    <a href="#"
+                       title="Ver e Liberar" bs-tooltip data-placement="left" class="btn btn-small btn-success"
+                       ng-click="realizar_pre_atendimento(a.numero)">
+                        <i class="fas fa-lock-open"></i>
+                    </a>
+
+                    <!-- remarcar - inicial -->
+                    <a href="/atendimento/agendamento/[[ a.numero ]]/remarcar/"
+                       title="Remarcar" bs-tooltip data-placement="left" class="btn btn-small"
+                       ng-if="a.tipo_id == 1 && !a.historico_atendimento && !a.atividades && !a.apoio">
+                        <i class="fas fa-calendar-alt"></i>
+                    </a>
+                    <!-- remarcar - retorno/encaminhamento -->
+                    <div class="btn-group" ng-if="a.tipo_id != 1 && !a.historico_atendimento && !a.atividades && !a.apoio">
+                        <button class="btn btn-small dropdown-toogle" data-toggle="dropdown">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right">
+                            <li class="text-left">
+                                <a href="/atendimento/agendamento/[[ a.numero]]/remarcar/">Remarcar nesta defensoria</a>
+                                <a href="/atendimento/agendamento/[[ a.numero]]/remarcar/?encaminhar=true">Encaminhar para outra defensoria</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <a href="#" class="btn btn-small dropdown-toggle" data-toggle="dropdown"
+                        ng-if="a.historico_atendimento && !a.atividades && !a.apoio">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a href="/atendimento/agendamento/[[ a.numero ]]/retorno/?encaminhar=false&next={{ request.path }}"
+                               bs-tooltip data-placement="left"
+                               title="Marcar retorno para <br> a mesma defensoria">
+                                Retorno
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/atendimento/agendamento/[[ a.numero ]]/retorno/?encaminhar=true&next={{ request.path }}"
+                               bs-tooltip data-placement="left" title="Marcar retorno para <br> outra defensoria/núcleo">
+                                Encaminhamento
+                            </a>
+                        </li>
+                    </ul>
+                    <a href="#modal-excluir"
+                       title="Excluir" bs-tooltip data-placement="left" class="btn btn-small btn-danger"
+                       data-toggle="modal" data-id="[[ a.numero ]]"
+                       ng-if="!a.historico_atendimento && !a.atividades && !a.apoio"
+                       ng-click="get_atendimento(a.numero); set_atendimento(a)">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <tr ng-if="!(atendimentos | filter:filtro_atendimento | filter:filtro_campos | idEquals:selected_defensoria:'defensoria').length" id="nenhum-registro">
+            <td colspan="8">Nenhum registro encontrado</td>
+        </tr>
+    </tbody>
+</table>
+<div style="margin-top: 100px;"> <!-- espaçamento necessário para não quebrar o dropdown de agendamento -->
+<div id="popover_pessoa" style="width: 500px;"></div>

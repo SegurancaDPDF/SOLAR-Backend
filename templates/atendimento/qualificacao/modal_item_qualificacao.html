@@ -1,0 +1,46 @@
+<!-- modal qualificacao -->
+<div id="modal-item-qualificacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Realizar Qualificação</h3>
+    </div>
+    <div class="modal-body">
+        <h5 ng-bind-html="item_qualificacao.titulo"></h5>
+        <div>Área: <b>[[item_qualificacao.area__nome]]</b></div>
+        <div ng-if="item_qualificacao.nucleo__nome">Núcleo: <b>[[item_qualificacao.nucleo__nome]]</b></div>
+        <div ng-if="item_qualificacao.especializado__nome">Especializado: <b>[[item_qualificacao.especializado__nome]]</b></div>
+        <br/>
+        <ul class="nav nav-tabs" id="qualificacaoTab">
+            <li class="active">
+                <a href="#descricao" data-toggle="tab">Descrição</a>
+            </li>
+            <li>
+                <a href="#perguntas" data-toggle="tab">Perguntas</a>
+            </li>
+            <li>
+                <a href="#documentos" data-toggle="tab">Documentos</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="descricao" ng-bind-html="item_qualificacao.texto"></div>
+            <div class="tab-pane" id="perguntas" ng-bind-html="item_qualificacao.perguntas"></div>
+            <div class="tab-pane" id="documentos" ng-bind-html="item_qualificacao.documentos"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        {% if next %}
+            <a href="/atendimento/qualificacao/qualificar/[[ item_qualificacao.id ]]/?next={{ next }}" class="btn btn-primary" id="btn-modal-qualificacao">
+                <i class="fas fa-check-circle"></i> Qualificar
+            </a>
+        {% else %}
+            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" ng-click="qualificar()">
+                <i class="fas fa-check-circle"></i> Qualificar
+            </button>
+        {% endif %}
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- modal qualificacao -->

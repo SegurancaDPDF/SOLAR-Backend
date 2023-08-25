@@ -1,0 +1,18 @@
+<!-- modal nova qualificacao -->
+<div id="modal-nova-qualificacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Nova Qualificação</h3>
+    </div>
+    <div class="modal-body">
+        <form id="QualificacaoModalForm" class="form-horizontal" method="POST" action="{{ request.get_full_path }}">
+            {% csrf_token %}
+            {{ form.as_bs }}
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+        <button class="btn btn-primary" form="QualificacaoModalForm" type="submit" value="submit">Salvar</button>
+    </div>
+</div>
+<!-- modal nova qualificacao -->

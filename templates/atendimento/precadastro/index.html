@@ -1,0 +1,65 @@
+{% extends "atendimento/precadastro/default.html" %}
+{% load humanize %}
+
+{% block titulo %}129{% endblock %}
+
+{% block css_pag %}
+
+    <style>
+        .jumbotron {
+            margin: 80px 0;
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
+
+{% block cabecalho_pag %}
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box corner-all">
+                <div class="jumbotron">
+                    <p>
+                        {% if ligacao %}
+                            <h2>Atenção! Existe uma ligação em andamento.</h2>
+                            {% if ligacao.procedimentos %}
+                                <a href="{% url "precadastro_encerrar" ligacao.numero 0 %}?next={% if next %}{{ next }}{% endif %}"
+                                   class="btn btn-danger btn-large">
+                                    <i class="helper-font-24 fas fa-phone-slash"></i> Encerrar
+                                </a>
+                            {% else %}
+                                <div class="btn-group">
+                                    <button class="btn btn-danger btn-large dropdown-toggle" data-toggle="dropdown"><i
+                                            class="helper-font-24 fas fa-phone-slash"></i> Encerrar
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for motivo in ligacao.cronometro.LISTA_MOTIVO %}
+                                            <li>
+                                                <a href="{% url "precadastro_encerrar" ligacao.numero motivo.0 %}">
+                                                    {{ motivo.1 }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <a href="{% url "precadastro_continuar" ligacao.numero %}"
+                               class="btn btn-success btn-large">
+                                <i class="helper-font-24 fas fa-phone"></i> Continuar
+                            </a>
+                        {% else %}
+                            <a href="{% url "precadastro_iniciar" %}" class="btn btn-success btn-large">
+                                <i class="helper-font-24 fas fa-phone"></i> Atender
+                            </a>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

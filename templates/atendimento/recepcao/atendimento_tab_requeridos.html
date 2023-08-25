@@ -1,0 +1,144 @@
+{% load static %}
+{% load contrib_tags %}
+
+{% if tipo_processo %}
+    {% if atendimento.processo_parte.parte %}
+        <div class="alert"><b>ATENÇÃO!</b> Coloque como <b>REQUERIDO</b> a <b>PARTE CONTRÁRIA DO PROCESSO</b></div>
+    {% endif %}
+{% endif %}
+<h4 class="pull-left">
+    <span class="text-error">Cadastro de Requeridos
+        {% if tipo_processo %} - Parte contrária do processo{% endif %}
+    </span>
+</h4>
+<div class="pull-right">
+    {% if not atendimento.arquivado %}
+        <button class="btn btn-success actions-m5"
+                tooltip="Vincular Requerido"
+                data-placement="left"
+                ng-click="show_buscar('requerido')"
+                ng-hide="form_buscar_requerido">
+            <i class="fas fa-user-plus"></i> Adicionar
+        </button>
+    {% else %}
+        <button class="btn btn-success actions-m5" disabled
+                tooltip="Ação bloqueada (Atendimento arquivado)"
+                data-placement="left">
+            <i class="fas fa-user-plus"></i> Adicionar
+        </button>
+    {% endif %}
+    <button class="btn actions-m5"
+            tooltip="Ver requeridos vinculados"
+            data-placement="left"
+            ng-click="show_buscar('requerido')"
+            ng-show="form_buscar_requerido">
+        <i class="fas fa-user-friends"></i> Ver Requeridos
+    </button>
+</div>
+<span class="clearfix"></span>
+
+<div ng-hide="form_buscar_requerido">
+    <table class="table table-bordered table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>CPF / CNPJ</th>
+            <th>Nascimento</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="pessoa in requeridos |orderBy:predicate:reverse">
+                <td>
+                    <span class="fas fa-user" ng-show="pessoa.responsavel" bs-tooltip="'Responsável'"
+                          data-placement="top">
+                    </span>
+
+                    <span class="label label-important" bs-tooltip title="Nome Social" ng-if="pessoa.possui_nome_social && pessoa.eh_pessoa_fisica">NS</span>
+                    <span class="label label-info" bs-tooltip title="Nome Fantasia" ng-if="pessoa.possui_nome_fantasia && !pessoa.eh_pessoa_fisica">NF</span>
+
+                    <a href="#" data-container="#popover_pessoa"  data-placement="bottom"
+                       data-title="[[ pessoa.nome ]]"
+                       data-trigger="hover"
+                       bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                       ng-mouseover="get_pessoa(pessoa.pessoa_id)"
+                       class="btn-link">
+                        <span>[[ pessoa.nome_tratado ]]</span>
+                    </a>
+
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fas fa-print"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for relatorio in relatorios_btn_requerido %}
+                                <li>
+                                    <a href="#modal-imprimir" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{assistido_id:pessoa.pessoa_id, comarca_id:{{ atendimento.defensoria.comarca.id }}, servidor_id:{{ request.user.servidor.id }}, usuario_id:{{ request.user.pk }}, atendimento_id:{{ atendimento.pk }}, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}')">{{ relatorio.titulo }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </td>
+                <td>[[pessoa.cpf | cpf_cnpj]]</td>
+                <td>[[pessoa.data_nascimento|date:'dd/MM/yyyy']]</td>
+                <td class="text-center" ng-hide="carregando_requeridos">
+                    <div class="btn-group pull-center">
+                        {% if not atendimento.arquivado%}
+                            <button class="btn btn-small" title="Editar cadastro" data-placement="left" bs-tooltip
+                                    ng-click="editar(pessoa, 1, $index, 1, {{ tipo_processo|lower }})">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="btn btn-small" title="Definir como Responsável" data-placement="left"
+                                    bs-tooltip
+                                    ng-click="alterar_responsavel(pessoa, $index, 1)"
+                                    ng-hide="pessoa.responsavel">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <button class="btn btn-small" title="Definir como Requerente" data-placement="left"
+                                    bs-tooltip
+                                    ng-click="alterar_tipo_pessoa_envolvida(pessoa)">
+                                <i class="fas fa-random"></i>
+                            </button>
+                            <button data-target="#modal-visualizar-pessoa"
+                                    data-toggle="modal"
+                                    class="btn btn-small btn-danger"
+                                    title="Desvincular deste atendimento" bs-tooltip data-placement="left"
+                                    ng-click="remover_pessoa(pessoa)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        {% else %}
+                            <button disabled class="btn btn-small" title="Ação bloqueada (Atendimento arquivado)"
+                                data-placement="left" bs-tooltip>
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button disabled class="btn btn-small" title="Ação bloqueada (Atendimento arquivado)"
+                                data-placement="left" bs-tooltip>
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <button disabled class="btn btn-small" title="Ação bloqueada (Atendimento arquivado)"
+                                    data-placement="left" bs-tooltip>
+                                <i class="fas fa-random"></i>
+                            </button>
+                            <button disabled data-toggle="modal" title="Ação bloqueada (Atendimento arquivado)"
+                                    class="btn btn-small btn-danger"
+                                    bs-tooltip data-placement="left">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        {% endif%}
+                    </div>
+                </td>
+                <td ng-show="carregando_requeridos"><img src="{% static "img/loader_16.gif" %}"> Carregando...</td>
+            </tr>
+            <tr ng-hide="requeridos.length">
+                <td colspan="4" ng-show="carregando_requeridos"><img src="{% static "img/loader_16.gif" %}"> Carregando...</td>
+                <td colspan="4" ng-hide="carregando_requeridos">Nenhum registro encontrado</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% include 'atendimento/recepcao/atendimento_tab_requeridos_adicionar.html' %}
+
+<!-- hack para aparecer o menu de impressão completo -->
+<div class="clearfix" style="height:130px;"></div>

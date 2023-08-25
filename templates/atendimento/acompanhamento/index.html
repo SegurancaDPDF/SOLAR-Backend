@@ -1,0 +1,25 @@
+{% extends 'atendimento/default.html' %}
+
+{% block cabecalho_pag %}
+    <h3>Acompanhamento de Petição</h3>
+    <h4>Selecione uma defensoria:</h4>
+    <hr>
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <ul class="nav nav-tabs nav-stacked">
+                {% for atuacao in atuacoes_lst %}
+                    {% if atuacao.defensoria.tipo_painel_de_acompanhamento == atuacao.defensoria.PAINEL_SIMPLIFICADO %}
+                        <li><a href="{% url 'atendimento_acompanhamento_defensoria_painel' defensoria_id=atuacao.defensoria.id painel='sem-peca-juridica' %}" class="btn btn-link text-left">{{ atuacao.defensoria }}</a></li>
+                    {% else %}
+                        <li><a href="{% url 'atendimento_acompanhamento_defensoria_painel' defensoria_id=atuacao.defensoria.id painel='sem-peca' %}" class="btn btn-link text-left">{{ atuacao.defensoria }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

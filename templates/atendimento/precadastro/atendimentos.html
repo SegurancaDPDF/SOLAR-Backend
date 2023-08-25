@@ -1,0 +1,400 @@
+{% extends "atendimento/precadastro/default.html" %}
+{% load contrib_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <!-- Processos sem atendimento vinculado -->
+    <h4>
+        Processos sem {{config.NOME_MODULO_ATENDIMENTO}} Vinculado ({{config.NOME_MODULO_ATENDIMENTO}} para Processo)
+    </h4>
+    <input type="hidden" value={{csrf_token}} id="csrf_token"/>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box-body">
+                {% if not atendimentos_processo %}
+                    Não existem processos sem atendimento vinculado
+                {% endif %}
+                {% for atendimento in atendimentos_processo %}
+                    <div class="alert alert-info">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img class="media-object img-polaroid" data-src="holder.js/110x110" alt="110x110" style="width: 110px; height: 110px;" src="">
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    {{ atendimento.processo }}
+                                    {% if atendimento.processo %}
+                                        <small class="helper-font-small bold">
+                                            Processo {{ atendimento.processo_tipo }} cadastrado em {{ atendimento.processo_data_cadastro }}
+                                        </small>
+                                    {% endif %}
+                                </h4>
+                                <p>
+                                    {% if atendimento.processo_parte == 1 %} <!-- Reu-->
+                                        Autor: <b>{{ atendimento.requerido|default_if_none:"Nenhum" }}</b><br/>
+                                        Réu: <b>{{ atendimento.requerente|default_if_none:"Nenhum" }}</b>
+                                        <span class="label label-info">Assistido</span><br/>
+                                    {% else %}
+                                        Autor: <b>{{ atendimento.requerente|default_if_none:"Nenhum" }}</b>
+                                        <span class="label label-info">Assistido</span><br/>
+                                        Réu: <b>{{ atendimento.requerido|default_if_none:"Nenhum" }}</b><br/>
+                                    {% endif %}
+                                    Classe: <b>{{ atendimento.processo_acao|default_if_none:"Nenhum" }}</b><br/>
+                                    Vara: <b>{{ atendimento.processo_vara|default_if_none:"Nenhum" }}</b><br/>
+                                    Área: <b>{{ atendimento.processo_area|default_if_none:"Nenhum" }}</b><br/>
+                                </p>
+                            </div>
+                            <div class="accordion-body collapse" id="collapseP{{ forloop.counter }}" style="margin-top: 7px;">
+                                <p ng-if="atendimento[{{ atendimento.numero }}].carregando">
+                                    <img src="/static/img/loading.gif">
+                                    <i>Carregando...</i>
+                                </p>
+                                <!-- processos -->
+                                <div class="well well-small" ng-if="atendimento[{{ atendimento.numero }}].processos.length==0">
+                                    <b>Nenhum processo vinculado</b>
+                                </div>
+                                <div class="alert alert-info" ng-if="atendimento[{{ atendimento.numero }}].processos.length>0">
+                                    <b>Processos vinculados:</b>
+                                    <ul>
+                                        <li ng-repeat="processo in atendimento[{{ atendimento.numero }}].processos">
+                                            [[ processo.numero ]]
+                                            <small ng-if="processo.tipo==1">(Físico)</small>
+                                            <small ng-if="processo.tipo==2">(Eletrônico)</small>
+                                            <a href="[[ gerar_link('atendimento_atender', {{ atendimento.numero }}) ]]#/eproc/[[processo.numero_puro]]/grau/[[processo.grau]]" ng-if="processo.tipo==2">
+                                                Abrir processo <i class="fas fa-share"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="pull-right">
+                                    <a href="{% url 'agendamento_processo' atendimento.numero %}" class="btn btn-small btn-info" ng-if="!atendimento[{{ atendimento.numero }}].carregando">
+                                        <i class="fas fa-comment"></i> Marcar atendimento
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                            <a href="#collapseP{{ forloop.counter }}" data-parent="#accordion" data-toggle="collapse" class="accordion-toggle collapsed more" ng-click="carregar('{{ atendimento.numero }}')">
+                                <i class="helper-font-18 fas fa-chevron-down"></i>
+                                <i class="helper-font-18 fas fa-chevron-up"></i>
+                                Clique para obter mais informações
+                            </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Fim Processos sem atendimento vinculado -->
+
+    <!-- Atendimentos como requerente.-->
+
+    <div class="divider-content"><span></span></div>
+    <h4 class="pull-left">
+        {{config.NOME_MODULO_ATENDIMENTO}}s como Requerente
+    </h4>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box-body">
+                {% if not atendimentos_como_requerente %}
+                    Não existem atendimentos como Requerente
+                {% endif %}
+                {% for atendimento in atendimentos_como_requerente %}
+                    <div class="well well-small">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img class="media-object img-polaroid" data-src="holder.js/110x110" alt="110x110" style="width: 110px; height: 110px;" src="">
+                                <div class="muted text-center">#{{ forloop.counter }}</div>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    {{ atendimento.numero | form_numero_atendimento }}
+                                    {% if atendimento.data_atendimento %}
+                                        <small class="helper-font-small bold text-success">
+                                            Realizado em {{ atendimento.data_atendimento }}
+                                        </small>
+                                    {% else %}
+                                        <small class="helper-font-small bold text-error">
+                                            Marcado para {{ atendimento.data_agendamento }}
+                                        </small>
+                                    {% endif %}
+                                </h4>
+                                <p>
+                                    Requerente: <b>{{ atendimento.requerente|default_if_none:"Nenhum" }}</b><br/>
+                                    Requerido(a): <b>{{ atendimento.requerido|default_if_none:"Nenhum" }}</b><br/>
+                                    Defensor(a): <b>{{ atendimento.defensor }}</b><br/>
+                                    Defensoria: <b>{{ atendimento.defensoria }}</b><br/>
+                                    Núcleo: <b>{{ atendimento.nucleo|default_if_none:"Nenhum" }}</b><br/>
+                                    Área/Pedido: <b>{{ atendimento.area }}/{{ atendimento.qualificacao|default_if_none:"" }}</b><br/>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="accordion-body collapse" id="collapseA{{ forloop.counter }}" style="margin-top: 7px;">
+                            <p ng-if="atendimento[{{ atendimento.numero }}].carregando">
+                                <img src="/static/img/loading.gif">
+                                <i>Carregando...</i>
+                            </p>
+                            <!-- processos -->
+                            <div class="well well-small" ng-if="atendimento[{{ atendimento.numero }}].processos.length==0">
+                                <b>Nenhum processo vinculado</b>
+                            </div>
+                            <div class="alert alert-info" ng-if="atendimento[{{ atendimento.numero }}].processos.length>0">
+                                <b>Processos vinculados:</b>
+                                <ul>
+                                    <li ng-repeat="processo in atendimento[{{ atendimento.numero }}].processos">
+                                        [[ processo.numero ]]
+                                        <small ng-if="processo.tipo==1">(Físico)</small>
+                                        <small ng-if="processo.tipo==2">(Eletrônico)</small>
+                                        <a href="[[ gerar_link('atendimento_atender', {{ atendimento.numero }}) ]]#/eproc/[[processo.numero_puro]]/grau/[[processo.grau]]" ng-if="processo.tipo==2">
+                                            Abrir processo <i class="fas fa-share"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- retornos -->
+                            <div class="well well-small" ng-if="atendimento[{{ atendimento.numero }}].retornos.length==0">
+                                <b>Nenhum retorno vinculado</b>
+                            </div>
+                            <div class="alert" ng-class="{true:'alert-success', false:'alert-error'}[retorno.data_atendimento!=null]" ng-repeat="retorno in atendimento[{{ atendimento.numero }}].retornos">
+                                <div class="media">
+                                    <div class="media-body">
+                                        <div class="pull-right">
+                                            <span class="badge" ng-class="{true:'badge-success', false:'badge-important'}[retorno.data_atendimento!=null]">[[ retorno.tipo ]]</span>
+                                        </div>
+                                        <h4 class="media-heading">
+                                            [[ retorno.numero ]]
+                                            <small class="helper-font-small" ng-if="retorno.data_atendimento">Realizado em [[ retorno.data_atendimento | date:'dd/MM/yyyy HH:mm' ]]</small>
+                                            <small class="helper-font-small" ng-if="!retorno.data_atendimento">Marcado para [[ retorno.data_agendamento | date:'dd/MM/yyyy HH:mm' ]]</small>
+                                        </h4>
+                                        <p>
+                                            Defensor(a): <b>[[ retorno.defensor ]]</b><br/>
+                                            Defensoria: <b>[[ retorno.defensoria ]]</b><br/>
+                                            Núcleo: <b>[[ retorno.nucleo ]]</b><b ng-if="!retorno.nucleo">Nenhum</b><br/>
+                                            Área/Pedido: <b>[[ retorno.area ]]/[[ retorno.qualificacao ]]</b><br/>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- fim retornos -->
+                            <div class="pull-right" ng-if="!atendimento[{{ atendimento.numero }}].carregando">
+                            {% if atendimento.data_atendimento %}
+                                <a href="{% url "agendamento_retorno" atendimento.numero %}?encaminhar=false" class="btn btn-small btn-success" ng-if="!atendimento[{{ atendimento.numero }}].remarcar" data-placement="top" title="Marcar retorno para defensoria/núcleo atual" bs-tooltip>
+                                    <i class="fas fa-comment"></i> Marcar retorno
+                                </a>
+                                <a href="{% url "agendamento_retorno" atendimento.numero %}?encaminhar=true" class="btn btn-small" ng-if="!atendimento[{{ atendimento.numero }}].remarcar" class="btn" data-placement="top" title="Marcar retorno para outra defensoria/núcleo" bs-tooltip>
+                                    <i class="fas fa-share"></i> Encaminhar
+                                </a>
+                                <!-- remarcar - retorno -->
+                                <a href="/atendimento/agendamento/[[ atendimento[{{ atendimento.numero }}].remarcar ]]/remarcar/" class="btn btn-small btn-danger" title="Remarcar para defensoria/núcleo atual" bs-tooltip ng-if="atendimento[{{ atendimento.numero }}].remarcar">
+                                    <i class="fas fa-calendar-plus"></i> Remarcar
+                                </a>
+                                <!-- remarcar - encaminhar -->
+                                <a href="/atendimento/agendamento/[[ atendimento[{{ atendimento.numero }}].remarcar ]]/remarcar/?encaminhar=true" class="btn btn-small btn-danger" title="Remarcar para outra defensoria/núcleo" bs-tooltip ng-if="atendimento[{{ atendimento.numero }}].remarcar">
+                                    <i class="fas fa-share"></i> Encaminhar
+                                </a>
+                            {% else %}
+                                {% if atendimento.requerente_email  %}
+                                <button class="btn" id="btn-reenviar-email" aria-hidden="true" ng-click="reenviar_email('{{ atendimento.requerente_email }}', '{{ atendimento.numero }}') " ng-disabled="carregandoEmail" >Reenviar Email ao Assistido
+                                    <img ng-show="carregandoEmail" src="{% static "img/loader_16.gif" %}">
+                                </button>
+                                {% endif %}
+                                <a href="{% url "agendamento_remarcar" atendimento.numero %}" class="btn btn-small btn-danger">
+                                    <i class="fas fa-calendar-alt"></i> Remarcar
+                                </a>
+                            {% endif %}
+                            </div>
+                        </div>
+                        <a href="#collapseA{{ forloop.counter }}" data-parent="#accordion" data-toggle="collapse"
+                        class="accordion-toggle collapsed more" ng-click="carregar('{{ atendimento.numero }}')">
+                            <i class="helper-font-18 fas fa-chevron-down"></i>
+                            <i class="helper-font-18 fas fa-chevron-up"></i>
+                            Clique para obter mais informações
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- fim Atendimentos como requerente.-->
+
+    <!-- Atendimentos como requerido.-->
+    <div class="divider-content"><span></span></div>
+
+    <h4 class="pull-left">
+        {{config.NOME_MODULO_ATENDIMENTO}}s como Requerido
+    </h4>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box-body">
+                {% if not atendimentos_como_requerido %}
+                    Não existem atendimentos como Requerido
+                {% endif %}
+                {% for atendimento in atendimentos_como_requerido %}
+                    <div class="well well-small">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img class="media-object img-polaroid" data-src="holder.js/110x110" alt="110x110" style="width: 110px; height: 110px;" src="">
+                                <div class="muted text-center">#{{ forloop.counter }}</div>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    {{ atendimento.numero | form_numero_atendimento }}
+                                    {% if atendimento.data_atendimento %}
+                                        <small class="helper-font-small bold text-success">
+                                            Realizado em {{ atendimento.data_atendimento }}
+                                        </small>
+                                    {% else %}
+                                        <small class="helper-font-small bold text-error">
+                                            Marcado para {{ atendimento.data_agendamento }}
+                                        </small>
+                                    {% endif %}
+                                </h4>
+                                <p>
+                                    Requerente: <b>{{ atendimento.requerente|default_if_none:"Nenhum" }}</b><br/>
+                                    Requerido(a): <b>{{ atendimento.requerido|default_if_none:"Nenhum" }}</b><br/>
+                                    Defensor(a): <b>{{ atendimento.defensor }}</b><br/>
+                                    Defensoria: <b>{{ atendimento.defensoria }}</b><br/>
+                                    Núcleo: <b>{{ atendimento.nucleo|default_if_none:"Nenhum" }}</b><br/>
+                                    Área/Pedido: <b>{{ atendimento.area }}/{{ atendimento.qualificacao|default_if_none:"" }}</b><br/>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="accordion-body collapse" id="collapseR{{ forloop.counter }}" style="margin-top: 7px;">
+                            <p ng-if="atendimento[{{ atendimento.numero }}].carregando">
+                                <img src="/static/img/loading.gif">
+                                <i>Carregando...</i>
+                            </p>
+                            <!-- processos -->
+                            <div class="well well-small" ng-if="atendimento[{{ atendimento.numero }}].processos.length==0">
+                                <b>Nenhum processo vinculado</b>
+                            </div>
+                            <div class="alert alert-info" ng-if="atendimento[{{ atendimento.numero }}].processos.length>0">
+                                <b>Processos vinculados:</b>
+                                <ul>
+                                    <li ng-repeat="processo in atendimento[{{ atendimento.numero }}].processos">
+                                        [[ processo.numero ]]
+                                        <small ng-if="processo.tipo==1">(Físico)</small>
+                                        <small ng-if="processo.tipo==2">(Eletrônico)</small>
+                                        <a href="[[ gerar_link('atendimento_atender', {{ atendimento.numero }}) ]]#/eproc/[[processo.numero_puro]]/grau/[[processo.grau]]" ng-if="processo.tipo==2">
+                                            Abrir processo <i class="fas fa-share"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- retornos -->
+                            <div class="well well-small" ng-if="atendimento[{{ atendimento.numero }}].retornos.length==0">
+                                <b>Nenhum retorno vinculado</b>
+                            </div>
+                            <div class="alert" ng-class="{true:'alert-success', false:'alert-error'}[retorno.data_atendimento!=null]" ng-repeat="retorno in atendimento[{{ atendimento.numero }}].retornos">
+                                <div class="media">
+                                    <div class="media-body">
+                                        <div class="pull-right">
+                                            <span class="badge" ng-class="{true:'badge-success', false:'badge-important'}[retorno.data_atendimento!=null]">[[ $index + 1 ]]º Retorno</span>
+                                        </div>
+                                        <h4 class="media-heading">
+                                            [[ retorno.numero ]]
+                                            <small class="helper-font-small" ng-if="retorno.data_atendimento">Realizado em [[ retorno.data_atendimento | date:'dd/MM/yyyy HH:mm' ]]</small>
+                                            <small class="helper-font-small" ng-if="!retorno.data_atendimento">Marcado para [[ retorno.data_agendamento | date:'dd/MM/yyyy HH:mm' ]]</small>
+                                        </h4>
+                                        <p>
+                                            Defensor(a): <b>[[ retorno.defensor ]]</b><br/>
+                                            Defensoria: <b>[[ retorno.defensoria ]]</b><br/>
+                                            Núcleo: <b>[[ retorno.nucleo ]]</b><b ng-if="!retorno.nucleo">Nenhum</b><br/>
+                                            Área/Pedido: <b>[[ retorno.area ]]/[[ retorno.qualificacao ]]</b><br/>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- fim retornos -->
+                        </div>
+                        <a href="#collapseR{{ forloop.counter }}" data-parent="#accordion" data-toggle="collapse" class="accordion-toggle collapsed more" ng-click="carregar('{{ atendimento.numero }}')">
+                            <i class="helper-font-18 fas fa-chevron-down"></i>
+                            <i class="helper-font-18 fas fa-chevron-up"></i>
+                            Clique para obter mais informações
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Fim Atendimentos como requerido.-->
+
+    <!-- Atendimentos excluidos -->
+    <div class="divider-content"><span></span></div>
+
+    <h4 class="pull-left text-error">
+        {{config.NOME_MODULO_ATENDIMENTO}}s Excluídos
+    </h4>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box-body">
+                {% if not atendimentos_excluidos %}
+                    Não existem atendimentos Excluídos
+                {% endif %}
+                {% for atendimento in atendimentos_excluidos %}
+                    <div class="alert alert-error">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img class="media-object img-polaroid" data-src="holder.js/110x110" alt="110x110" style="width: 110px; height: 110px;" src="">
+                                <div class="text-center">#{{ forloop.counter }}</div>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    {{ atendimento.numero | form_numero_atendimento }}
+                                    <small class="helper-font-small text-error bold">
+                                        Marcado para {{ atendimento.data_agendamento }}
+                                    </small>
+                                </h4>
+                                <p>
+                                    Requerente: <b>{{ atendimento.requerente|default_if_none:"Nenhum" }}</b><br/>
+                                    Requerido(a): <b>{{ atendimento.requerido|default_if_none:"Nenhum" }}</b><br/>
+                                    Defensor(a): <b>{{ atendimento.defensor }}</b><br/>
+                                    Defensoria: <b>{{ atendimento.defensoria }}</b><br/>
+                                    Núcleo: <b>{{ atendimento.nucleo|default_if_none:"Nenhum" }}</b><br/>
+                                    Área/Pedido: <b>{{ atendimento.area }}/{{ atendimento.qualificacao|default_if_none:"" }}</b><br/>
+                                    Excluído por: <b>{{ atendimento.excluido_por|default:"Não informado" }}</b> em <b>{{ atendimento.data_exclusao|default:"Não informado" }}</b><br/>
+                                    Motivo: <b>{{ atendimento.motivo_exclusao|default:"Não informado" }}</b><br/>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Fim Atendimentos excluidos -->
+
+    <div class="form-actions">
+        <div class="pull-right">
+            <a href="{% url "qualificacao_index" ligacao.numero %}" class="btn btn-success">
+                <i class="fas fa-comment"></i> {{config.NOME_MODULO_ATENDIMENTO}} inicial</a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('#PesquisaForm').validate({
+    errorPlacement: function(error, element){
+    },
+    highlight: function(e){
+    $(e).addClass('error');
+    },
+    unhighlight: function(e){
+    $(e).removeClass('error');
+    }
+    });
+
+{% endblock %}

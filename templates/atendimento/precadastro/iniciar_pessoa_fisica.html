@@ -1,0 +1,162 @@
+{% load humanize static contrib_tags %}
+
+<form method="POST" action="{% url 'assistido_salvar' %}" name="CadastroForm" id="CadastroForm"
+      class="form-horizontal span9">
+    {% csrf_token %}
+    <div class="control-group">
+        <label class="control-label">CPF</label>
+
+        <div class="controls">
+            <input type="text" id="cpf" name="cpf" class="span4" ui-mask="999.999.999-99"
+                    ng-model="pessoa.cpf" data-validate="{required:false,cpf:true}" ng-readonly="pessoa.id && pessoa.cpf_salvo">
+                    <i ng-show="pessoa.id && pessoa.cpf_salvo" class="fas fa-lock" title="Este dado não pode ser alterado. Se está tentando incluir uma nova pessoa, inicie um novo cadastro. Em caso de dúvidas, contate o suporte técnico." bs-tooltip></i>
+
+        </div>
+    </div>
+
+    {% if manifestacao or sigla_uf == 'RN' %}
+    <div class="control-group">
+        <label class="control-label">RG</label>
+
+        <div class="controls">
+            <input type="text" id="rg_numero" name="rg_numero" class="span4"
+                   ng-model="pessoa.rg_numero" data-validate="{required:false}" placeholder="Nº RG">
+                   <input type="text" id="rg_orgao" name="rg_orgao" class="span4"
+                   ng-model="pessoa.rg_orgao" data-validate="{required:false}" placeholder="Orgão RG">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="control-group">
+        <label class="control-label">Nome</label>
+
+        <div class="controls">
+            <input type="text" id="nome" name="nome" class="span8" ng-model="pessoa.nome"
+                    data-validate="{required:true}" ng-readonly="pessoa.id && pessoa.cadastro_protegido" upper-text>
+                    <i ng-show="pessoa.id && pessoa.cadastro_protegido" class="fas fa-lock" title="Este dado não pode ser alterado. Se está tentando incluir uma nova pessoa, inicie um novo cadastro. Em caso de dúvidas, contate o suporte técnico." bs-tooltip></i>
+
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Data de nascimento</label>
+
+        <div class="controls">
+            <div class="input-append span4">
+                <input type="text" class="span12" bs-datepicker data-date-format="dd/mm/yyyy"
+                       data-mask="99/99/9999" data-validate="{required:true,date:true}"
+                       name="data_nascimento" ng-model="pessoa.data_nascimento"
+                       data-toggle="datepicker">
+                <span data-toggle="datepicker" class="add-on"><i class="far fa-calendar-alt"></i></span>
+            </div>
+        </div>
+    </div>
+    <!-- filiacao -->
+    <div class="control-group" ng-repeat="mae in pessoa.filiacao">
+        <label class="control-label">Filiação</label>
+
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                    <span ng-bind="get_filiacao(mae)"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="i in tipo_filiacao">
+                        <a href="#" ng-click="set_filiacao($index, mae)" ng-bind="i"></a>
+                    </li>
+                </ul>
+            </div>
+            <input type="text" id="mae" name="mae" class="span8" placeholder="Filiação" ng-model="mae.nome" data-validate="{required:true}" upper-text>
+            <button type="button" class="btn" ng-click="remover_filiacao($index)" ng-disabled="pessoa.filiacao.length == 1" bs-tooltip="'Remover filiação'">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button type="button" class="btn" ng-click="adicionar_filiacao()" ng-disabled="pessoa.filiacao.length == 4" ng-show="$index == pessoa.filiacao.length - 1" bs-tooltip="'Adicionar filiação'">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+    </div>
+    <!-- telefones -->
+    <div class="control-group" ng-repeat="telefone in pessoa.telefones">
+        <label class="control-label">Telefone</label>
+        <div class="controls">
+            <div class="btn-group dropup">
+                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                    <span ng-bind="get_tipo_telefone(telefone)"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="i in tipo_telefone">
+                        <a href="#" ng-click="set_tipo_telefone($index, telefone)" ng-bind="i"></a>
+                    </li>
+                </ul>
+            </div>
+            <input type="text" id="telefone" name="telefone" ng-model="telefone.telefone" class="span3" ui-mask="[[ telefone.telefone.length == 11 ? '(99)99999-9999' : '(99)9999-9999?9' ]]" title="Nº do telefone c/ DDD" bs-tooltip>
+            <input type="text" id="telefone" name="telefone" ng-model="telefone.nome" class="span4" placeholder="Nome do Contato (Ex: João - Vizinho)" title="Nome do Contato (Ex: João - Vizinho)" bs-tooltip>
+            <button type="button" class="btn" ng-click="remover_telefone($index)" ng-disabled="pessoa.telefones.length == 1" bs-tooltip="'Remover telefone'">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button type="button" class="btn" ng-click="adicionar_telefone()" ng-style="{visibility:{true:'hidden', false:''}[$index != pessoa.telefones.length - 1]}" bs-tooltip="'Adicionar telefone'">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">E-mail</label>
+        <div class="controls">
+            <div class=" input-append span4">
+                <input data-validate="{required:false,email:true}" id="id_email" name="email" ng-model="pessoa.email" type="text" class="span12 noupper">
+                <span class="add-on" data-toggle="datepicker"><i class="fas fa-envelope"></i></span>
+            </div>
+        </div>
+    </div>
+
+    {% if manifestacao or config.MODO_EXIBICAO_ENDERECO_129 == '1' %}
+        <div class="control-group">
+            <label class="control-label">CEP</label>
+            <div class="controls">
+                {{ endereco_form.cep }}
+                <a href="http://www.buscacep.correios.com.br/sistemas/buscacep/" target="_blank">Não sabe  o CEP? <u>Clique aqui</u></a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="control-group">
+        <label class="control-label">UF/Municipio</label>
+        <div class="controls">
+            {{ endereco_form.estado }}
+            {{ endereco_form.municipio }}
+        </div>
+    </div>
+
+    {% if manifestacao or config.MODO_EXIBICAO_ENDERECO_129 == '1' %}
+        <div class="control-group">
+            <label class="control-label">Bairro</label>
+            <div class="controls">
+                {{ endereco_form.bairro }}
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Logradouro</label>
+            <div class="controls">
+                {{ endereco_form.logradouro }}
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Número</label>
+
+            <div class="controls">
+                {{ endereco_form.numero }}
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Complemento</label>
+
+            <div class="controls">
+                {{ endereco_form.complemento }}
+            </div>
+        </div>
+    {% endif %}
+</form>
+
+
+

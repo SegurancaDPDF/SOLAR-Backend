@@ -1,0 +1,181 @@
+{% extends "atendimento/recepcao/default.html" %}
+{% load humanize static %}
+
+{% block css_pag %}
+    <style>
+        #AtendimentosForm {
+            margin: 0 !important;
+        }
+
+        #AtendimentosForm div {
+            margin: 0 !important;
+        }
+
+        #AtendimentosForm input {
+            margin: 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="page-title">
+        {% if predio %}
+            <h4>
+                <a href="{% url 'recepcao_predio_alterar' %}" class="btn btn-small" rel="tooltip" title="Alterar Prédio">
+                    <i class="fas fa-retweet"></i>
+                </a>
+                {{ predio }}
+            </h4>
+        {% endif %}
+        <h3>
+            <span class="pull-left">{{config.NOME_MODULO_ATENDIMENTO}}s do dia
+                <img ng-show="carregando_atendimentos_qtd" src="{% static "img/loader_16.gif" %}"></a>
+                <span ng-hide="carregando_atendimentos_qtd" ng-cloak>([[ atendimentos_qtd ]])</span>
+            </span>
+        </h3>
+        <span class="pull-right">
+            <a href="{% url 'assistido_buscar' %}?next=" class="btn btn-primary" rel="tooltip" data-placement="top"
+               title="Cadastrar novo agendamento">
+                <i class="fas fa-calendar-plus"></i> Novo
+            </a>
+        </span>
+    </div>
+{% endblock %}
+
+{% block menu_app %}
+
+    <div class="navbar navbar-mb0" ng-init="init({{ comarca_id }})">
+        <div class="navbar-inner">
+            <div class="container">
+                <form class="navbar-form">
+                    <select id="area" type="text" class="span2" placeholder="Área" ng-disabled="carregando" ng-model="selected_area" ng-change="filtro_personalizado(filtro)" ng-options="i.nome as i.nome for i in areas">
+                        <option value="">TODAS AS ÁREAS</option>
+                    </select>
+                    <select id="defensorias" class="span3" placeholder="Defensoria" ng-disabled="carregando" ng-model="selected_defensoria" ng-change="filtro_personalizado(filtro)" ng-options="i.id as i.nome for i in defensorias">
+                        <option value="">TODAS AS DEFENSORIAS</option>
+                    </select>
+                    <input type="text" class="span2" placeholder="CPF/CNPJ do requerente" ng-disabled="carregando" ng-model="selected_cpf" ng-change="filtro_personalizado(filtro)">
+                    <input type="text" class="span3" placeholder="Nome do requerente" ng-disabled="carregando" ng-model="selected_nome_requerente" ng-change="filtro_personalizado(filtro)">
+                    <input type="text" class="span2" placeholder="Outras informações" ng-disabled="carregando" ng-model="filtro_atendimento">
+                    <button type="button" class="btn actions-f12" rel="tooltip" data-placement="bottom" data-original-title="Buscar" disabled>
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <div class="clearfix"></div>
+    {% csrf_token %}
+    <ul class="nav nav-tabs" id="myTab">
+        <li>
+            <a href="#atendimentos" ng-click="buscar_atendimentos_aguardando();">
+                Aguardando
+                <span ng-hide="carregando_aguardando"
+                      class="badge badge-warning" ng-cloak>
+                    [[ atendimentos_aguardando_qtd ]]
+                </span>
+                <img ng-show="carregando_aguardando" src="{% static "img/loader_16.gif" %}">
+            </a>
+        </li>
+        <li>
+            <a href="#atendimentos" ng-click="buscar_atendimentos_atrasados();">
+                Atrasados
+                <span ng-hide="carregando_atrasados"
+                      class="badge badge-important" ng-cloak>
+                    [[ atendimentos_atrasados_qtd ]]
+                </span>
+                <img ng-show="carregando_atrasados" src="{% static "img/loader_16.gif" %}">
+            </a>
+        </li>
+        <li>
+            <a href="#atendimentos" ng-click="buscar_atendimentos_liberados();"
+               title="Liberados para atendimento" rel="tooltip">
+                Liberados
+                <span ng-hide="carregando_liberados" class="badge" ng-cloak>
+                    [[ atendimentos_liberados_qtd ]]
+                </span>
+                <img ng-show="carregando_liberados" src="{% static "img/loader_16.gif" %}">
+            </a>
+        </li>
+        <li>
+            <a href="#atendimentos"
+               ng-click="buscar_atendimentos_em_atendimento();"
+               title="Em atendimento pelos defensores" rel="tooltip">
+                Em atendimento
+                <span ng-hide="carregando_em_atendimento" class="badge" ng-cloak>
+                    [[ atendimentos_em_atendimento_qtd ]]
+                </span>
+                <img ng-show="carregando_em_atendimento" src="{% static "img/loader_16.gif" %}">
+            </a>
+        </li>
+        <li>
+            <a href="#atendimentos" ng-click="buscar_atendimentos_atendidos();"
+               title="Atendidos pelos defensores" rel="tooltip">
+                Atendidos
+                <span ng-hide="carregando_atendidos" class="badge" ng-cloak>
+                    [[ atendimentos_atendidos_qtd ]]
+                </span>
+                <img ng-show="carregando_atendidos" src="{% static "img/loader_16.gif" %}">
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane" id="atendimentos">
+            {% include 'atendimento/recepcao/marcados_tabela_atendimentos.html' %}
+        </div>
+    </div>
+
+    <div id="modal-visualizar-pnes" class="modal hide fade" tabindex="-1" role="dialog">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Atenção</h3>
+        </div>
+        <div class="modal-body">
+
+            <div class="alert alert-block alert-info">
+                O assistido em questão possui as seguintes deficiências:
+                <ul id="pnes">
+                    <li ng-repeat="pne in pnes">
+                        [[ pne.nome ]]
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Fechar</button>
+        </div>
+    </div>
+
+    {% include 'atendimento/buscar_modal_informacoes.html' %}
+    {% include 'atendimento/recepcao/marcados_modal_excluir.html' %}
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script type="text/javascript">
+        var comarca_id = {{ comarca }};
+        var guiche = {{ guiche }};
+        var NODE_SERVER = "http://solar.defensoria.to.def.br:8082";
+    </script>
+    {#    <script src="http://solar.defensoria.to.def.br:8082/socket.io/socket.io.js"></script>#}
+
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+
+        //Exibe/Oculta botoes de acordo com a tab selecionada
+        $('#myTab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('#myTab a:first').tab('show');
+
+    {% endblock %}
+</script>

@@ -1,0 +1,245 @@
+{% extends "atendimento/agendamento/default.html" %}
+{% load humanize contrib_tags %}
+
+{% block titulo %}Conflitos de Agendamento{% endblock %}
+
+{% block css_pag %}
+<style>
+    #popover_pessoa .popover{width: 500px;}
+    #popover_atendimento .popover{width: 500px; min-height: 300px;}
+</style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <form class="navbar-form" action="{% url "agendamento_conflitos" %}" method="GET" ng-init="init({ {% for k, v in request.GET.items %}'{{ k }}':'{{ v }}'{% if not forloop.last %},{% endif %}{% endfor %} })">
+                    <div class="span1 bs-datepicker-hack">
+                        {{ form.data_ini }}
+                    </div>
+                    <div class="span1 bs-datepicker-hack">
+                        {{ form.data_fim }}
+                    </div>
+                    {{ form.defensor }}
+                    {{ form.categoria_de_agenda }}
+                    <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom"
+                            data-original-title="Buscar atendimento">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+        <span class="pull-left">
+            Conflitos de Agendamento ({{ conflitos | length }})
+        </span>
+        </h3>
+            <div class="pull-right">
+            {% if request.GET.defensor %}
+                <a href="#" data-target="#modal-confirmar-correcao" data-toggle="modal" class="btn btn-danger"
+                    title="Corrigir Conflitos Automaticamente" rel="tooltip" data-placement="left" {% if not conflitos %}disabled{% endif %}>
+                    <i class="fas fa-sync"></i> Corrigir
+                </a>
+                <a href="{% url 'agendamento_conflitos_corrigidos' %}?defensor={{ form.defensor.value }}&data_ini={{ form.data_ini.value }}&data_fim={{ form.data_fim.value }}&categoria_de_agenda={{ request.GET.categoria_de_agenda }}"
+                class="btn" title="" rel="tooltip" data-placement="left">
+                    <i class="fas fa-list"></i> Ver Corrigidos
+                </a>
+            {% else %}
+                <div class="alert alert-info">
+                    <span class="label label-info">Info</span> Para corrigir os conflitos automaticamente, faça a busca por
+                    defensor.
+                </div>
+            {% endif %}
+            </div>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Número</th>
+            <th>Data/Hora</th>
+            <th>Tipo/Agenda</th>
+            <th>Requerente</th>
+            <th>Requerido</th>
+            <th>Área/Pedido</th>
+            <th>Defensoria</th>
+            <th>Defensor</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for atendimento, evento, agenda in conflitos %}
+            <tr>
+                <td>
+                    <small class="muted">{{ forloop.counter }}</small>
+                </td>
+                <td class="text-center link" data-container="#popover_atendimento"
+                    data-placement="right" data-title="{{ atendimento.numero | form_numero_atendimento }}"
+                    data-trigger="hover" bs-popover="'/static/template/atendimento/popover_atendimento.html'"
+                    ng-mouseover="get_atendimento('{{ atendimento.numero}}')">
+                    {{ atendimento.numero | form_numero_atendimento }}
+                </td>
+                <td class="text-center">
+                    {% if evento or not agenda %}
+                        <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover"
+                           data-original-title="Dia indisponível" data-content="{% if evento %}{{ evento.id }} -
+                            {{ evento }}{% else %}Nenhuma agenda cadastrada{% endif %}" data-html="true">
+                            <span class="label label-important">D</span>
+                        </a>
+                        <div class="text-error"><b>{{ atendimento.data_agendamento|date:"D, d/m/Y H:i" }}</b></div>
+                    {% else %}
+                        <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover"
+                           data-original-title="Horário indisponível" data-content="{{ atendimento.data_agendamento|date:"H:i" }}" data-html="true">
+                            <span class="label label-warning">H</span>
+                        </a>
+                    <div class="text-warning"><b>{{ atendimento.data_agendamento|date:"D, d/m/Y H:i" }}</b></div>
+                    {% endif %}
+                </td>
+                <td>
+                    <div>{{ atendimento.get_tipo_display }}</div>
+                    <small class="muted">{{ atendimento.agenda.nome }}</small>
+                </td>
+                <td>
+                    {% for requerente in atendimento.requerentes %}
+                        {% with pessoa=requerente.pessoa %}
+                        <div>
+                            {% if pessoa.tipo == 0 and pessoa.nome_social %}
+                                <span class="label label-important" title="Nome Social" rel="tooltip">NS</span>
+                            {% elif pessoa.tipo == 1 and pessoa.apelido %}
+                                <span class="label label-info" title="Nome Fantasia" rel="tooltip">NF</span>
+                            {% endif %}
+                            <a href="#" class="btn-link" data-container="#popover_pessoa" data-placement="bottom"
+                            data-title="{{ pessoa.nome }}" data-trigger="hover"
+                            bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                            ng-mouseover="get_pessoa({{ pessoa.id }})">
+                                {% if pessoa.tipo == 0 %}
+                                    {{ pessoa.nome_social | default:pessoa.nome }}
+                                {% else %}
+                                    {{ pessoa.apelido | default:pessoa.nome }}
+                                {% endif %}
+                            </a>
+                        </div>
+                        {% endwith %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for requerido in atendimento.requeridos %}
+                        {{ requerido }}<br>
+                    {% endfor %}
+                </td>
+                <td>
+                    <small class="muted">{{ atendimento.qualificacao.area }}</small>
+                    <div>{{ atendimento.qualificacao }}</div>
+                </td>
+                <td>
+                    <span title="{{ atendimento.defensoria.nome }}" rel="tooltip">
+                        {{ atendimento.defensoria.codigo }}
+                    </span>
+                </td>
+                <td>
+                    {% if atendimento.substituto %}
+                        <span class="label label-info" title="Substituindo: {{ atendimento.defensor }}" rel="tooltip">S</span>
+                        <span title="{{ atendimento.substituto }}" rel="tooltip">
+                            {{ atendimento.substituto.servidor.usuario.username }}
+                        </span>
+                    {% else %}
+                        <span class="label label-success" title="Titular" rel="tooltip">T</span>
+                        <span title="{{ atendimento.defensor }}" rel="tooltip">
+                            {{ atendimento.defensor.servidor.usuario.username }}
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{% url "agendamento_remarcar" atendimento.numero %}" target="_blank"
+                            class="btn btn-small btn-success" data-placement="left" title="Remarcar Atendimento" rel="tooltip">
+                            <i class="far fa-calendar-alt"></i>
+                         </a>
+                        <a href="{% url "atendimento_atender" atendimento.numero %}?tab=0" target="_blank"
+                           class="btn btn-small" data-html="true" data-placement="left" title="Ver ficha atendimento <br> (Defensor)" rel="tooltip">
+                           <i class="fas fa-comments"></i>
+                        </a>
+                        <a href="{% url "recepcao_atendimento" atendimento.numero %}?tab=0" target="_blank"
+                           class="btn btn-small" data-html="true" data-placement="left" title="Ver detalhes do atendimento <br>(Recepção)" rel="tooltip">
+                           <i class="fas fa-book"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="11">Nenhum registro encontrado</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Número</th>
+            <th>Data/Hora</th>
+            <th>Tipo/Agenda</th>
+            <th>Requerente</th>
+            <th>Requerido</th>
+            <th>Área/Pedido</th>
+            <th>Defensoria</th>
+            <th>Defensor</th>
+            <th>Ações</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <!-- espaçamento necessário no final da página para não cortar a exibição dos popovers -->
+    <div id="popover_pessoa" style="width: 500px;"></div>
+    <div id="popover_atendimento" style="width: 500px; min-height: 300px;"></div>
+
+    <!-- Modal excluir processo -->
+    <div id="modal-confirmar-correcao" class="modal hide fade" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3>Corrigir conflitos</h3>
+        </div>
+        <div class="modal-body">
+            <h4 class="text-error">Atenção!</h4>
+
+            <p class="text-error">Essa operação é irreversível.</p>
+
+            <p class="text-error">Lembre-se que os assistidos não serão informados do reagendamento automático.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url 'agendamento_conflitos_corrigir' %}?defensor={{ request.GET.defensor }}&data_ini={{ request.GET.data_ini }}&data_fim={{ request.GET.data_fim }}&categoria_de_agenda={{ request.GET.categoria_de_agenda }}"
+               class="btn btn-danger" id="btn-modal-confirmar-correcao">Confirmar</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+    <!-- Modal excluir processo -->
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+    $('a[data-toggle=popover]').popover();
+
+{% endblock %}

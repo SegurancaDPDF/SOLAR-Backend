@@ -1,0 +1,103 @@
+{% extends "atendimento/encaminhamento/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar órgão
+        </h3>
+        <div class="pull-right actions-m18">
+            {% if pode_cadastrar %}
+                <a href="{% url "encaminhamento_cadastrar" %}?next={{ next }}" class="btn btn-primary actions-f12">
+                    <i class="fas fa-plus-circle"> </i> Novo Órgão p/ Encaminhamento
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a data-target=".navbar-responsive-collapse" data-toggle="collapse" class="btn btn-navbar">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+
+                <div class="nav-collapse collapse navbar-responsive-collapse">
+                    <ul class="nav pull-left span5">
+                        <form class="navbar-search span12" method="GET" action="">
+                            <input type="hidden" name="next" value="{{ next }}">
+                            <div class="input-append">
+                                {{ form.nome }}
+                                <button data-original-title="Buscar órgão" data-placement="bottom" rel="tooltip"
+                                        class="btn actions-f12" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </ul>
+                </div>
+                <!-- /.nav-collapse -->
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Endereço</th>
+            <th>Telefone</th>
+            <th>E-mail</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for registro in object_list %}
+        <tr>
+            <td>
+                <b>{{ registro.nome }}</b>
+            </td>
+            <td>{{ registro.endereco | default:"Não informado" }}</td>
+            <td>{{ registro.telefone | default:"Não informado" }}</td>
+            <td>{{ registro.email | default:"Não informado" }}</td>
+            <td>
+                <div class="pull-center btn-group">
+                    {% if pode_editar %}
+                        <a href="{% url 'encaminhamento_editar' registro.id %}?next={{ next }}" class="btn" rel="tooltip" data-placement="left" title="Alterar registro">
+                            <i class="fas fa-pencil-alt"></i>
+                        <a>
+                    {% endif %}
+                    {% if ligacao %}
+                        <a href="{% url 'encaminhamento_encaminhar' ligacao_numero=ligacao.numero encaminhamento_id=registro.id %}?next={{ next }}" role="button" class="btn btn-primary" rel="tooltip" data-placement="left"
+                        data-original-title="Encaminhar pessoa" >
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">Nenhum registro encontrado</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

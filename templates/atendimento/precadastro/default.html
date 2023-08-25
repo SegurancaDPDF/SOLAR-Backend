@@ -1,0 +1,84 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}129{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    {% include "atendimento/header_ligacao.html" %}
+    <h2><i class="helper-font-24 fas fa-phone"></i>Pré-Cadastro 129
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+    <script type="text/javascript" src="{% static "js/app/directives/cpfcnpj_diretiva_validacao.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_atendimento.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_precadastro.js" %}?v={{ config.JSVERSION }}"></script>
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% if ligacao %}
+        function atualizar_duracao(duracao_em_segundos){
+            const daysAmount = Math.floor(duracao_em_segundos / 86400);
+            const hoursAmount = Math.floor((duracao_em_segundos / 3600) % 24);
+            const minutesAmount = Math.floor((duracao_em_segundos % 3600) / 60);
+            const secondsAmount = duracao_em_segundos % 60;
+
+            const days = String(daysAmount).padStart(2, '0');
+            const hours = String(hoursAmount).padStart(2, '0');
+            const minutes = String(minutesAmount).padStart(2, '0');
+            const seconds = String(secondsAmount).padStart(2, '0');
+
+            return ({days, hours, minutes, seconds,});
+        }
+
+        var ini = new Date();
+        const duracao_em_segundos = {{ ligacao.cronometro.duracao }};
+        let secondsAmount = duracao_em_segundos;
+        // atualizar o duração da tela
+        setInterval(() => {
+            secondsAmount++;
+            const {days, hours, minutes, seconds} = atualizar_duracao(secondsAmount);
+            $('#timer').html(`${days}:${hours}:${minutes}:${seconds}`);
+        }, 1000);
+
+        setInterval(() => {
+            $.get('{% url "atendimento_cronometro" %}').success((data) => {
+                if(data.expirado) location.reload();
+            });
+        }, 30000);
+
+    {% endif %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

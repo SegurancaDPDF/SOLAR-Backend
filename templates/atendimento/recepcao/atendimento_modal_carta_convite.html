@@ -1,0 +1,71 @@
+{% load static %}
+{% load contrib_tags %}
+
+<div id="modal-carta-convite-recepcao" class="modal hide fade" tabindex="-1" role="dialog" ng-controller="ImprimirCtrl">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Gerar carta convite para assistido entregar</h3>
+    </div>
+    <div class="modal-body">
+        <span class="block"><strong>Lembrete:
+            <small class="muted"> (Apenas se necessário)</small>
+        </strong></span>
+
+        <form id="RelatorioForm" name="RelatorioForm" class="form form-horizontal">
+            {% csrf_token %}
+            <textarea name="lembrete_texto" class="span12" rows="9"
+                      placeholder="Digite o lembrete para o assistido ou o requerido..."
+                      ng-model="lembrete_text" ng-change="relatorio.status=null"></textarea>
+            <input type="hidden" name="numero_atendimento" value="{{ atendimento.numero }}">
+
+            <div id="radio-select-tipo-relatorio" class="controls">
+                <label class="radio">
+                    <input type="radio" checked name="lembrete" value="0"
+                           ng-model="lembrete_type" ng-change="relatorio.status=null">
+                    Lembrete para requerentes
+                </label>
+                <label class="radio">
+                    <input type="radio" name="lembrete" value="1"
+                           ng-model="lembrete_type"
+                           ng-change="relatorio.status=null">
+                    Lembrete para requeridos
+                </label>
+                <label class="radio">
+                    <input type="radio" name="lembrete" value="2"
+                           ng-model="lembrete_type"
+                           ng-change="relatorio.status=null">
+                    Lembrete para todos
+                </label>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div class="btn-group">
+            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="!RelatorioForm.$valid" ng-hide="relatorio.status">
+                <i class="fas fa-file-alt"></i>
+                Gerar
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for relatorio in relatorios_btn_carta_convite %}
+                    <li>
+                        <a href="#" class="text-left" ng-click="imprimir({user:'{{ request.user.username }}', params:{atendimento_numero:'{{ atendimento.numero }}', lembrete_type:lembrete_type, lembrete_text:lembrete_text, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}')">{{ relatorio.titulo }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <button type="button" class="btn btn-primary" ng-show="relatorio.status.pending" disabled>
+            <i class="fas fa-cogs"></i> Gerando...
+        </button>
+        <button type="button" class="btn btn-danger" ng-show="relatorio.status.fail"
+                bs-tooltip="relatorio.status.reason">Erro!
+        </button>
+        <a class='btn btn-success' target='_blank' href="[[ relatorio.status.report ]]"
+           ng-show="relatorio.status.success">
+           <i class="fas fa-download"></i> Baixar
+        </a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
