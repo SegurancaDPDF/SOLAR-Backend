@@ -1,0 +1,51 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2><i class="helper-font-24 fas fa-cogs"></i>Administração
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    <script type="text/javascript" src="{% static "js/tours/tour_contrib.js" %}"></script>
+
+    {% block js_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_app %}
+
+        {% block js_ready_pag %}
+        {% endblock %}
+
+    {% endblock %}
+
+</script>

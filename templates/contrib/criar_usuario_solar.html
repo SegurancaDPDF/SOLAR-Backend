@@ -1,0 +1,149 @@
+{% extends "contrib/default-cadastrar-servidor.html" %}
+{% load static i18n humanize %}
+
+{% block titulo %}Cadastrar Servidor{% endblock %}
+
+{% block css_pag %}
+    <style type="text/css">
+        [ng-cloak] {
+            display: none;
+        }
+    </style>
+
+{% endblock %}
+{% block conteudo_pag %}
+
+    <br/>
+    <!-- Área principal do formulário de cadastro -->
+    <div class="box corner-all" ng-cloak="" ng-controller="CadastroServidorCtrl">
+        <div class="box-header bg-black color-white corner-top">
+
+            <div class="clearfix"><p></p></div>
+        </div>
+        <div class="box-body corner-bottom">
+            <div class="form-horizontal" ng-show="mostrar_erros($event)">
+
+                <!-- Exibe mensagens de erro em botões específicos -->
+                <div class="control-group">
+                    <div class="col-sm-12">
+                        <div class="alert alert-error alert-dismissible" role="alert" ng-repeat="botao in botoes">
+                            [[botao.msg]]
+                            <a class="btn" href="[[botao.url]]">[[botao.msg_botao]]</a>
+                        </div>
+                        <div class="alert alert-error alert-dismissible" role="alert" ng-repeat="erro in errors['__all__']">
+
+                            [[erro]]
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <a href="{{ form_action }}" class="btn">
+                            <i class="fas fa-user-plus"></i> Cadastrar outro
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <form id="formconsultacpf" name="formconsultacpf" action="{% url 'consulta_servidor' %}" method="post"
+                  enctype="multipart/form-data"
+                  ng-submit="pesquisar($event)"
+                  ng-show="mostrar_pesquisa($event)"
+            >
+                {% csrf_token %}
+
+                <div class="box-body">
+                    <div class="form-horizontal">
+                        {% include "contrib/django_form_content_bootstrap2.html" with form=form_cpf_nome %}
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row-fluid">
+                            <div class="">
+
+                                <button type="submit" id="consultar" name="consultar" class="btn btn-success"
+                                        ng-model="botao_pesquisar"
+                                        ng-disabled="formconsultacpf.$invalid || carregando">
+                                        <i class="fas fa-search"></i>
+                                    [[ carregando ? "Consultando..." : "Consultar" ]]
+                                </button>
+                                <a class="btn" href="{% url 'listar_servidor' %}">Voltar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Formulário para cadastrar novo servidor -->
+            <form id="formnovousuario" name="formnovousuario" action="{{ form_action }}" method="post"
+                  enctype="multipart/form-data"
+                  ng-submit="salvar($event)"
+                  ng-show="mostrar_cadastrar_novo($event)"
+            >
+                {% csrf_token %}
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="box corner-all">
+                            <div class="box-header grd-white">
+                                <div class="header-control">
+                                </div>
+                                <span>Cadastrar novo Servidor</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="form-horizontal">
+                                    {% include "contrib/django_form_content_bootstrap2.html" with form=form %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ form_action }}" class="btn">Cancelar</a>
+                    <button id="botao_cadastrar" name="botao_cadastrar" type="submit" class="btn btn-success"
+                            value="cadastrar"
+                            ng-disabled="formnovousuario.$invalid ||carregando"
+                    >[[ carregando ? "Cadastrando..." : "Cadastrar" ]]
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- Exibe informações do usuário recém-criado -->
+            <div ng-show="dados_usuario_recem_criado" class="col-sm-12">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <h6>O Servidor abaixo foi cadastrado com sucesso:</h6>
+                    <p>Nome: [[ dados_usuario_recem_criado.nome ]]</p>
+                    <p>Usuário: [[ dados_usuario_recem_criado.username ]]</p>
+                    <p ng-show="dados_usuario_recem_criado.enviar_email_ao_cadastrar_servidor">
+                        Uma mensagem de confirmação 
+                        foi enviada para [[ dados_usuario_recem_criado.email ]]
+                    </p>
+
+                </div>
+                <!-- Links para cadastrar outro servidor ou adicionar lotação -->
+                <a href="{{ form_action }}" class="btn">
+                     <i class="fas fa-user-plus"></i> Cadastrar outro
+                </a>
+                <a href="/servidor/[[ dados_usuario_recem_criado.id ]]/editar" class="btn">Adicionar Lotação</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_app %}
+    {% if form %}
+        {{ form.media }}
+    {% endif %}
+    <script type="text/javascript" src="{% static "luzfcb_dj_simplelock/js/jquery_csrftoken.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/app/controller_contrib.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/tours/tour_contrib.js" %}"></script>
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    console.log(hopscotch.getState());
+    if (hopscotch.getState() === "servidor_cadastrar:1") {
+        hopscotch.startTour(tours['servidor_cadastrar']);
+    }
+
+{% endblock %}

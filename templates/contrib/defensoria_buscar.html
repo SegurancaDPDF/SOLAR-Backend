@@ -1,0 +1,140 @@
+{% extends "contrib/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block titulo %}Buscar Defensorias{% endblock %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block menu_app %}
+    <!-- Barra de navegação superior -->
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <form id="BuscarDefensoriaForm" name="BuscarDefensoriaForm" class="navbar-form" action="{% url 'defensoria_buscar' %}" method="GET">
+                    {{ form.comarca }}
+                    {{ form.filtro }}
+                    <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title clearfix">
+        <h3>
+            <span class="pull-left">
+                Buscar Defensorias ({{ paginator.count }})
+            </span>
+        </h3>
+        {% if perms.contrib.change_defensoriatipoevento %}
+        <div class="pull-right">
+            <div class="btn-group">
+                <!-- Botão para associar defensorias a atividades extraordinárias -->
+                <button class="btn" form="AssociarDefensoriasForm" title="Associar às Atividades Extraordinárias" rel="tooltip">
+                    <i class="fas fa-table"></i> Associar às Ativ. Extraordinárias
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <!-- Formulário para associar defensorias a atividades extraordinárias -->
+    <form id="AssociarDefensoriasForm" name="AssociarDefensoriasForm" action="{% url 'defensoria_tipo_evento_associar' %}" method="GET">
+        <table class="table table-striped table-hover responsive display-data">
+            <thead>
+            <tr>
+                <th class="span1">
+                    <input type="checkbox" disabled>
+                </th>
+                <th>Código</th>
+                <th>Nome/Atuação</th>
+                <th>Localidade</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for registro in object_list %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="defensoria" value="{{ registro.id }}">
+                        </td>
+                        <td>
+                            {{ registro.codigo }}
+                        </td>
+                        <td>
+                            <b>{{ registro.nome }}</b>
+                            {% if request.user.is_superuser %}
+                            <a href="{% url 'admin:contrib_defensoria_change' registro.id %}" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>
+                                <i class="fas fa-link"></i>
+                            </a>
+                            {% endif %}
+                            <div class="muted">{{ registro.atuacao|default:"" }}</span>
+                            {% if registro.cadastrado_em %}
+                            <div>
+                                <small class="muted">Cadastrado por <b title="{{ registro.cadastrado_por.get_full_name }}" rel="tooltip">{{ registro.cadastrado_por.username }}</b> em <b>{{ registro.cadastrado_em|date:"d/m/Y H:i" }}</b></small>
+                            </div>
+                            {% endif %}
+                            {% if registro.modificado_em %}
+                            <div>
+                                <small class="muted">Modificado por <b title="{{ registro.modificado_por.get_full_name }}" rel="tooltip">{{ registro.modificado_por.username }}</b> em <b>{{ registro.modificado_em|date:"d/m/Y H:i" }}</b></small>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ registro.predio.nome }}
+                            <div class="muted">{{ registro.comarca }}/{{ registro.comarca.diretoria }}</div>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                {% if perms.contrib.change_defensoria %}
+                                    <a href="{% url 'defensoria_editar' registro.id %}" class="btn btn-small" title="Alterar" rel="tooltip">
+                                        <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                                    </a>
+                                {% endif %}
+                                {% if perms.contrib.delete_defensoria %}
+                                <a href="#" class="btn btn-small btn-danger" title="Excluir" rel="tooltip" disabled>
+                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10">Nenhum registro encontrado</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th class="span1">
+                    <input type="checkbox" disabled>
+                </th>
+                <th>Código</th>
+                <th>Nome/Atuação</th>
+                <th>Localidade</th>
+                <th>Ações</th>
+            </tr>
+            </tfoot>
+        </table>
+    </form>
+
+    {% include 'components/pagination.html' with page_obj=page_obj %}
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+    $('.datepicker').datepicker();
+{% endblock %}

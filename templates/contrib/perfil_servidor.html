@@ -1,0 +1,206 @@
+{% extends "contrib/default.html" %}
+{% load humanize contrib_tags %}
+
+{% block titulo %}Perfil do Servidor{% endblock %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block menu_app %}
+    <!-- Barra de navegação do aplicativo -->
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <form class="navbar-form" action="{% url "listar_servidor" %}" method="GET">
+                    <input type="text" name="nome" placeholder="Pesquisar por nome, matrícula ou comarca"
+                           value="{{ request.GET.nome }}"
+                           class="span6">
+                    <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom"
+                            data-original-title="Buscar servidor">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+{% endblock %}
+
+{% block conteudo_pag %}
+    <br/>
+    <div class="box corner-all">
+        <!-- Div que envolve as informações do servidor -->
+        <div class="box-header bg-black color-white corner-top">
+            <img class="img-polaroid" align="middle" data-src="holder.js/50x50" alt="50x50" style="width: 50px; height: 50px;" src="{{ servidor.get_foto }}"  title="{{ servidor.nome }}">
+            <h1 class="color-white text-right">{{ servidor.nome }}</h1>
+            <div class="clearfix"></div>
+        </div>
+        <div class="box-body corner-bottom">
+            <div class="row-fluid">
+                <div class="span6">
+                    <div class="box corner-all">
+                        <div class="box-header grd-white">
+                            <div class="header-control">
+                                <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                            </div>
+                            <span>Dados Gerais</span>
+                        </div>
+                        <div class="box-body">
+                            <div class="form-horizontal">
+                                <div class="control-group">
+                                    <label class="control-label text-info" for="username">Usuário:</label>
+
+                                    <div class="controls">
+                                        <h5 class="text-info">
+                                            {{ servidor.usuario.username }}
+                                            {% if request.user.is_superuser %}
+                                                <a href="/admin/auth/user/{{ servidor.usuario.id }}/" target="_blank" class="text-info">
+                                                    <i class="fas fa-link" title="Admin usuário"></i>
+                                                </a>
+                                            {% endif %}
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Nome:</label>
+                                    <div class="controls">
+                                        <h5>{{ servidor.nome }}</h5>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Matricula:</label>
+
+                                    <div class="controls">
+                                        <h5>{{ servidor.matricula|default:"Não Informado" }}</h5>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">CPF:</label>
+                                    <div class="controls">
+                                        <h5>{{ servidor.cpf|form_numero_cpf_cnpj|default:"Não Informado" }}</h5>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Email:</label>
+                                    <div class="controls">
+                                        <h5>{{ servidor.usuario.email|default:"Não informado" }}</h5>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Sexo:</label>
+                                    <div class="controls">
+                                        <h5> {{ servidor.get_sexo_display|default:"Não Informado" }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span6">
+                    <div class="box corner-all">
+                        <div class="box-header grd-white">
+                            <div class="header-control">
+                                <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                            </div>
+                            <span>Dados Funcionais</span>
+                        </div>
+                        <div class="box-body">
+                            <h5>
+                                <i class="fas fa-briefcase"></i> {{ servidor.papel }}
+                            </h5>
+
+                            <h5><i class="fas fa-map-marker-alt"></i> {{ servidor.comarca }}
+                                <small><i>(Diretoria de {{ servidor.coordenadoria }}</i>)</small>
+                            </h5>
+                        </div>
+                    </div>
+                    {% if servidor.defensor %}
+                    <div class="box corner-all">
+                        <div class="box-header grd-white">
+                            <div class="header-control">
+                                <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                            </div>
+                            <span>Lotações</span>
+                        </div>
+                        <div class="box-body">
+                            <ul class="unstyled">
+                                {% for lotacao in servidor.defensor.atuacoes_vigentes %}
+                                    <li>
+                                        <span class="label" title="{{ lotacao.get_tipo_display }}" rel="tooltip">{{ lotacao.get_tipo_display.0.upper }}</span> {{ lotacao.defensoria.nome }}
+                                        <span class="muted">{{ lotacao.data_inicial|date:'d/m/Y' }} {% if lotacao.data_final %} a {{ lotacao.data_final|date:'d/m/Y' }}{% endif %}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if servidor.defensor.eh_defensor %}
+                    <div class="box corner-all">
+                        <div class="box-header grd-white">
+                            <div class="header-control">
+                                <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                                <a data-box="close" data-hide="bounceOutRight">×</a>
+                            </div>
+                            <span>Servidores Vinculados</span>
+                        </div>
+                        <div class="box-body">
+                            <ul class="unstyled">
+                                {% for assessor in assessores %}
+                                    <li>
+                                        <i class="fas fa-user"></i>
+                                        <a href="{% url 'perfil_servidor' assessor.servidor.usuario_id %}" class="text-info">{{ assessor.nome.upper }} <small class="bold">({{ servidor.matricula }})</small></a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="box corner-all">
+                        <div class="box-header grd-white">
+                            <div class="header-control">
+                                <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                            </div>
+                            <span>Permissões</span>
+                        </div>
+                        <div class="box-body">
+                            <ul class="unstyled">
+                                {% for group in servidor.usuario.groups.all %}
+                                    <li><i class="fas fa-lock-open"></i> {{ group }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="box corner-all">
+                        <div class="box-header grd-white">
+                            <div class="header-control">
+                                <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                            </div>
+                            <span>Permissões - Relatórios</span>
+                        </div>
+                        <div class="box-body">
+                            <ul class="unstyled">
+                                {% for relatorio in servidor.papel.relatorios.all %}
+                                    <li><i class="fas fa-file-alt"></i> {{ relatorio }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="editar" class="btn btn-success">Editar Servidor</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+{% block js_ready_pag %}
+{% endblock %}

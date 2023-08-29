@@ -1,0 +1,249 @@
+{% extends "contrib/default.html" %}
+{% load humanize %}
+
+{% block titulo %}Editar Servidor{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <!-- Barra de navegação do aplicativo -->
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <!-- Inclui um tour de ajuda -->
+                {% include 'contrib/tour.html' %}
+                <form class="navbar-form" action="{% url "listar_servidor" %}" method="GET">
+                    <!-- Formulário de pesquisa de servidor -->
+                    <input type="text" name="nome" placeholder="Pesquisar por nome, matrícula ou comarca"
+                           value="{{ request.GET.nome }}"
+                           class="span6">
+                    <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom"
+                            data-original-title="Buscar servidor" id="btn-buscar-servidor">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+{% endblock %}
+
+{% block conteudo_pag %}
+    <br/>
+    <div class="box corner-all">
+        <div class="box-header bg-black color-white corner-top">
+            <!-- Cabeçalho com informações do servidor -->
+            <img class="img-polaroid" align="middle" data-src="holder.js/50x50" alt="50x50" style="width: 50px; height: 50px;" src="{{ servidor.get_foto }}"  title="{{ servidor.nome }}">
+            <h1 class="color-white text-right">{{ servidor.nome }}</h1>
+            <div class="clearfix"></div>
+        </div>
+        <div class="box-body corner-bottom">
+            <form action="{% url 'editar_servidor' servidor.usuario_id %}" method="post">
+                {% csrf_token %}
+                <div class="row-fluid">
+                    <div class="span6">
+                        <div class="box corner-all">
+                            <div class="box-header grd-white">
+                                <div class="header-control">
+                                    <a data-box="collapse"><i class="fas fa-caret-up"></i></a>
+                                </div>
+                                <span>Dados Gerais</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="form-horizontal">
+                                    <div class="control-group">
+                                        <label class="control-label">Usuário:</label>
+
+                                        <div class="controls">
+                                            <h5>
+                                                {{ servidor.usuario }}
+                                                {% if request.user.is_superuser %}
+                                                    <a href="/admin/auth/user/{{ servidor.usuario.id }}/" target="_blank" class="text-info">
+                                                        <i class="fas fa-link" title="Admin usuário"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </h5>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">Nome:</label>
+
+                                        <div class="controls">
+                                            <h5>{{ servidor.nome }}</h5>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">Matricula:</label>
+
+                                        <div class="controls">
+                                            {{ form.matricula }}
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">CPF:</label>
+
+                                        <div class="controls">
+                                            {{ form.cpf }}
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">Sexo:</label>
+
+                                        <div class="controls">
+                                            {{ form.sexo }}
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">Comarca:</label>
+
+                                        <div class="controls">
+                                            {{ form.comarca }}
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label" for="papel">Papel:</label>
+                                        <div class="controls">
+                                            {% if perms.contrib.change_papel %}
+                                                {{ form.papel }}
+                                            {% else %}
+                                                <input type="hidden" name="{{ form.papel.name }}" value="{{ form.papel.value }}">
+                                                <h5>{{ servidor.papel }}</h5>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Campo para exibir o status de atividade do servidor -->
+                                    <div class="control-group">
+                                        <label class="control-label">Ativo:</label>
+
+                                        <div class="controls">
+                                            {{ form.ativo }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="span6">
+                        <div class="box corner-all">
+                            <div class="box-header grd-white">
+                                <div class="header-control">
+                                    {% if servidor.defensor and not servidor.defensor.eh_defensor %}
+                                    <a id="btn-nova-lotacao" data-target="#modal-cadastrar-lotacao" data-placement="left" data-toggle="modal"
+                                       class="btn btn-small btn-primary" title="Nova lotação" rel="tooltip">
+                                        <i class="fas fa-plus-circle"></i> Nova
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <span>Lotações</span>
+                            </div>
+                            <div class="clearfix">&nbsp;</div>
+                            {% if servidor.defensor.eh_defensor %}
+                                <div class="alert alert-block">
+                                    <h4>Atenção!</h4>
+                                    <p>As lotações (atuações) de defensores devem ser gerenciadas no menu <a href="{% url "defensor_atuacao" %}?filtro={{ servidor.nome }}" class="btn-link bold">Admin > Defensores</a>.</p>
+                                </div>
+                            {% else %}
+                            <table id="tabela-lotacoes" class="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Defensoria</th>
+                                    <th>Período</th>
+                                    <th>Assina GED</th>
+                                    <th>Ações</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for lotacao in lotacoes %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <div><b>{{ lotacao.defensoria.nome }}</b></div>
+
+                                            {% if request.user.is_superuser %}
+                                            <a href="{% url 'admin:defensor_atuacao_change' lotacao.id %}" target="_blank" class="text-info">
+                                                <i class="fas fa-link"></i>
+                                            </a>
+                                            {% endif %}
+                                            <small class="muted">Cadastrado por <span title="{{ lotacao.cadastrado_por.nome }}" rel="tooltip">{{ lotacao.cadastrado_por.usuario.username }}</span> em {{ lotacao.data_cadastro }}</small>
+                                        </td>
+                                        <td>
+                                            {{ lotacao.data_inicial|date:'d/m/Y' }} {% if lotacao.data_final %} à {{ lotacao.data_final|date:'d/m/Y' }}{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if lotacao.pode_assinar_ged %}
+                                                <span class="label label-success">Sim</span>
+                                            {% else %}
+                                                <span class="label label-important">Não</span>
+                                            {% endif %}
+
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a href="{% url 'excluir_lotacao_servidor' servidor.usuario_id lotacao.id %}"
+                                                   class="btn btn-small btn-danger" title="Excluir" rel="tooltip" data-placement="left">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4">Nenhuma lotação registrada</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <button id="btn-salvar" type="submit" class="btn btn-success">
+                    Salvar
+                </button>
+                <a id="btn-voltar" class="btn" href="{{ url_voltar }}">
+                    Voltar
+                </a>
+            </form>
+        </div>
+    </div>
+
+    {% if not servidor.defensor.eh_defensor %}
+        {% include 'contrib/modal_lotacao_cadastrar.html' %}
+    {% endif %}
+
+    {% if lotacao %}
+        {% include 'contrib/modal_lotacao_excluir.html' %}
+    {% endif %}
+
+{% endblock %}
+
+{% block js_pag %}
+    <script>
+        $(".box-body #id_comarca").select2();
+        $(".box-body #id_supervisor").select2();
+        $("#id_lotacao-defensoria").select2();
+        $('.datepicker').datepicker();
+    </script>
+{% endblock %}
+
+{% block js_ready_pag %}
+    {% if lotacao %}
+        $('#modal-excluir-lotacao').modal('show');
+    {% endif %}
+    if(hopscotch.getState())
+    {
+        if (hopscotch.getState().indexOf('servidor_alterar')===0) {
+            hopscotch.startTour(tours['servidor_alterar'], 2);
+        } else if (hopscotch.getState().indexOf('servidor_nova_lotacao')===0) {
+            hopscotch.startTour(tours['servidor_nova_lotacao'], 2);
+        }
+    }
+{% endblock %}

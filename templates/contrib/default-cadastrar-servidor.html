@@ -1,0 +1,139 @@
+{% extends "default.html" %}
+{% load static humanize %}
+
+{% block titulo %}Cadastrar Servidor{% endblock %}
+
+{% block default_css %}
+    <link type="text/css" href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/DT_bootstrap.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/bootstrap-responsive.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/stilearn.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/stilearn-responsive.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/stilearn-helper.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/datepicker.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/redactor.min.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/jquery.pnotify.default.css" %}" rel="stylesheet">
+    <!--<link type="text/css" href="{% static "css/gantt.css" %}" rel="stylesheet">-->
+    <link type="text/css" href="{% static "css/sisat.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/font-awesome.5.15.1.all.min.css" %}" rel="stylesheet">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" href="{% static "autocomplete_light/vendor/select2/dist/css/select2.min.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "js/select2/3.5.2/select2-bootstrap.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/hopscotch.css" %}" rel="stylesheet">
+{% endblock default_css %}}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2><i class="helper-font-24 fas fa-user-plus"></i>Administração - Cadastrar novo servidor
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_app %}
+
+        {% block js_ready_pag %}
+        {% endblock %}
+
+    {% endblock %}
+
+</script>
+
+{% block default_js %}
+
+    <!-- ============== javascript ============== -->
+    <!--[if lt IE 8]>
+        <script src="{% static "js/json3.min.js" %}"></script>
+        <![endif]-->
+    <!--[if lt IE 9]>
+        <script src="{% static "js/html5shiv.js" %}"></script>
+        <![endif]-->
+    <script type="text/javascript" src="{% static "js/utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-ui.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-timeago/1.6.3/jquery.timeago.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-timeago/1.6.3/jquery.timeago.pt-br.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/envia-sms.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/uniform/jquery.uniform.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/validate/jquery.validate.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/validate/jquery.validate.methods.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/validate/jquery.metadata.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/globalize/globalize.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/globalize/globalize.culture.pt-BR.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/angular-ui/jquery.maskedinput.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular.1.2.14.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-locale_pt-br.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/ui-utils.0.1.1.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-sanitize.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-resource.1.2.14.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-strap.0.7.3.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-strap/bootstrap-datepicker.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/angular-strap/bootstrap-timepicker.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-resource.1.2.14.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-route.1.2.14.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/ui-bootstrap-tpls-0.11.2.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/holder.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/pnotify/jquery.pnotify.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/pnotify/jquery.pnotify.extra.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/stilearn-base.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/peity/jquery.peity.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-extend.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/jquery.maskMoney.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular.maskMoney.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/chronus.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript">
+        Chronus.base_url = "{{ CHRONUS_URL }}";
+    </script>
+
+    <script type="text/javascript" src="{% static "js/angular_keep_values/angular-keep-values.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/gerador-validador-cpf/CPF.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/app.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/app/controllers_global.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static 'django_js_reverse/js/reverse.js' %}"></script>
+
+    <script type="text/javascript" src="{% static "js/angular-ui/jquery.maskedinput.js" %}"></script>
+    <script type="text/javascript" src="{% static "autocomplete_light/vendor/select2/dist/js/select2.full.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/hopscotch.js" %}"></script>
+
+{% endblock default_js %}

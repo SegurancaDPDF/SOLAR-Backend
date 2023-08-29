@@ -1,0 +1,97 @@
+{% extends "contrib/default.html" %}
+
+{% load humanize contrib_tags static %}
+
+{% block titulo %}Editar Defensoria{% endblock %}
+
+{% block css_pag %}
+    <link rel="stylesheet" href="{% static "css/redactor.min.css" %}">
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<div class="page-title">
+    <h3>
+        {{ object.nome | upper }} <small>({{ object.codigo }})</small>
+        {% if request.user.is_superuser %}
+        <!-- Link para a página de administração (somente para superusuários) -->
+        <a href="{% url 'admin:contrib_defensoria_change' object.id %}" target="_blank" class="text-info" title="Acessar Admin" bs-tooltip>
+            <i class="fas fa-link"></i>
+        </a>
+        {% endif %}
+    </h3>
+</div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<form name="SalvarDefensoriaForm" id="SalvarDefensoriaForm" method="POST" action="{% url 'defensoria_editar' object.id %}?prev={{ prev }}" class="form-horizontal" ng-init="init('{{ telefone|default:'' }}')">
+    {% csrf_token %}
+    <div class="row-fluid">
+        <div class="span12">
+            <fieldset>
+                <legend>Informações Básicas</legend>
+                <!-- Renderização do formulário (presumivelmente contém campos para informações básicas) -->
+                {{ form.as_bs }}
+            </fieldset>
+            {% if perms.contrib.change_defensoriatipoevento %}
+            <fieldset>
+                <legend>Atividades Extraordinárias <small class="muted">Tipos de eventos disponíveis</small></legend>
+                {% if defensorias %}
+                    <h5>Defensorias que serão afetadas:</h5>
+                    <ul>
+                    {% for defensoria in defensorias %}
+                        <input type="hidden" name="defensoria" value="{{ defensoria.id }}">
+                        <li>{{ defensoria }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                <!-- Renderização de formulário relacionado a tipos de eventos -->
+                {{ form_tipos_eventos.as_bs }}
+            </fieldset>
+            {% endif %}
+        </div>
+    </div>
+
+</form>
+
+<div class="form-actions">
+    <div class="pull-right">
+        <a href="{{ prev }}" class="btn">Voltar</a>
+        <button class="btn btn-primary" type="submit" form="SalvarDefensoriaForm">Salvar</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('textarea').redactor({
+        buttons: [
+            'bold',
+            'italic',
+            'underline',
+            '|',
+            'alignleft',
+            'aligncenter',
+            'alignright',
+            'justify'
+        ],
+        lang: 'pt_br',
+        plugins: ['fullscreen'],
+        minHeight: 100
+    });
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript" src="{% static "js/app/utils.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_pt_br.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_fullscreen.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/app/controller_contrib.js" %}?v={{ config.JSVERSION }}"></script>
+{% endblock %}

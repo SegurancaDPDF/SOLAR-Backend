@@ -1,0 +1,26 @@
+<!-- Modal Cadastrar -->
+<div id="modal-cadastrar-lotacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Nova Lotação</h3>
+    </div>
+    <!-- CADASTRO -->
+    <div class="modal-body">
+        <form id="CadastrarLotacaoForm" name="CadastrarLotacaoForm" class="form-horizontal"
+              action="{% url 'defensor_lotacao_salvar' %}" method="POST">
+            {% csrf_token %}
+            {{ form_lotacao.as_bs }}
+        </form>
+        <div class="alert alert-block alert-danger"><b>Atenção! Cuidado ao marcar a opção "Pode Assinar GED"</b>. <p>O servidor terá acesso para assinar qualquer documento eletrônico (GED) da defensoria selecionada.</p></div>
+    </div>
+    <!-- FIM CADASTRO -->
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+        <button class="btn btn-primary" type="submit" form="CadastrarLotacaoForm" id="btn-salvar-lotacao">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+    </div>
+</div>

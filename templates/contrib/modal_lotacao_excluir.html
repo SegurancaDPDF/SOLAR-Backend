@@ -1,0 +1,43 @@
+<!-- Modal excluir lotacao -->
+<div id="modal-excluir-lotacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Excluir Lotação de Servidor</h3>
+    </div>
+    <div class="modal-body">
+        <form id="ExcluirLotacaoForm" name="ExcluirLotacaoForm" action="{% url 'defensor_atuacao_excluir' %}" method="POST">
+            {% csrf_token %}
+            {{ form_excluir_lotacao.as_bs }}
+            <input type="hidden" name="id" value="{{ lotacao.id }}">
+            <input type="hidden" name="next" value="{% url 'editar_servidor' servidor.usuario_id %}">
+        </form>
+        <strong class="text-error">Atenção! Essa exclusão é <b>irreversível</b>.</strong>
+        <dl class="dl-horizontal">
+            <dt>Servidor</dt>
+            <dd>{{ servidor.nome }}</dd>
+
+            <dt>Defensoria</dt>
+            <dd>{{ lotacao.defensoria.nome }}</dd>
+
+            <dt>Período</dt>
+            <dd>{{ lotacao.data_inicial|date:'d/m/Y' }} {% if lotacao.data_final %} a {{ lotacao.data_final|date:'d/m/Y' }}{% endif %}</dd>
+
+            <dt>Pode assinar GED?</dt>
+            <dd>
+                {% if lotacao.pode_assinar_ged %}
+                    <span class="label label-success">Sim</span>
+                {% else %}
+                    <span class="label label-important">Não</span>
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar</button>
+        <button type="submit" form="ExcluirLotacaoForm" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Excluir        
+        </button>
+    </div>
+</div>
+<!-- Modal excluir lotacao -->

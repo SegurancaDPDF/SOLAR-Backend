@@ -1,0 +1,64 @@
+{% extends "contrib/default.html" %}
+
+{% load humanize contrib_tags static %}
+
+{% block titulo %}Associar Defensorias às Atividades Extraordinárias{% endblock %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<div class="page-title">
+    <h3>Associar Defensorias às Atividades Extraordinárias <small>(em massa)</small></h3>
+</div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<form name="SalvarDefensoriaForm" id="SalvarDefensoriaForm" method="POST" class="form-horizontal">
+
+    {% if defensorias %}
+        <h5>Defensorias que serão afetadas:</h5>
+        <ul>
+        {% for defensoria in defensorias %}
+            <input type="hidden" name="defensoria" value="{{ defensoria.id }}">
+            <li>{{ defensoria }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box corner-all">
+                <div class="box-header corner-top grd-white">
+                    <span>
+                        Atividades Extraordinárias <small class="muted">Tipos de eventos disponíveis</small>
+                    </span>
+                </div>
+                <div class="box-body">
+                    
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<div class="form-actions">
+    <div class="pull-right">
+        <a href="{% url 'defensoria_buscar' %}" class="btn">Voltar</a>
+        <button class="btn btn-primary" name="next"
+                value="{{ request.GET.next }}"
+                type="submit" form="SalvarDefensoriaForm">Salvar</button>
+    </div>
+</div>
+
+{% endblock %}
