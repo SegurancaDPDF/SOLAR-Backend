@@ -1,0 +1,22 @@
+{% load contrib_tags %}
+{% load spurl %}
+{% load static %}
+<div id="modal-renomear-documento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Renomear Documento</h3>
+    </div>
+    <div class="modal-body">
+        <form name="RenomearDocumentoForm" id="RenomearDocumentoForm" method="POST" onsubmit="return preventMultipleSubmit(this);">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <label>Nome</label>
+            <input type="text" class="span12" name="nome" required>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" form="RenomearDocumentoForm" form class="btn btn-primary">Renomear</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>

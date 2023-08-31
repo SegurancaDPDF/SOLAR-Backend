@@ -1,0 +1,165 @@
+{% extends "core/default.html" %}
+
+{% load humanize contrib_tags static %}
+
+{% block css_pag %}
+<link href="{% static "css/fileicon.css" %}" rel="stylesheet">
+<link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<div class="page-title">
+    <h3>
+        Editar Evento nº {{ evento.numero | default:evento.id | stringformat:"03d" }}
+        <small class="muted">
+            <!-- Exibe informações relacionadas ao processo, se existir, ou ao tipo de evento -->
+            {% if processo %}
+                {{ processo.get_tipo_display }} nº {{ processo.numero }}
+            {% else %}
+                {{ evento.tipo.get_tipo_processo_display }}
+            {% endif %}
+        </small>
+    </h3>
+
+</div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<div class="row-fluid">
+    <div class="span4">
+        <div class="box corner-all">
+            <div class="box-header corner-top grd-white">
+                <span>
+                    Informações
+                </span>
+            </div>
+            <div class="box-body">
+                <form name="SalvarEventoForm" id="SalvarEventoForm" method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="span8">
+        <div class="box corner-all">
+            <div class="box-header corner-top grd-white">
+                <span>
+                    Documentos
+                </span>
+            </div>
+            <div class="box-body">
+                <button class="btn" data-target="#modal-anexar-arquivo" data-toggle="modal">
+                    <b class="text-success">
+                        <i class="fas fa-paperclip"></i> Novo Anexo
+                    </b>
+                    <br/>
+                    <small class="muted">Enviar arquivo do computador</small>
+                </button>
+                <!-- Link para criar um novo documento online -->
+                <a class="btn djpopup djfullscreen reloadparentonclose" href="{% url 'core:criar_documento' pk=evento.pk %}">
+                    <b class="text-info">
+                        <i class="fas fa-cloud"></i> Novo GED
+                    </b>
+                    <br/>
+                    <small class="muted">Criar documento online</small>
+                </a>
+
+                {% if formularios %}
+                    <div class="btn-group">
+                        <button id="btn-formularios" class="btn dropdown-toggle" data-toggle="dropdown">
+                            <b>
+                                <i class="fas fa-file-alt"></i> Novo Formulário
+                            </b>
+                            <br/>
+                            <small class="muted">Preencher formulário interativo</small>
+                        </button>
+                        <ul class="dropdown-menu pull-right">
+                            {% for formulario in formularios %}
+                                <li>
+                                    <a href="{% url 'atividade_extraordinaria:preencher-formulario' pk=evento.pk formulario_pk=formulario.pk %}">
+                                        {{ formulario.texto }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <hr/>
+                {% include 'core/novo_evento_documentos.html' %}
+                {% include 'core/modal_renomear_documento.html' %}
+                {% include 'core/modal_anexar_arquivo.html' %}
+            </div>
+        </div>
+    </div>
+    <hr/>
+</div>
+
+<div class="form-actions">
+    <div class="pull-right">
+        {% if processo and processo.indeferimento %}
+            <a href="{% url 'indeferimento:ver_solicitacao' setor_id=processo.setor_atual.id nucleo_id=evento.setor_criacao.nucleo_id processo_uuid=processo.uuid %}" class="btn">Voltar</a>
+        {% endif %}
+        {% if minimo_documentos and not evento.documentos.ativos.exists %}
+            <button class="btn btn-primary" title="Adicione pelo menos um documento antes de registrar o evento" disabled>Registrar</button>
+        {% elif evento.documentos.ativos.tipo_ged_nao_assinados.exists %}
+            <button class="btn btn-primary" title="Assine e finalize todos os documentos antes de registrar o evento" disabled>Registrar</button>
+        {% else %}
+            {% if processo.indeferimento %}
+                {% if evento.tipo.tipo == evento.tipo.TIPO_DECISAO %}
+                    <button class="btn btn-info" name="next" title="Registrar Recebimento" rel="tooltip"
+                            value="{% url 'indeferimento:avaliar_solicitacao' nucleo_id=evento.setor_criacao.nucleo_id processo_uuid=processo.uuid resultado=processo.indeferimento.RESULTADO_RECEBIDO %}"
+                            type="submit" form="SalvarEventoForm"
+                            formaction="{% url 'core:evento_encerrar' pk=evento.pk %}">Recebimento</button>
+                    <button class="btn btn-success" name="next" title="Registrar Deferimento" rel="tooltip"
+                            value="{% url 'indeferimento:avaliar_solicitacao' nucleo_id=evento.setor_criacao.nucleo_id processo_uuid=processo.uuid resultado=processo.indeferimento.RESULTADO_DEFERIDO %}"
+                            type="submit" form="SalvarEventoForm"
+                            formaction="{% url 'core:evento_encerrar' pk=evento.pk %}">Deferimento</button>
+                    <button class="btn btn-danger" name="next" title="Registrar Indeferimento" rel="tooltip"
+                            value="{% url 'indeferimento:avaliar_solicitacao' nucleo_id=evento.setor_criacao.nucleo_id processo_uuid=processo.uuid resultado=processo.indeferimento.RESULTADO_INDEFERIDO %}"
+                            type="submit" form="SalvarEventoForm"
+                            formaction="{% url 'core:evento_encerrar' pk=evento.pk %}">Indeferimento</button>
+                {% else %}
+                    <button class="btn btn-primary" name="next"
+                            value="{% url 'indeferimento:ver_solicitacao' setor_id=processo.setor_atual.id nucleo_id=evento.setor_criacao.nucleo_id processo_uuid=processo.uuid %}"
+                            type="submit" form="SalvarEventoForm"
+                            formaction="{% url 'core:evento_encerrar' pk=evento.pk %}">Registrar</button>
+                {% endif %}
+            {% else %}
+                {% if request.GET.next %}
+                    <a href="{{ request.GET.next }}" class="btn">Voltar</a>
+                {% endif %}
+                <button class="btn btn-primary" name="next"
+                        value="{{ request.GET.next }}"
+                        type="submit" form="SalvarEventoForm"
+                        formaction="{% url 'core:evento_editar' pk=evento.pk %}">Registrar</button>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js_pag %}
+<!-- Carrega o script para o componente de upload de arquivos -->
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+    <script src="{% static 'luzfcb_djdocuments/js/luzfcb_djdocuments.js' %}?v={{ config.JSVERSION }}"></script>
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+        $(document).on('click', 'a[data-toggle=modal], button[data-toggle=modal]', function () {
+            // Obtém a URL do elemento clicado e atribui ao formulário dentro do modal
+            var url = $(this).data('url');
+            var target = $(this).data('target');
+            $('form', $(target)).attr('action', url);
+        });
+    {% endblock %}
+</script>

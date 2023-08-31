@@ -1,0 +1,48 @@
+{% load contrib_tags %}
+{% load spurl %}
+{% load static %}
+<div id="modal-anexar-arquivo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-success" >
+            <i class="fas fa-paperclip"></i> Novo Anexo
+        </h3>
+        <span class="muted">Enviar arquivo do computador</span>
+    </div>
+    <div class="modal-body">
+        <form name="AnexarDocumentoForm" id="AnexarDocumentoForm" enctype="multipart/form-data"
+              action="{% url 'core:upload_documento' pk=evento.pk %}" method="POST" onsubmit="return preventMultipleSubmit(this);">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="">
+            <input type="hidden" name="next" value="{{ next|default:request.get_full_path }}">
+            <label>Nome</label>
+            <input type="text" class="span12" name="nome" required>
+            <label>Arquivo</label>
+            <div class="fileupload fileupload-new" data-provides="fileupload">
+                <div class="input-append">
+                    <div class="uneditable-input span3">
+                        <i class="fas fa-file-upload"></i>
+                        <span class="fileupload-preview">Enviar arquivo</span>
+                    </div>
+                    <span class="btn btn-file">
+                        <span class="fileupload-new">Procurar</span>
+                        <span class="fileupload-exists">Procurar</span>
+                        <input type="file" accept="{{ config.FORMATO_SUPORTADO_UPLOADS }}" name="arquivo" id="ArquivoAnexarDocumentoForm">
+                    </span>
+                </div>
+            </div>
+            <Label>Nível de sigilo</Label>
+            <div>
+                <select name="nivel_sigilo" id="nivel-sigilo-select">
+                    <option value="0" selected>Público</option>
+                    <option value="1">Segredo de Justiça</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" form="AnexarDocumentoForm" class="btn btn-primary">Anexar</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>

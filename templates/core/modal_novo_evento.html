@@ -1,0 +1,50 @@
+{% load contrib_tags %}
+<div id="modal-novo-evento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Novo Evento</h3>
+    </div>
+    <div class="modal-body">
+        <form name="NovoEventoForm" id="NovoEventoForm" action="{% url 'core:evento_criar' processo_uuid=processo.uuid %}" method="POST" class="form-horizontal" onsubmit="return preventMultipleSubmit(this);">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'indeferimento:ver_solicitacao' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}">
+            <input type="hidden" name="setor_criacao" value="{{ processo.setor_atual_id }}">
+            <div class="control-group">
+                <label class="control-label">Data/Hora</label>
+                <div class="controls">
+                    <input id="id_data_data_referencia" name="data_data_referencia"
+                           class="span4" maxlength="10" type="text" value="{{ agora|date:'d/m/Y' }}"
+                           data-date-format="dd/mm/yyyy" data-mask="99/99/9999" bs-datepicker required
+                           data-date-startdate="{{ diaMin|date:'d/m/Y' }}" data-date-enddate="{{ diaMax|date:'d/m/Y' }}">
+                    <input id="id_hora_data_referencia" name="hora_data_referencia"
+                           class="span3" maxlength="5" type="text" value="{{ agora|date:'H:i' }}" placeholder="hh:mm"
+                           pattern="([01][0-9]|2[0-3]):([0-5][0-9])"
+                           data-mask="99:99" required>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Tipo</label>
+                <div class="controls">
+                    {{ form_evento.tipo }}
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Histórico</label>
+                <div class="controls">
+                    {{ form_evento.historico }}
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Encaminhar?</label>
+                <div class="controls">
+                    {{ form_evento.setor_encaminhado }}
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button id="btn-modal-novo-evento-salvar" class="btn btn-success" type="submit" form="NovoEventoForm">Salvar</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>

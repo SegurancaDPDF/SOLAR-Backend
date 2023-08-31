@@ -1,0 +1,105 @@
+{% load contrib_tags %}
+{% include 'core/form_excluir_documento.html' %}
+
+<!-- Iteração sobre documentos ativos do evento -->
+<div class="row-fluid">
+{% for documento in evento.documentos.ativos %}
+    <div class="span2 text-center file-container {% if documento.documento and not documento.documento.esta_assinado %}file-container-error{% endif %}" title="{{ documento.nome|upper }}" rel="tooltip" data-placement="bottom">
+        <!-- Verificação de permissão para visualizar documento e checagem de sigilo -->
+        {% permissao_visualizar_documento_indeferimento_tag documento request.user.servidor as nao_tem_sigilo_ou_pode_visualizar %}
+        {% if documento.nivel_sigilo %}
+            <span title='{{documento.get_nivel_sigilo_display}}'><i class="fas fa-eye-slash"></i></span>
+        {% else %}
+            <span title='{{documento.get_nivel_sigilo_display}}'><i class="fas fa-eye"></i></span>
+        {% endif %}
+        {% if nao_tem_sigilo_ou_pode_visualizar %}
+            <div class="clearfix">
+                {% if not documento.documento or not documento.documento.esta_assinado %}
+                    <button class="pull-left file-edit" title="Renomear documento" rel="tooltip" data-target="#modal-renomear-documento" data-toggle="modal" data-id="{{ documento.id }}" data-url="{% url 'core:documento_renomear' documento.pk %}">
+                        <i class="fas fa-pencil-alt helper-font-16 text-info"></i>
+                    </button>
+                {% endif %}
+                <button type="submit" name="id" value="{{ documento.id }}" form="ExcluirDocumentoForm" class="pull-right file-delete" title="Excluir documento" rel="tooltip">
+                    <i class="fas fa-trash helper-font-16 text-error"></i>
+                </button>
+            </div>
+            <!-- Verifica se há um documento associado -->
+            {% if documento.documento %}
+                <a href="{% url 'documentos:validar-detail' slug=documento.documento.pk_uuid %}" class="djpopup djfullscreen reloadparentonclose">
+                    <div class="file-icon file-yellow" data-type="ged"></div>
+                    {% if documento.documento.esta_assinado %}
+                        <div>{{ documento.nome|truncatewords:5|upper }}</div>
+                    {% else %}
+                        <div class="text-error">
+                            <div>{{ documento.nome|truncatewords:5|upper }}</div>
+                            <div>
+                                <small class="bold">Não Assinado</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                </a>
+            {% elif documento.arquivo %}
+                <a href="{{ documento.arquivo.url }}" target="_blank">
+                    <div class="file-icon" data-type="{{ documento.arquivo.name|fileextension }}"></div>
+                    <div>{{ documento.nome|truncatewords:5|upper }}</div>
+                </a>
+            {% endif %}
+        {% else %}
+            <div class="clearfix" disabled>
+                {% if not documento.documento or not documento.documento.esta_assinado %}
+                    <button class="pull-left file-edit" title="Renomear documento" rel="tooltip" data-target="" data-toggle="modal" data-id="" data-url="" disabled>
+                        <i class="fas fa-pencil-alt helper-font-16 text-info"></i>
+                    </button>
+                {% endif %}
+                <button type="submit" name="id" value="" form="" class="pull-right file-delete" title="Excluir documento" rel="tooltip" disabled>
+                    <i class="fas fa-trash helper-font-16 text-error"></i>
+                </button>
+            </div>
+            {% if documento.documento %}
+                <a href="#" class="djpopup djfullscreen reloadparentonclose" disabled>
+                    <div class="file-icon file-yellow" data-type="ged"></div>
+                    {% if documento.documento.esta_assinado %}
+                        <div class="muted">{{ documento.nome|truncatewords:5|upper }}</div>
+                    {% else %}
+                        <div class="text-error">
+                            <div>{{ documento.nome|truncatewords:5|upper }}</div>
+                            <div>
+                                <small class="bold">Não Assinado</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                </a>
+            {% elif documento.arquivo %}
+                <a href="#" target="_blank" disabled>
+                    <div class="file-icon" data-type="{{ documento.arquivo.name|fileextension }}"></div>
+                    <div class="muted">{{ documento.nome|truncatewords:5|upper }}</div>
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% if forloop.counter|divisibleby:6 %}
+</div>
+<div class="row-fluid">
+    {% endif %}
+{% empty %}
+{% if not adicionar and not formularios_preenchidos %}
+    <div class="alert alert-block">
+        {% if minimo_documentos %}
+            <i class="fas fa-exclamation-circle"></i>
+            <b>Atenção!</b> Adicione pelo menos {{ minimo_documentos }} documento(s) antes de registrar o evento
+        {% else %}
+            Nenhum documento adicionado
+        {% endif %}
+    </div>
+{% endif %}
+{% endfor %}
+{% for formulario in formularios_preenchidos %}
+    <div class="span2 text-center file-container" title="{{ formulario.texto|upper }}" rel="tooltip" data-placement="bottom">
+        <!-- Link para preencher um formulário específico -->
+        <a href="{% url 'atividade_extraordinaria:preencher-formulario' pk=evento.pk formulario_pk=formulario.pk %}">
+            <div class="file-icon file-yellow" data-type="rel"></div>
+            <div>{{ formulario.texto|truncatewords:5|upper }}</div>
+        </a>
+    </div>
+{% endfor %}
+</div>

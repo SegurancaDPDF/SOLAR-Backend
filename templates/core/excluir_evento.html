@@ -1,0 +1,45 @@
+{% extends "core/default.html" %}
+
+{% load humanize contrib_tags static %}
+
+{% block css_pag %}
+<link href="{% static "css/fileicon.css" %}" rel="stylesheet">
+<link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+<style>
+    /* Main marketing message and sign up button */
+    .jumbotron {
+        margin: 60px 0;
+        text-align: center;
+      }
+      .jumbotron h1 {
+        /* font-size: 72px; */
+        /* line-height: 1; */
+      }
+      .jumbotron .btn {
+        /* font-size: 21px; */
+        /* padding: 14px 24px; */
+      }
+</style>
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<div class="jumbotron">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <h1>Deseja realmente excluir: "{{ object }}"?</h1>
+        <p class="lead">Cuidado, pois esta ação é irreversível!</p>
+        <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-large btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-large btn-danger">
+            <i class="fas fa-trash"></i> Excluir
+        </button>
+    </form>
+</div>
+
+<hr>
+
+{% endblock %}

@@ -1,0 +1,4 @@
+<form name="ExcluirDocumentoForm" id="ExcluirDocumentoForm" class="form-horizontal" action="{% url 'core:excluir_documento' pk=evento.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+</form>
