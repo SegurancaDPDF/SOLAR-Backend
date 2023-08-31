@@ -1,0 +1,43 @@
+<!-- Modal Inscrição Edital Plantão -->
+<div id="modal-inscricao-edital-plantao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <h3 id="myModalLabel">Inscrição para edital de plantão</h3>
+    </div>
+    <div class="modal-body">
+        <form name="InscricaoEditalPlantao" method="" class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label">Vagas disponíveis:</label>
+                <div class="controls">
+                    <select class="span8" ng-model="data" ng-options="i as i.data for i in vagas">
+                        <option value="" selected="selected">Selecione uma vaga...</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row-fluid" ng-if="errors.length">
+        <div class="alert alert-error">
+            <p ng-repeat="e in errors">
+                [[ e.message ]]
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button id="botao_inscrever" class="btn btn-success" id="btn-modal-inscrever-edital" ng-show="mostra_botao_inscrever() && !salvando" ng-click="inscrever(data)" ng-hide="salvando"
+                ng-disabled="!InscricaoEditalPlantao.$valid">
+            <i class="fas fa-save"></i> Inscrever
+        </button>
+        <button id="botao_cencelar" class="btn btn-success" id="btn-modal-inscrever-edital" ng-show="!mostra_botao_inscrever() && !salvando" ng-click="cancelar(data)" ng-hide="cancelando"
+                ng-disabled="!InscricaoEditalPlantao.$valid">
+            <i class="fas fa-save"></i> Cancelar
+        </button>
+        <button class="btn btn-success" ng-show="salvando" disabled>
+            <i class="fas fa-save"></i> Aguarde....
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Fechar
+        </button>
+    </div>
+</div>
+<!-- Modal Inscrição Edital Plantão  -->

@@ -1,0 +1,279 @@
+{% extends "defensor/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Atuações{% endblock %}
+
+{% block menu_app %}
+<div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <form class="navbar-form" ng-init="filtro='{{ request.GET.filtro }}'">
+                    <input class="span5" name="filtro" ng-model="filtro" placeholder="Digite o nome do defensor, defensoria ou núcleo..." type="text">
+                    <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom" data-original-title="Buscar atendimento" disabled>
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+{% endblock %}
+
+{% block conteudo_pag %}
+    <h3>Atuações de Defensores ([[ defensores.length ]])</h3>
+    <div class="row-fluid">
+        <div class="span12" ng-init="init()">
+            <div class="pull-right" ng-show="tab>1">
+                <div class="btn-group" ng-init="ativos=true">
+                    <button class="btn btn-small" ng-class="{'btn-success':ativos}" ng-disabled="!ativos"
+                            ng-click="recarregar(!ativos)">Ativas
+                    </button>
+                    <button class="btn btn-small" ng-class="{'btn-danger':!ativos}" ng-disabled="ativos"
+                            ng-click="recarregar(!ativos)">Inativas
+                    </button>
+                </div>
+            </div>
+            <ul class="nav nav-tabs" id="myTab" ng-init="tab=0">
+                <li class="active">
+                    <a data-toggle="tab" href="#defensores" ng-click="tab=0">
+                        <i class="fas fa-user-tie"></i> Defensores
+                    </a>
+                </li>
+                <li class="">
+                    <a data-toggle="tab" href="#defensorias" ng-click="tab=1; listar_atuacoes_por_defensoria()">
+                        <i class="fas fa-map-marker-alt"></i> Defensorias
+                    </a>
+                </li>     
+                <li class="">
+                    <a data-toggle="tab" href="#titularidades" ng-click="tab=2; carregar_atuacoes(2);">
+                        <i class="fas fa-list"></i> Titularidades
+                    </a>
+                </li>
+                <li class="">
+                    <a data-toggle="tab" href="#titularidades" ng-click="tab=3; carregar_atuacoes(0);">
+                        <i class="fas fa-list"></i> Substituições
+                    </a>
+                </li>
+                <li class="">
+                    <a data-toggle="tab" href="#titularidades" ng-click="tab=4; carregar_atuacoes(1);">
+                        <i class="fas fa-list"></i> Acumulações
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <!-- DEFENSORES -->
+                <div class="tab-pane fade active in" id="defensores">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Atuações Vigentes</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="defensor in filtro_defensores = (defensores | filter:filtro)">
+                            <td>[[ $index + 1 ]]</td>
+                            <td>
+                                <a href="[[ gerar_link('editar_servidor', {servidor_id:defensor.usuario}) ]]">
+                                    <strong>[[ defensor.nome ]]</strong>
+                                </a>
+                            </td>
+                            <td>
+                                <div ng-repeat="atuacao in defensor.atuacoes">
+                                    <span class="label label-warning" ng-show="atuacao.tipo==0" title="Substituição"
+                                          bs-tooltip>S</span>
+                                    <span class="label label-info" ng-show="atuacao.tipo==1" title="Acumulação"
+                                          bs-tooltip>A</span>
+                                    <span class="label label-success" ng-show="atuacao.tipo==2" title="Titularidade"
+                                          bs-tooltip>T</span>
+                                    <a href="#" ng-class="{'muted':!atuacao.documento}" bs-tooltip="atuacao.documento && atuacao.documento.tipo_str + ' ' + atuacao.documento.numero">
+                                        <i class="far fa-file"></i>
+                                    </a>
+                                    [[ atuacao.defensoria.nome ]]
+                                    <small class="muted"><strong>[[ atuacao.data_inicial | utc | date:'dd/MM/yy' ]]<span
+                                            ng-show="atuacao.data_final"> a [[ atuacao.data_final | utc | date:'dd/MM/yy' ]]</span></strong>
+                                    </small>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <button class="btn btn-small btn-primary" bs-tooltip="'Detalhes'"
+                                            ng-click="show_detalhes(defensor)"><i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-small" bs-tooltip="'Adicionar substituto'"
+                                            ng-click="show_atuacao(defensor,0)"><i class="fas fa-random"></i></button>
+                                    <button class="btn btn-small" bs-tooltip="'Adicionar acumulação'"
+                                            ng-click="show_atuacao(defensor,1)"><i class="fas fa-retweet"></i></button>
+                                    <button class="btn btn-small" bs-tooltip="'Adicionar <br> titularidade'"
+                                            ng-click="show_atuacao(defensor,2)"><i class="fas fa-home"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-hide="filtro_defensores.length">
+                            <td colspan="4" ng-show="carregando"><img src="{% static "img/loader_16.gif" %}">
+                                Carregando...
+                            </td>
+                            <td colspan="4" ng-hide="carregando">Nenhum Defensor Encontrado</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Atuações Vigentes</th>
+                            <th>Ações</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- FIM DEFENSORES -->
+                <!-- DEFENSORIAS -->
+                <div class="tab-pane fade" id="defensorias">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th class="span1">#</th>
+                            <th class="span3">Nome</th>
+                            <th class="span3">Área de Atuação</th>
+                            <th class="span5">Equipe Responsável</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="defensoria in filtro_defensorias = (atuacoes_por_defensoria | filter:filtro)">
+                            <td>[[ $index + 1 ]]</td>
+                            <td><strong>[[ defensoria.nome ]]</strong></td>
+                            <td>[[ defensoria.atuacao ]]</td>
+                            <td>
+                                <div ng-repeat="atuacao in defensoria.atuacoes">
+                                    <span class="label label-warning" ng-show="atuacao.tipo==0" title="Substituição"
+                                          bs-tooltip>S</span>
+                                    <span class="label label-info" ng-show="atuacao.tipo==1" title="Acumulação"
+                                          bs-tooltip>A</span>
+                                    <span class="label label-success" ng-show="atuacao.tipo==2" title="Titularidade"
+                                          bs-tooltip>T</span>
+                                    <a href="#" ng-class="{'muted':!atuacao.documento.nome}" bs-tooltip="atuacao.documento.nome">
+                                        <i class="far fa-file"></i>
+                                    </a>
+                                    [[ atuacao.defensor ]]
+                                    <small class="muted"><strong>[[ atuacao.data_inicial | utc | date:'dd/MM/yy' ]]<span
+                                            ng-show="atuacao.data_final"> a [[ atuacao.data_final | utc | date:'dd/MM/yy' ]]</span></strong>
+                                    </small>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-hide="filtro_defensorias.length">
+                            <td colspan="4" ng-show="carregando"><img src="{% static "img/loader_16.gif" %}">
+                                Carregando...
+                            </td>
+                            <td colspan="4" ng-hide="carregando">Nenhuma Defensoria Encontrada</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Área de Atuação</th>
+                            <th>Defensores Responsáveis</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- FIM DEFENSORIAS -->
+                <!-- ATUAÇÕES POR TIPO -->
+                <div class="tab-pane fade" id="titularidades">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Defensor</th>
+                            <th>Defensoria</th>
+                            <th>Documento</th>
+                            <th>Período</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="(k, atuacao) in filtro_atuacoes = (atuacoes_lst[tipo] | filter:filtro)">
+                            <td>[[ k + 1 ]]</td>
+                            <td>
+                                <div class="bold">[[ atuacao.defensor.nome ]]</div>
+                                {% if request.user.is_superuser %}
+                                    <a href="/admin/defensor/atuacao/[[ atuacao.id ]]/" target="_blank" class="text-info">
+                                        <i class="fas fa-link"></i>
+                                    </a>
+                                {% endif %}
+                                <small class="muted">Cadastrado por <b bs-tooltip="atuacao.cadastrado_por.nome">[[ atuacao.cadastrado_por.username ]]</b> em <b>[[ atuacao.data_cadastro | date:"dd/MM/yyyy HH:mm" ]]</b></small>
+                            </td>
+                            <td>
+                                [[ atuacao.defensoria.nome ]]
+                                <div class="muted">[[ atuacao.titular.nome ]]</div>
+                            </td>
+                            <td>
+                                [[ documentos[atuacao.documento.tipo].nome ]] [[ atuacao.documento.numero ]]
+                                <span ng-if="atuacao.documento.data">de [[ atuacao.documento.data | date:'dd/MM/yy' ]]</span>
+                            </td>
+                            <td>[[ atuacao.data_inicial | date:'dd/MM/yy' ]]<span ng-show="atuacao.data_final"> a [[ atuacao.data_final | date:'dd/MM/yy' ]]</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <button class="btn btn-small" title="Alterar Documento" bs-tooltip
+                                            ng-disabled="!ativos" ng-click="show_alterar(atuacao)">
+                                            <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                    <button class="btn btn-small btn-danger" title="Excluir" bs-tooltip
+                                            ng-disabled="!ativos" ng-click="show_excluir(atuacao)">
+                                            <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-hide="filtro_atuacoes.length">
+                            <td colspan="6" ng-show="carregando"><img src="{% static "img/loader_16.gif" %}">
+                                Carregando...
+                            </td>
+                            <td colspan="6" ng-hide="carregando">Nenhuma Atuação Encontrada</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>#</th>
+                            <th>Defensor</th>
+                            <th>Defensoria</th>
+                            <th>Documento</th>
+                            <th>Período</th>
+                            <th>Ações</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- FIM ATUAÇÕES POR TIPO -->
+            </div>
+        </div>
+    </div>
+
+    {% include 'defensor/modal_atuacao_detalhes.html' %}
+    {% include 'defensor/modal_atuacao_cadastrar.html' %}
+    {% include 'defensor/modal_atuacao_alterar.html' %}
+    {% include 'defensor/modal_atuacao_excluir.html' %}
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

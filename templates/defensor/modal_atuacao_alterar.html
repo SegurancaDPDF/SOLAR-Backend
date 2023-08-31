@@ -1,0 +1,101 @@
+<!-- Modal Cadastrar -->
+<div id="modal-alterar" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Alterar Documento</h3>
+    </div>
+    <!-- CARREGANDO -->
+    <div class="modal-body" ng-show="salvando">
+        <div class="span6 offset3">
+            <h4 class="text-center">Salvando...</h4>
+            <div class="bar-st bar-stripe">
+                <span class="active" style="width: 100%;"></span>
+            </div>
+        </div>
+    </div>
+    <!-- FIM CARREGANDO -->
+    <!-- CADASTRO -->
+    <div class="modal-body" ng-show="!salvando && !defensor.atuacao.agendamentos.length">
+        <form name="AlterarAtuacaoForm" class="form-horizontal" action="">
+            {% csrf_token %}
+            <div class="control-group">
+                <label class="control-label">Defensor(a)</label>
+                <div class="controls">
+                    <input type="text" class="span12" ng-model="atuacao.defensor.nome" disabled>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Defensoria</label>
+                <div class="controls">
+                    <input type="text" class="span12" ng-model="atuacao.defensoria.nome" disabled>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Início</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="span8" data-date-format="dd/mm/yyyy" data-mask="99/99/9999" bs-datepicker ng-model="atuacao.data_ini" disabled>
+                        <button type="button" class="btn" data-toggle="datepicker" disabled>
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group" ng-hide="(atuacao.tipo==2)">
+                <label class="control-label">Término</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="span8" data-date-format="dd/mm/yyyy" data-mask="99/99/9999" bs-datepicker ng-model="atuacao.data_fim" disabled>
+                        <button type="button" class="btn" data-toggle="datepicker" disabled>
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Documento</label>
+                <div class="controls">
+                    <select id="documento_tipo" name="documento_tipo" class="span6" ng-model="atuacao.documento.tipo" ng-options="obj.id as obj.nome for obj in documentos">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Número</label>
+                <div class="controls">
+                    <input type="text" class="span6" placeholder="Ex: 1234/2015" ng-model="atuacao.documento.numero">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Data</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="span8" data-date-format="dd/mm/yyyy" data-mask="99/99/9999" bs-datepicker ng-model="atuacao.documento.data">
+                        <button type="button" class="btn" data-toggle="datepicker">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="alert alert-error" ng-show="errors">
+            <b>Erro(s) ao salvar!</b>
+            <ul>
+                <li ng-repeat="e in errors">[[ e ]]</li>
+            </ul>
+        </div>
+    </div>
+    <!-- FIM CADASTRO -->
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+        <button class="btn btn-primary" ng-click="salvar_documento()" ng-show="!salvando" ng-disabled="!AlterarAtuacaoForm.$valid">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <button class="btn btn-primary" ng-show="salvando" disabled>
+            <i class="fas fa-save"></i> Salvando...
+        </button>
+    </div>
+</div>

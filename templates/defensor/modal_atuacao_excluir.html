@@ -1,0 +1,41 @@
+<!-- Modal Excluir -->
+<div id="modal-excluir" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-error">
+            <i class="fas fa-trash"></i> Excluir Atuação
+        </h3>
+    </div>
+    <div class="modal-body">
+        <p class="text-error" ng-hide="atuacao.substituicoes.length"><b>Tem certeza que deseja excluir essa
+            atuação?</b></p>
+
+        <div class="text-error" ng-show="atuacao.substituicoes.length">
+            <p><b>As seguintes substituições devem ser removidas primeiro:</b></p>
+            <ul>
+                <li ng-repeat="substituicao in atuacao.substituicoes">[[ substituicao.data_ini | date:'dd/MM/yy' ]]
+                    a [[ substituicao.data_fim | date:'dd/MM/yy' ]] - [[ substituicao.nome ]]
+                </li>
+            </ul>
+        </div>
+        <div ng-show="atuacao.agendas.length && !atuacao.substituicoes.length">
+            <!-- Lista de agendas a serem excluídas caso não haja substituições -->
+            <p><b>As seguintes agendas também serão excluídas:</b></p>
+            <ul>
+                <li ng-repeat="agenda in atuacao.agendas">[[ agenda.data_ini | date:'dd/MM/yy' ]] a [[
+                    agenda.data_fim | date:'dd/MM/yy' ]] - [[ agenda.titulo ]]
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+        <!-- Botão para confirmar a exclusão, visível apenas se não houver substituições -->
+        <a href="#" class="btn btn-danger" ng-click="excluir()" ng-hide="atuacao.substituicoes.length">
+            <i class="fas fa-trash"></i> Excluir
+        </a>
+    </div>
+</div>

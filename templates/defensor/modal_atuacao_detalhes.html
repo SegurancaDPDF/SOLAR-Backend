@@ -1,0 +1,69 @@
+<!-- Modal Detalhes -->
+<div id="modal-detalhes" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Detalhes da Atuação</h3>
+    </div>
+    <div class="modal-body">
+        <h4>[[ defensor.nome ]]</h4>
+        <ul class="nav nav-tabs" ng-init="filtro_detalhes={atuacao:2}">
+            <li class="active"><a href="#titular" data-toggle="tab" ng-click="filtro_detalhes={atuacao:2}"><span class="label label-success">T</span> Titular</a></li>
+            <li><a href="#titular" data-toggle="tab" ng-click="filtro_detalhes={atuacao:1}"><span class="label label-info">A</span> Acumulando</a></li>
+            <li><a href="#titular" data-toggle="tab" ng-click="filtro_detalhes={atuacao:0}"><span class="label label-warning">S</span> Substituindo</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="titular">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Defensoria</th>
+                        <th class="span2">Período</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Loop para exibir informações de atuação do defensor -->
+                    <tr ng-repeat="i in defensor.atuacoes | filter: filtro_detalhes">
+                        <td>
+                            {% if request.user.is_superuser %}
+                                <a href="/admin/defensor/atuacao/[[ i.id ]]/" target="_blank" class="text-info">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                            <b>[[ i.defensoria.nome ]]</b>
+                            <div ng-if="i.atuacao==0">
+                                <span class="label label-success">T</span> [[ i.titular ]]
+                            </div> 
+                            <div class="muted" ng-if="i.documento">
+                                <i class="far fa-file"></i>
+                                [[ i.documento.tipo ]] [[ i.documento.numero ]]
+                                <span ng-if="i.documento.data">de [[ i.documento.data | utc | date:'dd/MM/yy' ]]</span>
+                            </div>
+                            <div class="muted" ng-if="i.observacao">                                
+                                [[ i.observacao ]]  
+                            </div>
+                            <div class="muted" ng-if="i.designacao_extraordinaria">                                
+                                É uma designação extraordinária  
+                            </div>
+                            <div><small class="muted">Cadastrado por <b bs-tooltip="i.cadastrado_por.nome">[[ i.cadastrado_por.username ]]</b> em <b>[[ i.data_cad | utc | date:"dd/MM/yyyy HH:mm" ]]</b></small></div>
+                        </td>
+                        <td>
+                            [[ i.data_ini | utc | date:'dd/MM/yy' ]]
+                            <span ng-if="i.data_fim">a [[ i.data_fim | utc | date:'dd/MM/yy' ]]</span>
+                        </td>
+                    </tr>
+                    <tr ng-hide="(defensor.atuacoes | filter: filtro_detalhes).length">
+                        <!-- Mensagem em caso de nenhum registro encontrado -->
+                        <td colspan="2">Nenhum registro encontrado</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-times"></i> Fechar
+        </button>
+    </div>
+</div>

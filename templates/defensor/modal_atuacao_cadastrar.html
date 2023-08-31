@@ -1,0 +1,190 @@
+<!-- Modal Cadastrar -->
+<div id="modal-atuacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">[[ atuacao.nome ]]</h3>
+    </div>
+    <!-- CARREGANDO -->
+    <div class="modal-body" ng-show="salvando">
+        <div class="span6 offset3">
+            <h4 class="text-center">Salvando...</h4>
+            <div class="bar-st bar-stripe">
+                <span class="active" style="width: 100%;"></span>
+            </div>
+        </div>
+    </div>
+    <!-- FIM CARREGANDO -->
+    <!-- CADASTRO -->
+    <div class="modal-body" ng-show="!salvando && !defensor.atuacao.agendamentos.length">
+        <form name="CadastrarAtuacaoForm" class="form-horizontal" action="">
+            {% csrf_token %}
+            <div class="control-group">
+                <label class="control-label">Defensor *</label>
+
+                <div class="controls">
+                    <input id="nome" name="nome" type="text" class="span12" placeholder="" ng-model="defensor.nome"
+                            readonly>
+                </div>
+            </div>
+            <div class="control-group" ng-show="(atuacao.id!=0)">
+                <label class="control-label">Comarca *</label>
+                {% if request.user.is_superuser or perms.contrib.view_all_comarcas %}
+                    <div class="controls">
+                        <select id="comarca" name="comarca" class="span12" ng-model="comarca"
+                                ng-options="obj.id as obj.nome for obj in comarcas" ng-required="(atuacao.id!=0)">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                {% else %}
+                    <div class="controls">
+                        <select id="comarca" name="comarca" class="span12" ng-model="comarca"
+                                ng-options="obj.id as obj.nome for obj in comarcas|comarcas_da_diretoria:{{ user.servidor.comarca.diretoria.id }}" ng-required="(atuacao.id!=0)">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="control-group">
+                <label class="control-label">Defensoria *</label>
+                <div class="controls">
+                    <select id="defensoria" name="defensoria" class="span12" ng-model="defensor.atuacao.defensoria"
+                            ng-show="(atuacao.id!=0)"
+                            ng-options="obj.id as obj.nome for obj in defensorias | filter:{comarca:comarca}:true"
+                            ng-required="(atuacao.id!=0)"
+                            ng-disabled="comarca==null">
+                        <option value="">Selecione...</option>
+                    </select>
+                    <select id="defensoria" name="defensoria" class="span12" ng-model="defensor.atuacao.defensoria"
+                            ng-show="(atuacao.id==0)"
+                            ng-options="obj.defensoria.id as obj.defensoria.nome for obj in defensor.atuacoes | filter:{atuacao:'!0'}"
+                            ng-required="(atuacao.id==0)">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group" ng-show="(atuacao.id==0)">
+                <label class="control-label">Substituto *</label>
+
+                <div class="controls">
+                    <select id="substituto" name="substituto" class="span12" ng-model="defensor.atuacao.defensor"
+                            ng-options="obj.id as obj.nome for obj in defensores | exclude:defensor"
+                            ng-required="(atuacao.id==0)"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Início *</label>
+
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="span8" data-date-format="dd/mm/yyyy" data-mask="99/99/9999"
+                                bs-datepicker ng-model="defensor.atuacao.data_inicial" required>
+                        <button type="button" class="btn" data-toggle="datepicker"><i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group" ng-hide="(atuacao.id==2)">
+                <label class="control-label">Término *</label>
+
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="span8" data-date-format="dd/mm/yyyy" data-mask="99/99/9999"
+                                bs-datepicker ng-model="defensor.atuacao.data_final" ng-required="(atuacao.id!=2)">
+                        <button type="button" class="btn" data-toggle="datepicker"><i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Documento</label>
+
+                <div class="controls">
+                    <select id="documento_tipo" name="documento_tipo" class="span6"
+                            ng-model="defensor.atuacao.documento.tipo"
+                            ng-options="obj.id as obj.nome for obj in documentos">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group" ng-hide="defensor.atuacao.documento.tipo==null">
+                <label class="control-label">Número</label>
+
+                <div class="controls">
+                    <input type="text" class="span6" placeholder="Ex: 1234/2015"
+                            ng-model="defensor.atuacao.documento.numero">
+                </div>
+            </div>
+            <div class="control-group" ng-hide="defensor.atuacao.documento.tipo==null">
+                <label class="control-label">Data</label>
+
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="span8" data-date-format="dd/mm/yyyy" data-mask="99/99/9999"
+                                bs-datepicker ng-model="defensor.atuacao.documento.data">
+                        <button type="button" class="btn" data-toggle="datepicker"><i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Observação</label>
+                <div class="controls">
+                    <textarea class="span12" name="observacao" rows="2" ng-model="defensor.atuacao.observacao" placeholder="(Opcional)"></textarea>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="defensor.atuacao.designacao_extraordinaria"> É uma designação extraordinária?
+                    </label>
+                </div>
+            </div>
+        </form>
+        <div class="alert alert-error" ng-show="errors">
+            <b>Erro(s) ao salvar!</b>
+            <ul>
+                <li ng-repeat="e in errors">[[ e ]]</li>
+            </ul>
+        </div>
+    </div>
+    <!-- FIM CADASTRO -->
+    <!-- REMANEJAMENTO DE AGENDAMENTOS -->
+    <div class="modal-body" ng-show="!salvando && defensor.atuacao.agendamentos.length">
+        <div class="alert alert-success">
+            <b>[[ atuacao.nome ]] salva com sucesso!</b>
+        </div>
+        <p>Defensoria: <b>[[ (defensorias|filter:{id:defensor.atuacao.defensoria}:true)[0].nome ]]</b></p>
+        <p>Defensor(a): <b>[[ defensor.nome ]]</b></p>
+        <p>Período: <b>[[ defensor.atuacao.data_inicial|utc|date:'dd/MM/yyyy' ]] a [[ defensor.atuacao.data_final|utc|date:'dd/MM/yyyy' ]]</b></p>
+        <div class="well">
+            <p>
+                <b>Identificamos agendamentos para os defensores abaixo nesta defensoria. Deseja remanejá-los para o novo defensor? Selecione quais deseja remanejar:</b>
+            </p>
+            <div ng-repeat="item in defensor.atuacao.agendamentos">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="item.sel" ng-value="item.defensor_id">
+                    [[ item.defensor_nome ]] <small class="text-error">([[ item.total ]] agendamento(s))</small>
+                </label>
+            </div>
+        </div>
+        <p>
+            <b class="text-error">Atenção! O remanejamento de agendamentos é irreversível!</b>
+        </p>
+    </div>
+    <!-- FIM REMANEJAMENTO DE AGENDAMENTOS -->
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+        <button class="btn btn-primary" ng-click="salvar()" ng-show="!salvando && !defensor.atuacao.agendamentos.length" ng-disabled="!CadastrarAtuacaoForm.$valid">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <button class="btn btn-primary" ng-click="remanejar_agendamentos()" ng-show="!salvando && defensor.atuacao.agendamentos.length" ng-disabled="!(defensor.atuacao.agendamentos|filter:{sel:true}).length">
+            <i class="fas fa-retweet"></i> Remanejar
+        </button>
+        <button class="btn btn-primary" ng-show="salvando" disabled>
+            <i class="fas fa-save"></i> Salvando...
+        </button>
+    </div>
+</div>
