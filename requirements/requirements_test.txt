@@ -1,0 +1,4 @@
+-r production.txt
+tox
+flake8
+-e git+https://github.com/timothycrosley/isort.git#egg=isort

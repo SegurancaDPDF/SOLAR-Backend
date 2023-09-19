@@ -1,0 +1,39 @@
+# pacotes basicos
+python-dev-is-python3
+gettext
+build-essential
+libssl-dev
+
+# postgresql
+libpq-dev
+
+# Pillow
+zlib1g-dev
+libtiff5-dev
+libjpeg8-dev
+libfreetype6-dev
+liblcms2-dev
+libwebp-dev
+
+# ldap
+libldap2-dev
+libsasl2-dev
+
+# redis
+redis-server
+redis-tools
+
+# uwsgi
+libpcre3
+libpcre3-dev
+
+# memcached
+memcached
+libmemcached-dev
+
+# pygraphviz
+graphviz-dev
+
+# wkhtmltopdf
+libfontconfig1
+libxrender1
