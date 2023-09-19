@@ -1,0 +1,5 @@
+#!/bin/sh
+# Apaga os arquivos (com mais de 1h desde o último acesso) da pasta /tmp/sisat a cada 12h
+0 */12 * * * find /tmp/sisat ! -path "/tmp/sisat" -amin +60 -delete
+# Apaga os arquivos wkhtml (com mais de 1h desde o último acesso) da pasta /tmp/ a cada 12h
+0 */12 * * * find /tmp/ -type f -name "wkhtml*" -amin +60 -delete
