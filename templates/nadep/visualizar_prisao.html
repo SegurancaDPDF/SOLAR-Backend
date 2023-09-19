@@ -1,0 +1,186 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<div class="page-title">
+	<h3></h3>
+</div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<!-- BOX INFORMACOES PESSOAIS -->
+<div class="row-fluid">
+	<div class="span12">
+		<div class="media">
+			<a class="pull-left" href="{% url "assistido_editar" pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/">
+				<img class="media-object img-polaroid" data-src="js/holder.js/112x112" src="{{ pessoa.get_foto }}" height="120" width="120" >
+			</a>
+			<div class="media-body">
+				<h4 class="media-heading">
+						{{ pessoa.nome }}
+				</h4>
+				<div>CPF: <b>{{ pessoa.cpf | default:"Não informado" }}</b></div>
+				<div>Data de Nascimento: <b>{{ pessoa.data_nascimento |date:"d/m/Y" |default:"Não informada" }}</b></div>
+				<div>
+					{% for filiacao in pessoa.filiacoes.all %}
+					{{filiacao.get_tipo_display}}: <b>{{filiacao.nome}}</b><br/>
+					{% endfor %}
+				</div>
+				<div class="btn-group">
+					<a href="{% url 'nadep_visualizar_pessoa' pessoa.id %}" class="btn">
+						<i class="fas fa-lock"></i> Prisões
+					</a>
+					<a href="{% url "assistido_editar" pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/" class="btn">
+						<i class="fas fa-pencil-alt"></i> Cadastro
+					</a>
+					<a href="{% url "assistido_editar" pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/&amp;tab=6" class="btn">
+						<i class="fas fa-address-card"></i> Documentos
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="divider-content"><span></span></div>
+<!-- /BOX INFORMACOES PESSOAIS -->
+
+<div class="row-fluid">
+
+	{% include "nadep/box_prisao.html" %}
+
+	<!-- atendimentos e andamentos -->
+	<div class="span9">
+		<div class="tabbable">
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#tab-atendimentos" data-toggle="tab">Atendimentos</a></li>
+				<li class=""><a href="#tab-visitas" data-toggle="tab">Visitas</a></li>
+				<li class=""><a href="#tab-movimentos" data-toggle="tab">Fases Processuais</a></li>
+				<div class="pull-right actions-m3">
+					<button data-target="#modal-cadastrar-visita" data-toggle="modal" class="btn btn-primary" ng-click="nova_visita()" disabled><i class="fas fa-plus-circle"></i> Visita</button>
+					<button data-target="#modal-cadastrar-atendimento" data-toggle="modal" class="btn btn-primary" ng-click="novo_atendimento()"><i class="fas fa-plus-circle"></i> Atendimento</button>
+					<button data-target="#modal-cadastrar-fase" data-toggle="modal" class="btn btn-primary" ng-click="novo()"><i class="fas fa-plus-circle"></i> Fase</button>
+				</div>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="tab-atendimentos">
+					<table id="atendimentos" class="table table-bordered table-striped table-hover responsive display-data">
+						<thead>
+							<tr>
+								<th class="span2">Data</th>
+								<th class="span5">Interessado</th>
+								<th class="span4">Defensor</th>
+								<th class="span1">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="atendimento in atendimentos track by $index">
+								<td>[[ atendimento.data_atendimento | utc | date ]]</td>
+								<td>[[ atendimento.requerente ]]</td>
+								<td>[[ atendimento.defensor.nome ]]</td>
+								<td>
+									<a href="#modal-ver-atendimento" data-toggle="modal" class="btn" rel="tooltip" data-placement="left" data-original-title="Visualizar Atendimento" ng-click="ver_atendimento(atendimento)">
+										<i class="fas fa-eye"></i>
+									</a>
+								</td>
+							</tr>
+							<tr ng-hide="atendimentos.length">
+								<td colspan="4">Nenhum registro encontrado</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tab-pane" id="tab-visitas">
+					<table id="visitas" class="table table-bordered table-striped table-hover responsive display-data">
+						<thead>
+							<tr>
+								<th class="span2">Data</th>
+								<th class="span9">Defensor</th>
+								<th class="span1">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="visita in visitas track by $index">
+								<td>[[ visita.data_atendimento | date:'dd/MM/yyyy HH:mm' ]]</td>
+								<td>[[ visita.defensor.nome ]]</td>
+								<td>
+                                    <div class="btn-group">
+                                        <a href="/atendimento/[[ visita.numero ]]/" class="btn" bs-tooltip data-placement="left" data-original-title="Visualizar Atendimento">
+                                            <i class="fas fa-comments"></i>
+                                        </a>
+                                        <a href="#modal-ver-visita" data-toggle="modal" class="btn" bs-tooltip data-placement="left" data-original-title="Visualizar Visita" ng-click="ver_visita(visita)">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+								</td>
+							</tr>
+							<tr ng-hide="visitas.length">
+								<td colspan="3">Nenhum registro encontrado</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				<div class="tab-pane" id="tab-movimentos">
+					<table id="atendimentos" class="table table-bordered table-striped table-hover responsive display-data">
+						<thead>
+							<tr>
+								<th class="span2">Data</th>
+								<th class="span5">Fase Processual</th>
+								<th class="span4">Defensor</th>
+								<th class="span1">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for fase in fases %}
+							<tr>
+								<td class="text-center">
+									{{ fase.data_protocolo|date:"d/m/Y H:i" }}
+								</td>
+								<td>
+									{{ fase.tipo }}
+								</td>
+								<td>
+									{{ fase.defensor_cadastro }}
+								</td>
+								<td>
+									<div class="btn-group">
+										<a href="#modal-cadastrar-fase" role="button" data-toggle="modal" class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Visualizar fase" ng-click="carregar({{fase.id}})">
+											<i class="fas fa-search"></i>
+										</a>
+										<a href="#modal-excluir-fase" role="button" data-toggle="modal" class="btn btn-small btn-danger" rel="tooltip" data-placement="left" data-original-title="Excluir fase" disabled>
+											<i class="fas fa-trash"></i>
+										</a>
+									</div>
+								</td>
+							</tr>
+							{% empty %}
+							<tr>
+								<td colspan="4">Nenhum registro encontrado</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /atendimentos e andamentos -->
+</div>
+{% include "nadep/modal_cadastrar_atendimento.html" %}
+{% include "nadep/modal_cadastrar_fase.html" %}
+{% include "nadep/modal_ver_visita.html" %}
+{% include "nadep/modal_ver_atendimento.html" %}
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

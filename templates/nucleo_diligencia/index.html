@@ -1,0 +1,352 @@
+{% extends "nucleo_diligencia/default.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+
+{% block css_pag %}
+
+    <style>
+        .box-tab > .box-body .media, .box-tab > .box-body .media:last-child {
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .total_presos_prov .span3 {
+            border-right: solid 1px silver;
+        }
+
+        .total_presos_prov .span3:last-child {
+            border-right: none;
+        }
+
+        .total_presos_prov h4 {
+            margin: 5px 0;
+        }
+    </style>
+
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+
+                <div class="nav-collapse collapse navbar-responsive-collapse">
+                    <div class="row-fluid">
+                        <div class="span6">
+                            <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#">
+                                <h5>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ atuacao.defensoria.comarca.nome }}
+                                    <i class="fas fa-caret-down"></i>
+                                </h5>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                {% for comarca in comarcas %}
+                                    <li>
+                                        <a href="{% url 'nucleo_diligencia_index_comarca' comarca.0 %}">{{ comarca.1 }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="span6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary" data-target="#modal-imprimir-periodo" data-toggle="modal" ng-init="init({diretoria_id:{{ atuacao.defensoria_id }},servidor_id:{{ defensor.servidor_id }}})">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </button>
+                                {% include 'nucleo_diligencia/tour.html' %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.nav-collapse -->
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <!-- Agendamentos -->
+            <h5><i class="fas fa-calendar-alt"></i> Solicitações ({{ data_ref | date:'M/Y' }})</h5>
+            <table class="table table-bordered calendario" ng-hide="carregando_resumo">
+                <thead>
+                <tr class="muted">
+                    <th>Dom</th>
+                    <th>Seg</th>
+                    <th>Ter</th>
+                    <th>Qua</th>
+                    <th>Qui</th>
+                    <th>Sex</th>
+                    <th>Sab</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for semana in calendario %}
+                    <tr>
+                        {% for dia in semana %}
+                            <td>
+                                <span>{{ dia | default:'&nbsp;' }}</span>
+                                {% if dia in calendario_apoios or dia in calendario_tarefas %}
+                                    <div>
+                                        <b>{{ calendario_apoios | get_value_by_key:dia | default:0 }}</b>
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <a href="#">&nbsp;</a>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="span6">
+
+            <h5><i class="fas fa-chart-bar"></i> Dados Gerais</h5>
+
+            <div class="well well-small" id="box-dados-gerais">
+                <h6 class="text-center">Solicitações de Apoio</h6>
+
+                <div class="row-fluid">
+                    <div class="span4 text-center">
+                        <a href="#">
+                            <h4 class="text-info">
+                                <i class="fas fa-envelope"></i> {{ solicitacoes_agendadas_count|intcomma }}
+                            </h4>
+                            <h5 class="color-black text-center">Agendadas</h5>
+                        </a>
+                    </div>
+                    <div class="span4 text-center">
+                        <a href="#">
+                            <h4 class="text-warning text-center">
+                                <i class="fas fa-folder-open"></i> {{ solicitacoes_andamento_count|intcomma }}
+                            </h4>
+                            <h5 class="color-black text-center">Em Andamento</h5>
+                        </a>
+                    </div>
+                    <div class="span4 text-center">
+                        <a href="#">
+                            <h4 class="text-success text-center">
+                                <i class="fas fa-folder"></i> {{ solicitacoes_finalizadas_count|intcomma }}
+                            </h4>
+                            <h5 class="color-black text-center">Últimas Finalizadas</h5>
+                        </a>
+                    </div>
+                </div>
+                <div class="divider-content"></div>
+                <h6 class="text-center">Principais Atividades Desenvolvidas</h6>
+
+                <div class="row-fluid total_presos_prov">
+                    {% for atividade in top_atividades %}
+                        <div class="span3 text-center">
+                            <a href="#">
+                                <h4 class="text-center">{{ atividade.total }}</h4>
+                                <span class="bold" title="{{ atividade.titulo }}"
+                                      rel="tooltip">{{ atividade.titulo | truncatewords:2 }}</span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                    <div class="span3 text-center">
+                        <a href="#">
+                            <h4 class="text-center">{{ tot_atividades.total }}</h4>
+                            <span class="bold">OUTRAS</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span6" id="box-todas-atividades">
+            <div class="row-fluid">
+                <form id="BuscarSolicitacaoForm" action="{% url "nucleo_diligencia_index_comarca" comarca=comarca %}" method="GET">
+
+                    <h5 class="span4"><i class="fas fa-users"></i> Todas Solicitações</h5>
+
+                    <div class="controls pull-right" style="margin-top:10px;">
+                        <div class="input-icon-append">
+                            <span class="icon"><i class="fas fa-search"></i></span>
+                            <input name="filtro_solicitacao" id="filtro_solicitacao" class="grd-white"
+                                   tooltip="Digite o nome completo, CPF, CNPJ, defensoria, assunto ou número do GED. Pressione ENTER para buscar"
+                                   type="text" placeholder="Procurar solicitação..." value="{{ filtro_solicitacao|default:'' }}">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="box-tab corner-all">
+                <div class="box-header corner-top">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a data-toggle="tab" data-target="#solicitacoes_agendadas">Agendadas
+                                <small class="muted">({{ solicitacoes_agendadas_count }})</small>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" data-target="#solicitacoes_andamento">Em Andamento
+                                <small class="muted">({{ solicitacoes_andamento_count }})</small>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" data-target="#solicitacoes_finalizadas">Últimas Finalizadas
+                                <small class="muted">({{ solicitacoes_finalizadas_count }})</small>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% with servidor=False %}
+                    <div class="box-body">
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="solicitacoes_agendadas">
+                                <table class="table table-striped">
+                                    <tbody>
+                                    {% with agendadas=True %}
+                                        {% for solicitacao in solicitacoes_agendadas %}
+                                            {% include 'nucleo_diligencia/index_solicitacoes_item.html' %}
+                                        {% empty %}
+                                            <tr>
+                                                <td>
+                                                    <div class="media">
+                                                        <div class="alert alert-info text-center">
+                                                            <b>Nenhuma solicitação agendada</b>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endwith %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="tab-pane fade in" id="solicitacoes_andamento">
+                                <table class="table table-striped">
+                                    <tbody>
+                                    {% for solicitacao in solicitacoes_andamento %}
+                                        {% include 'nucleo_diligencia/index_solicitacoes_item.html' %}
+                                    {% empty %}
+                                        <tr>
+                                            <td>
+                                                <div class="media">
+                                                    <div class="alert alert-info text-center">
+                                                        <b>Nenhuma solicitação em andamento</b>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade in" id="solicitacoes_finalizadas">
+                                <table class="table table-striped">
+                                    <tbody>
+                                    {% with finalizadas=True %}
+                                        {% for solicitacao in solicitacoes_finalizadas %}
+                                            {% include 'nucleo_diligencia/index_solicitacoes_item.html' %}
+                                        {% empty %}
+                                            <tr>
+                                                <td>
+                                                    <div class="media">
+                                                        <div class="alert alert-info text-center">
+                                                            <b>Nenhuma solicitação finalizada nos últimos 30 dias</b>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endwith %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="span6" id="box-minhas-atividades">
+            <h5><i class="fas fa-user"></i> Minhas Atividades Recentes</h5>
+
+            <table class="table table-hover table-striped responsive">
+                <thead>
+                <tr>
+                    <th class="span6">Pessoa</th>
+                    <th class="span3">Data</th>
+                    <th class="span3">Atividade</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for atividade in ultimas_atividades %}
+                    <tr>
+                        <td>
+                            {% with solicitacao=atividade.origem.origem pessoa=atividade.origem.origem.partes.first.pessoa %}
+                                <a href="{% if pessoa and solicitacao %}{% url 'nucleo_diligencia_atender_pessoa' pessoa.id atividade.origem.numero %}{% endif %}" class="btn-link">
+                                    <div>{{ pessoa.nome|default:"Não informado" }}</div>
+                                    {% for documento in solicitacao.documento_set.all %}
+                                        {% if documento.documento_online %}
+                                            <small>
+                                                <i class="fas fa-cloud"></i>
+                                                {{ documento.nome }} ({{ documento.documento_online.identificador_versao }})
+                                            </small>
+                                        {% endif %}
+                                    {% endfor %}
+                                </a>
+                            {% endwith %}
+                        </td>
+                        <td>{{ atividade.data_atendimento | date:'d/m/Y H:i' }}</td>
+                        <td>{{ atividade.qualificacao.titulo }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">Nenhuma atividade cadastrada</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'nucleo_diligencia/modal_nucleo_diligencia_distribuir.html' with modal_body=False %}
+    {% include 'relatorios/modal_imprimir_periodo.html' %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('a[data-toogle=modal]').click(function(e){
+        e.preventDefault();
+        var modal = $(this).attr('data-target');
+        $(modal).find(".modal-body").load($(this).attr('href'));
+        $(modal).modal();
+    });
+
+    if(hopscotch.getState())
+    {
+        if (hopscotch.getState().indexOf('diligencia_visao_geral')===0) {
+            hopscotch.startTour(tours['diligencia_visao_geral']);
+        }
+        else if (hopscotch.getState().indexOf('diligencia_agendada')===0) {
+            hopscotch.startTour(tours['diligencia_agendada']);
+        }
+    }
+
+{% endblock %}

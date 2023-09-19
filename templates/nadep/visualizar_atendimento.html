@@ -1,0 +1,136 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+
+    <link rel="stylesheet" href="{% static "css/redactor.min.css" %}">
+
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+            Atendimento nº: {{ atendimento.numero }}
+        </h3>
+    </div>
+
+{% endblock %}
+
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+
+        {% include "nadep/box_pessoa.html" %}
+        {% include "nadep/box_prisao.html" %}
+
+        <!-- atendimento -->
+        <div class="span6">
+            <h4>Atendimento realizado:</h4>
+
+            <p>
+                <strong>Número: </strong>
+                <span class="label label-info">{{ atendimento.numero }}</span>
+            </p>
+
+            <p>
+                <strong>Defensoria: </strong>
+                {{ atendimento.defensoria }}
+            </p>
+
+            <p>
+                <strong>Defensor(a): </strong>
+                {{ atendimento.defensor }}
+            </p>
+
+            <p>
+                <strong>Atendido por: </strong>
+                {{ atendimento.atendido_por }}
+            </p>
+
+            <p>
+                <strong>Data atendimento: </strong>
+                {{ atendimento.data_atendimento|default_if_none:"Não informado" }}
+            </p>
+            <h5>Histórico:</h5>
+
+            <div class="well">
+                {{ atendimento.historico|safe }}
+            </div>
+            <div class="pull-right actions-m5 btn-group">
+                {% if perms.nadep.change_atendimento %}
+                    <a href="{% url "nadep_editar_atendimento" atendimento.numero %}" role="button" class="btn"
+                       rel="tooltip" data-placement="left" data-original-title="Editar dados do atendimento">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                {% endif %}
+                {% if perms.nadep.delete_atendimento %}
+                    <a href="#modal-excluir" role="button" data-toggle="modal" class="btn btn-danger" rel="tooltip"
+                       data-placement="left" data-original-title="Excluir Atendimento">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <!-- /atendimento -->
+
+    </div>
+
+    <div id="modal-excluir" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Excluir Atendimento</h3>
+        </div>
+        <div class="modal-body">
+            <p>Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url "nadep_excluir_atendimento" atendimento.numero %}" class="btn btn-danger">Excluir</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script type="text/javascript" src="{% static "js/redactor/redactor.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_pt_br.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/redactor/redactor_fullscreen.min.js" %}"></script>
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_pag %}
+
+        $('#id_historico').redactor({
+            buttons: [
+                'bold',
+                'italic',
+                'underline',
+                '|',
+                'alignleft',
+                'aligncenter',
+                'alignright',
+                'justify',
+                '|',
+                'unorderedlist',
+                'orderedlist',
+                'outdent',
+                'indent',
+                '|',
+                'table',
+                'horizontalrule'
+            ],
+            lang: 'pt_br',
+            plugins: ['fullscreen'],
+            minHeight: 300
+        });
+
+    {% endblock %}
+
+</script>

@@ -1,0 +1,38 @@
+{% load static %}
+<!-- Modal Selecionar Processo -->
+<div id="modal-selecionar-processo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 ng-if="processo.classe.inquerito">Vincular Ação Penal</h3>
+        <h3 ng-if="!processo.classe.inquerito">Vincular Execução Penal</h3>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-body">
+        <div ng-if="processo.execucao.atendimentos==null"><img src="{% static "img/loader_16.gif" %}"> Carregando...</div>
+        <div ng-if="processo.execucao.atendimentos!=null">
+            <table class="table table-hover">
+                <tr ng-repeat="atendimento in processo.execucao.atendimentos track by $index">
+                    <td>
+                        <input type="radio" name="atendimento" ng-value="atendimento" ng-model="execucao.atendimento">
+                    </td>
+                    <td>
+                        <div>
+                            <b>[[ atendimento.requerente ]]</b>
+                            <span class="label label-info" ng-if="!atendimento.parte.tipo">Autora</span>
+                            <span class="label label-important" ng-if="atendimento.parte.tipo">Ré</span>
+                            <div>[[ atendimento.defensoria.nome ]]</div>
+                            <div class="muted">[[ atendimento.defensor.nome ]]</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-footer">
+        <button class="btn btn-primary" data-dismiss="modal" ng-disabled="!execucao.atendimento" ng-click="selecionar_parte(execucao.atendimento)">Confirmar</button>
+        <button class="btn" data-dismiss="modal" data-target="#modal-cadastrar-processo" data-toggle="modal">Cadastrar</button>
+        <button class="btn" data-dismiss="modal">Cancelar</button>
+    </div>
+</div>
+<!-- Modal Selecionar Processo -->

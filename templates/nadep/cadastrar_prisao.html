@@ -1,0 +1,215 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+    <link href="{% static "css/datepicker.css" %}" rel="stylesheet">
+    <style>
+    .duplicarcss {
+        background-color: #d9edf7;
+        border-radius: 4px;
+        color: #3a87ad;
+        padding: 5px;
+    }
+    .duplicarcss select, .duplicarcss input  {
+        border-color: #bce8f1;
+    }
+    </style>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+            Cadastrar prisão
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <form method="POST" action="{{ request.get_full_path }}" name="MyForm" id="MyForm" class="box corner-all" {% if not prisao.id and prisao.processo.acao.inquerito %}ng-init="carregar('{{ prisao.processo.numero_puro }}', true)"{% endif %}>
+        {% csrf_token %}
+        <div class="row-fluid">
+            {% include "nadep/box_pessoa.html" %}
+            <!-- cadastrar prisao -->
+            <div class="span9">
+                {% if request.GET.duplicar %}
+                <div class="alert alert-info">
+                    <h4>
+                        <i class="fas fa-warning"></i> Cuidado!
+                    </h4>
+                    <p>
+                        Duplique uma guia de execução quando o mesmo processo possui mais de uma fração para progressão de regime ou livramento condicional. <b>Modifique apenas os campos destacados.</b>
+                    </p>
+                </div>
+                {% endif %}
+                {% if inquerito %}
+                <div class="alert">
+                    <h4>
+                        <i class="fas fa-warning"></i> Atenção!
+                    </h4>
+                    <p>
+                        Você está cadastrando uma ação penal a partir do inquérito policial nº <b>{{ inquerito.numero }}</b>.
+                    </p>
+                </div>
+                {% endif %}
+                <fieldset id="prisao">
+                    <legend>Prisão</legend>
+                    {{ form.as_bs }}
+                    {% if prisao.processo.acao.inquerito %}
+                    <div class="alert alert-block">
+                        <h4>Atenção!</h4>
+                        <p>Para registrar o resultado da sentença, converta o <b>Inquérito Policial</b> em uma <b>Ação Penal</b></p>
+                        <button class="btn btn-small btn-warning" data-target="#modal-vincular-execucao-penal" data-toggle="modal" ng-click="carregar('{% if prisao.processo %}{{ prisao.processo.numero_puro }}{% else %}{{ prisao.origem.processo.numero_puro }}{% endif %}', false)">
+                            <i class="fas fa-retweet" aria-hidden="true"></i>
+                            Converter
+                        </button>
+                    </div>
+                    {% endif %}
+                </fieldset>
+                <fieldset id="guia">
+                    <legend>Guia de Execução Penal</legend>
+                    {% if prisao.get_tipo == prisao.TIPO_PROVISORIO or not prisao.processo %}
+                    <div class="control-group">
+                        <label class="control-label">Número do Processo</label>
+                        <input name="guia-processo" type="hidden" ng-value="execucao.processo_id">
+                        <input name="guia-parte" type="hidden" ng-value="execucao.parte_id">
+                        <div class="controls">
+                            {% if prisao.originada %}
+                                <input name="guia-numero" type="text" value="{{ prisao.originada.processo.numero }}" readonly>
+                            {% else %}
+                            <div class="input-append">
+                                <input name="guia-numero" type="text" readonly ng-model="execucao.numero">
+                                <button data-target="#modal-vincular-execucao-penal" data-toggle="modal" class="btn" ng-click="carregar('{% if prisao.processo %}{{ prisao.processo.numero_puro }}{% else %}{{ prisao.origem.processo.numero_puro }}{% endif %}', false)">
+                                    <span class="fas fa-search"></span>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {{ form_guia.as_bs }}
+                </fieldset>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="form-actions span12">
+                <a href="{% url "nadep_visualizar_pessoa" pessoa.id %}" class="btn" type="button">Cancelar</a>
+                <input class="btn btn-primary" type="submit" value="Salvar">
+            </div>
+        </div>
+    </form>
+
+    {% include "nadep/modal_cadastrar_processo.html" %}
+    {% include "nadep/modal_selecionar_processo.html" %}
+    {% include "nadep/modal_vincular_acao_penal.html" %}
+    {% include "nadep/modal_vincular_execucao_penal.html" %}
+
+{% endblock %}
+
+{% block js_pag %}
+<script>
+
+function id_prisao_tipo_change()
+{
+    if($('#id_prisao-tipo').val()==0)
+    {
+        $('.tipo_condenado').parent().parent().hide();
+        $('#id_prisao-resultado_pronuncia').removeAttr('disabled');
+    }
+    else
+    {
+        $('.tipo_condenado').parent().parent().show();
+        $('#id_prisao-resultado_pronuncia').val(1).attr('disabled', 'disabled');
+    }
+    id_prisao_resultado_pronuncia_change();
+}
+
+function id_prisao_resultado_pronuncia_change(){
+    switch($('#id_prisao-resultado_pronuncia').val())
+    {
+        case '0':
+            $('.pronuncia_absolvido').parent().parent().show();
+            $('.pronuncia_pronunciado').parent().parent().hide();
+            break;
+        case '1':
+            $('.pronuncia_absolvido').parent().parent().show();
+            $('.pronuncia_pronunciado').parent().parent().show();
+            break;
+        default:
+            $('.pronuncia_pronunciado, .pronuncia_absolvido').parent().parent().hide();
+            break;
+    }
+}
+
+function id_prisao_resultado_sentenca_change(){
+    switch($('#id_prisao-resultado_sentenca').val())
+    {
+        case '0':
+            $('.sentenca_absolvido').parent().parent().show();
+            $('.sentenca_condenado').parent().parent().hide();
+            $('#guia').hide();
+            break;
+        case '1':
+            $('.sentenca_absolvido').parent().parent().show();
+            $('.sentenca_condenado').parent().parent().show();
+            $('#guia').show();
+            break;
+        default:
+            $('.sentenca_condenado, .sentenca_absolvido').parent().parent().hide();
+            $('#guia').hide();
+            break;
+    }
+}
+
+id_prisao_tipo_change();
+id_prisao_resultado_pronuncia_change();
+id_prisao_resultado_sentenca_change();
+
+</script>
+
+{% endblock %}
+
+<script>
+{% block js_ready_pag %}
+
+$('.datepicker').datepicker();
+
+{% if request.GET.duplicar %}
+    $('.duplicar').parent().parent().addClass('duplicarcss');
+{% endif %}
+
+$('#id_prisao-tipo').change(function(){
+    id_prisao_tipo_change();
+});
+
+$('#id_prisao-resultado_pronuncia').change(function(){
+    id_prisao_resultado_pronuncia_change();
+});
+
+$('#id_prisao-resultado_sentenca').change(function(){
+    id_prisao_resultado_sentenca_change();
+});
+
+$('#id_prisao-estado').change(function(){
+    $.get('/estado/'+$(this).val()+'/municipios/', function(data){
+        $('#id_prisao-local_prisao').html('');
+        $(data).each(function(i, o){
+            $('#id_prisao-local_prisao').append("<option value='" + o.id + "'>" + o.nome + "</option>");
+        });
+    })
+});
+
+$('#id_prisao-municipio').change(function(){
+    $.get('/nucleo/nadep/estabelecimento/municipio/' + $(this).val() + '/get/', function(data){
+        $('#id_prisao-estabelecimento_penal').html('');
+        $(data).each(function(i, o){
+            $('#id_prisao-estabelecimento_penal').append("<option value='" + o.id + "'>" + o.nome + "</option>");
+        });
+    })
+});
+
+{% endblock %}
+</script>

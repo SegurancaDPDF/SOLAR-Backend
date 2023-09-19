@@ -1,0 +1,89 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3>
+            Cadastrar Estabelecimento Penal
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div class="row-fluid">
+        <!-- cadastrar estabelecimento -->
+        <div class="span9">
+            <form method="POST" action="{% url "nadep_salvar_estabelecimento" %}" name="MyForm" id="MyForm"
+                  class="box corner-all form-horizontal">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>Estabelecimento Penal</legend>
+                    {{ form.as_bs }}
+                </fieldset>
+                <fieldset>
+                    <legend>Endereço</legend>
+                    {{ form_endereco.as_bs }}
+                </fieldset>
+                <fieldset>
+                    <legend>Telefone</legend>
+                    {{ form_telefone.as_bs }}
+                </fieldset>
+                <div class="form-actions">
+                    <a href="{% url "nadep_buscar_estabelecimento" %}" class="btn" type="button">Cancelar</a>
+                    <input class="btn btn-primary" type="submit" value="Salvar">
+                </div>
+            </form>
+        </div>
+        <!-- /atendimentos e andamentos -->
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript" src="{% static "js/app/utils.js" %}"></script>
+{% endblock %}
+
+<script>
+    {% block js_ready_pag %}
+
+        $('#{{ form_endereco.cep.auto_id }}').blur(function () {
+            buscar_cep($(this).val(), 'endereco-');
+        });
+
+        $('#{{ form_endereco.estado.auto_id }}').change(function () {
+            listar_municipios($(this).val(), '#{{ form_endereco.municipio.auto_id }}');
+        });
+
+        $('#{{ form_endereco.bairro_nome.auto_id }}').typeahead({
+            minLength: 3,
+            source: function (query, process) {
+                $.get('/bairro/listar', {
+                    q: query,
+                    municipio_id: $('#{{ form_endereco.municipio.auto_id }}').val()
+                }, function (data) {
+                    return process(data);
+                }, 'json');
+            }
+        });
+
+        $('#{{ form_endereco.logradouro.auto_id }}').typeahead({
+            minLength: 3,
+            source: function (query, process) {
+                $.get('/logradouro/listar', {
+                    q: query,
+                    municipio_id: $('#{{ form_endereco.municipio.auto_id }}').val()
+                }, function (data) {
+                    return process(data);
+                }, 'json');
+            }
+        });
+
+    {% endblock %}
+</script>

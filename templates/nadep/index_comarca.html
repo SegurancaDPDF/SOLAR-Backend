@@ -1,0 +1,414 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+
+{% block css_pag %}
+
+    <style>
+        .box-tab > .box-body .media, .box-tab > .box-body .media:last-child {
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .total_presos_prov .span3 {
+            border-right: solid 1px silver;
+        }
+
+        .total_presos_prov .span3:last-child {
+            border-right: none;
+        }
+
+        .total_presos_prov h4 {
+            margin: 5px 0;
+        }
+    </style>
+
+{% endblock %}
+
+{% block menu_app %}
+<div class="navbar navbar-mb0">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                <span class="fas fa-bars"></span>
+                <span class="fas fa-bars"></span>
+                <span class="fas fa-bars"></span>
+            </a>
+
+            <div class="nav-collapse collapse navbar-responsive-collapse">
+                <div class="row-fluid">
+                    <div class="span6">
+                        <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#">
+                            <h5>
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ comarca.nome }}
+                                <i class="fas fa-caret-down"></i>
+                            </h5>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            {% for comarca in comarcas %}
+                            <li><a href="{% url 'nadep_index_comarca' comarca.id %}">{{ comarca.nome }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="span6">
+                        <form class="navbar-search span11" action="{% url 'nadep_buscar_preso' %}" method="GET">
+                            <div class="input-append">
+                                <input type="text" id="filtro" name="filtro" class="span12"
+                                       placeholder="Digite uma informação do(s) preso(s) desejado(s)..."
+                                       value="{{ filtro }}">
+                                <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom"
+                                        data-original-title="Buscar preso">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- /.nav-collapse -->
+        </div>
+    </div>
+    <!-- /navbar-inner -->
+</div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <!-- Agendamentos -->
+            <div class="pull-right" style="margin-top: 10px;">
+                <span class="label label-success">&nbsp;&nbsp;</span> Visitas
+                <span class="label label-info">&nbsp;&nbsp;</span> Audiências
+            </div>
+            <h5><i class="fas fa-calendar-alt"></i> Visitas/Audiências ({{ data_ref | date:'M/Y' }})</h5>
+            <table class="table table-bordered calendario" ng-hide="carregando_resumo">
+                <thead>
+                <tr class="muted">
+                    <th>Dom</th>
+                    <th>Seg</th>
+                    <th>Ter</th>
+                    <th>Qua</th>
+                    <th>Qui</th>
+                    <th>Sex</th>
+                    <th>Sab</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for semana in calendario %}
+                    <tr>
+                        {% for dia in semana %}
+                            <td>
+                                <span>{{ dia | default:'&nbsp;' }}</span>
+                                {% if dia in calendario_visitas or dia in calendario_audiencias %}
+                                    <div>
+                                        <a href="{% url 'nadep_buscar_atendimento' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}&data_ini={{ dia|stringformat:"02d" }}/{{ data_ref | date:'m/Y' }}&data_fim={{ dia|stringformat:"02d" }}/{{ data_ref | date:'m/Y' }}" class="text-success" title="Visitas" rel="tooltip">
+                                            {{ calendario_visitas | get_value_by_key:dia | default:0 }}</a> |
+                                        <a href="{% url 'processo_audiencias' %}?defensor={{ defensor.id }}&data_ini={{ dia|stringformat:"02d" }}/{{ data_ref | date:'m/Y' }}&data_fim={{ dia|stringformat:"02d" }}/{{ data_ref | date:'m/Y' }}" class="text-info" title="Audiências" rel="tooltip">
+                                            {{ calendario_audiencias | get_value_by_key:dia | default:0 }}</a>
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <a href="#">&nbsp;</a>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="span6">
+            <div class="pull-right" style="margin-top: 5px;">
+                <a class="btn btn-primary" href="{% url 'nadep_buscar_pessoa' %}">
+                    <i class="fas fa-user-plus"></i> Novo Preso
+                </a>
+                <a class="btn" href="{% url 'nadep_buscar_estabelecimento' %}">
+                    <i class="fas fa-plus-circle"></i> Novo Estabelecimento
+                </a>
+            </div>
+            <h5><i class="fas fa-chart-bar"></i> Dados Gerais</h5>
+
+            <div class="well well-small">
+                <h6 class="text-center">Quantidade de Presos Provisoriamente</h6>
+
+                <div class="row-fluid total_presos_prov">
+                    <div class="span1"></div>
+                    {% for dia in total_presos_prov %}
+                        <div class="span2 text-center">
+                            <a href="{% url "nadep_buscar_prisao" %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}&data_ini={{ dia.data_inicial | date:'d/m/Y' }}&data_fim={{ dia.data_final | date:'d/m/Y' }}"
+                               rel="tooltip"
+                               data-original-title="{{ dia.total }} preso(s) completando {{ dia.dias }} dias de prisão">
+                                <h4 class="text-warning text-center">{{ dia.total }}</h4>
+                                <span class="color-black bold">{{ dia.dias }} dias</span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="divider-content"></div>
+                <div class="row-fluid">
+                    <div class="span3 text-center">
+                        <a href="{% url 'nadep_buscar_preso' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}">
+                            <h4 class="text-info">
+                                <i class="fas fa-lock"></i> {{ total_presos }}
+                            </h4>
+                            <h5 class="color-black text-center">Presos</h5>
+                        </a>
+                    </div>
+                    <div class="span3 text-center">
+                        <a href="{% url 'nadep_buscar_preso' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}">
+                            <h4 class="text-warning text-center">
+                                <i class="fas fa-clock"></i> {{ total_provisorios }}
+                            </h4>
+                            <h5 class="color-black text-center">Provisórios</h5>
+                        </a>
+                    </div>
+                    <div class="span3 text-center">
+                        <a href="{% url 'nadep_buscar_preso' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}">
+                            <h4 class="text-error text-center">
+                                <i class="fas fa-gavel"></i> {{ total_condenados }}
+                            </h4>
+                            <h5 class="color-black text-center">Condenados</h5>
+                        </a>
+                    </div>
+                    <div class="span3 text-center">
+                        <a href="{% url 'nadep_buscar_atendimento' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}&data_ini=01/{{ data_ref | date:'m/Y' }}&data_fim={{ data_ref | date:'d/m/Y' }}">
+                            <h4 class="text-success">
+                                <i class="fas fa-comment"></i> {{ total_visitas }}
+                            </h4>
+                            <h5 class="color-black text-center">Visitados no mês</h5>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <!-- tab resume update -->
+        <div class="span6">
+            <h5><i class="fas fa-calendar-alt"></i> Progressões</h5>
+
+            <div class="box-tab corner-all">
+                <div class="box-header corner-top">
+                    <!--tab action-->
+                    <ul class="nav nav-tabs">
+                        <!--tab menus-->
+                        <li class="active">
+                            <a data-toggle="tab" href="#progressoes_atrasadas">Atrasadas
+                                <span class="color-red">({{ progressoes_atrasadas.count }})</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#progressoes_proximas">Próximas
+                                <span class="color-blue">({{ progressoes_proximas.count }})</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#progressoes_realizadas">Últimas Realizadas
+                                <span class="muted">({{ progressoes_realizadas.count }})</span>
+                            </a>
+                        </li>
+                        <!--/tab menus-->
+                    </ul>
+                </div>
+                <div class="box-body">
+                    <!-- widgets-tab-body -->
+                    <div class="tab-content">
+                        <div class="tab-pane fade in active" id="progressoes_atrasadas">
+                            {% for progressao in progressoes_atrasadas %}
+                                <div class="media">
+                                    <a class="pull-left" href="#">
+                                        <img class="media-object" data-src="js/holder.js/64x64" alt="64x64"
+                                             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACX0lEQVR4Xu2Y26tpURTGP9sl8UBJHpDLAxIPeFD+e5Rco+SBFKVIsdzv4TRGbZ1zHvY629qnvbPGLGU1M+Ya3/jG+C3LoCjKHTpeBhFAHCAtIDNAxzMQMgSFAkIBoYBQQCigYwUEg4JBwaBgUDCoYwjInyHBoGBQMCgYFAwKBnWsgGBQKwYvlwt6vR5msxne3t4QDofh9Xr/8NRoNEK320UymYTH4/nQb18dT83cmh3QbDaxWCwQjUahKAqm0ylyuRxsNhufvVqt0Gg0cLvd/kmAr473XwWgauXzea4qVZeuD4cD7HY7jEYjX1cqFVgsFqzX64cAlOR8Pkc6nYbZbEatVoPD4eD9QqHw6XhqSX60r8kBVF26eafTidPphPv9jkAgAL/fz2e2Wi0WgdqCkn5vgfP5zMIYDIaHUNlsFsfj8al43y6A1WpFIpHgOTAcDrmyVPHBYMDfKbF2u414PM7VJXdQ21Br0EqlUnC5XNwuJOgz8Z4VQZMDqOrFYvFh2f1+j1KphEgkwrOAEvp7xWIx+Hw+TCYTdDod3iaH0EdLvG8RgA6t1+vYbrec9HK5xHg8RiaTYXtfr1e+r81mg36/j1AoxISggVitVnlWmEwmHp70G2qlZ+KRY55dmhxAh1LVCHE01GigBYNBrvDvi/beZ4Db7eYkd7sdqO8JneVymYWgaxLnM/HUsKomjGYB1A746fsigNYnwZ9eYbX7EweIA+SVmLwSk1diapPylfeFAkIBoYBQQCjwylNeLTehgFBAKCAUEAqoTcpX3hcKCAWEAkIBocArT3m13HRPgV96R1efjJvNNgAAAABJRU5ErkJggg=="
+                                             style="width: 64px; height: 64px;">
+                                    </a>
+
+                                    <div class="media-body">
+                                        <div class="btn-group pull-right">
+                                            <a href="{% url 'nadep_visualizar_pessoa' progressao.pessoa_id %}"
+                                               class="btn btn-mini">Ficha Penal</a>
+                                        </div>
+                                        <h4 class="media-heading">{{ progressao.pessoa_nome }}</h4>
+                                        <ul>
+                                            <li>Preso em: <b>{{ progressao.estabelecimento_penal_nome }}</b></li>
+                                            <li>Progressão: <b>{{ progressao.data_progressao | date:'d/m/Y' }}</b>
+                                                {% if progressao.data_progressao == data_ref %}
+                                                    <span class="label label-important">Hoje!</span>
+                                                {% else %}
+                                                    <span class="label label-important">{{ data_ref|timeuntil:progressao.data_progressao }}</span>
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="media">
+                                    <div class="alert alert-info text-center"><b>Nenhuma progressão atrasada</b></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="tab-pane fade in" id="progressoes_proximas">
+                            {% for progressao in progressoes_proximas %}
+                                <div class="media">
+                                    <a class="pull-left" href="#">
+                                        <img class="media-object" data-src="js/holder.js/64x64" alt="64x64"
+                                             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACX0lEQVR4Xu2Y26tpURTGP9sl8UBJHpDLAxIPeFD+e5Rco+SBFKVIsdzv4TRGbZ1zHvY629qnvbPGLGU1M+Ya3/jG+C3LoCjKHTpeBhFAHCAtIDNAxzMQMgSFAkIBoYBQQCigYwUEg4JBwaBgUDCoYwjInyHBoGBQMCgYFAwKBnWsgGBQKwYvlwt6vR5msxne3t4QDofh9Xr/8NRoNEK320UymYTH4/nQb18dT83cmh3QbDaxWCwQjUahKAqm0ylyuRxsNhufvVqt0Gg0cLvd/kmAr473XwWgauXzea4qVZeuD4cD7HY7jEYjX1cqFVgsFqzX64cAlOR8Pkc6nYbZbEatVoPD4eD9QqHw6XhqSX60r8kBVF26eafTidPphPv9jkAgAL/fz2e2Wi0WgdqCkn5vgfP5zMIYDIaHUNlsFsfj8al43y6A1WpFIpHgOTAcDrmyVPHBYMDfKbF2u414PM7VJXdQ21Br0EqlUnC5XNwuJOgz8Z4VQZMDqOrFYvFh2f1+j1KphEgkwrOAEvp7xWIx+Hw+TCYTdDod3iaH0EdLvG8RgA6t1+vYbrec9HK5xHg8RiaTYXtfr1e+r81mg36/j1AoxISggVitVnlWmEwmHp70G2qlZ+KRY55dmhxAh1LVCHE01GigBYNBrvDvi/beZ4Db7eYkd7sdqO8JneVymYWgaxLnM/HUsKomjGYB1A746fsigNYnwZ9eYbX7EweIA+SVmLwSk1diapPylfeFAkIBoYBQQCjwylNeLTehgFBAKCAUEAqoTcpX3hcKCAWEAkIBocArT3m13HRPgV96R1efjJvNNgAAAABJRU5ErkJggg=="
+                                             style="width: 64px; height: 64px;">
+                                    </a>
+
+                                    <div class="media-body">
+                                        <div class="btn-group pull-right">
+                                            <a href="{% url 'nadep_visualizar_pessoa' progressao.pessoa_id %}"
+                                               class="btn btn-mini">Ficha Penal</a>
+                                        </div>
+                                        <h4 class="media-heading">{{ progressao.pessoa_nome }}</h4>
+                                        <ul>
+                                            <li>Preso em: <b>{{ progressao.estabelecimento_penal_nome }}</b></li>
+                                            <li>Progressão: <b>{{ progressao.data_progressao | date:'d/m/Y' }}</b>
+                                                <span class="label label-info">{{ progressao.data_progressao|timeuntil:data_ref }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="media">
+                                    <div class="alert alert-info text-center"><b>Nenhuma progressão para os próximos 90
+                                        dias</b></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="tab-pane fade in" id="progressoes_realizadas">
+                            {% for progressao in progressoes_realizadas %}
+                                <div class="media">
+                                    <a class="pull-left" href="#">
+                                        <img class="media-object" data-src="js/holder.js/64x64" alt="64x64"
+                                             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACX0lEQVR4Xu2Y26tpURTGP9sl8UBJHpDLAxIPeFD+e5Rco+SBFKVIsdzv4TRGbZ1zHvY629qnvbPGLGU1M+Ya3/jG+C3LoCjKHTpeBhFAHCAtIDNAxzMQMgSFAkIBoYBQQCigYwUEg4JBwaBgUDCoYwjInyHBoGBQMCgYFAwKBnWsgGBQKwYvlwt6vR5msxne3t4QDofh9Xr/8NRoNEK320UymYTH4/nQb18dT83cmh3QbDaxWCwQjUahKAqm0ylyuRxsNhufvVqt0Gg0cLvd/kmAr473XwWgauXzea4qVZeuD4cD7HY7jEYjX1cqFVgsFqzX64cAlOR8Pkc6nYbZbEatVoPD4eD9QqHw6XhqSX60r8kBVF26eafTidPphPv9jkAgAL/fz2e2Wi0WgdqCkn5vgfP5zMIYDIaHUNlsFsfj8al43y6A1WpFIpHgOTAcDrmyVPHBYMDfKbF2u414PM7VJXdQ21Br0EqlUnC5XNwuJOgz8Z4VQZMDqOrFYvFh2f1+j1KphEgkwrOAEvp7xWIx+Hw+TCYTdDod3iaH0EdLvG8RgA6t1+vYbrec9HK5xHg8RiaTYXtfr1e+r81mg36/j1AoxISggVitVnlWmEwmHp70G2qlZ+KRY55dmhxAh1LVCHE01GigBYNBrvDvi/beZ4Db7eYkd7sdqO8JneVymYWgaxLnM/HUsKomjGYB1A746fsigNYnwZ9eYbX7EweIA+SVmLwSk1diapPylfeFAkIBoYBQQCjwylNeLTehgFBAKCAUEAqoTcpX3hcKCAWEAkIBocArT3m13HRPgV96R1efjJvNNgAAAABJRU5ErkJggg=="
+                                             style="width: 64px; height: 64px;">
+                                    </a>
+
+                                    <div class="media-body">
+                                        <div class="btn-group pull-right">
+                                            <a href="{% url 'nadep_visualizar_pessoa' progressao.prisao.pessoa_id %}"
+                                               class="btn btn-mini">Ficha Penal</a>
+                                        </div>
+                                        <h4 class="media-heading">{{ progressao.prisao.pessoa }}</h4>
+                                        <ul>
+                                            <li>Preso em: <b>{{ progressao.estabelecimento_penal }}</b></li>
+                                            <li>Progressão: <b>{{ progressao.data_registro | date:'d/m/Y' }}</b></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="media">
+                                    <div class="alert alert-info text-center"><b>Nenhuma progressão realizada nos
+                                        últimos 90 dias</b></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!--/widgets-tab-body-->
+                </div>
+                <!--/box-body-->
+            </div>
+            <!--/box-tab-->
+        </div>
+        <!-- tab resume update -->
+
+        <div class="span6">
+            <h5>
+                <i class="fas fa-lock"></i> Últimas Prisões Cadastradas
+                <a class="pull-right" href="{% url 'nadep_buscar_prisao' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}&data_fim={{ data_ref | date:'d/m/Y' }}">
+                    <small class="btn-link ">Ver Todas <i class="fas fa-arrow-right"></i></small>
+                </a>
+            </h5>
+            <table class="table table-hover table-striped responsive">
+                <thead>
+                <tr>
+                    <th>Assistido</th>
+                    <th>Data Prisão</th>
+                    <th>Tipo</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for prisao in ultimas_prisoes %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'nadep_visualizar_pessoa' prisao.pessoa.id %}" class="btn-link">
+                                {{ prisao.pessoa.nome }}
+                            </a>
+                            <div class="muted">{{ prisao.estabelecimento_penal }}</div>
+                        </td>
+                        <td class="span2">{{ prisao.data_prisao | date:'d/m/Y' }}</td>
+                        {% if prisao.tipo == prisao.TIPO_PROVISORIO %}
+                            <td class="span2"><span class="label label-warning"> Provisório</span></td>
+                        {% else %}
+                            <td class="span2"><span class="label label-important"> Condenado</span></td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">Nenhuma prisão cadastrada</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <h5>
+                <i class="fas fa-lock"></i> Últimas Visitas Realizadas
+                <a class="pull-right" href="{% url 'nadep_buscar_atendimento' %}?comarca={{ comarca.id }}&defensor={{ defensor.id }}&data_fim={{ data_ref | date:'d/m/Y' }}">
+                    <small class="btn-link ">Ver Todas <i class="fas fa-arrow-right"></i></small>
+                </a>
+            </h5>
+            <table class="table table-hover table-striped responsive">
+                <thead>
+                <tr>
+                    <th>Assistido/Local</th>
+                    <th>Data Visita</th>
+                    <th>Tipo</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for visita in ultimas_visitas %}
+                    <tr>
+                        <td>
+                            {% if visita.prisao.pessoa %}
+                            <a href="{% url 'nadep_visualizar_pessoa' visita.prisao.pessoa.id %}" class="text-info">
+                                {{ visita.prisao.pessoa.nome }}
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'atendimento_atender' visita.numero %}#/historico" class="text-info" title="{{ visita.historico|truncatechars:100 }}" rel="tooltip">
+                                <small>
+                                    <i class="fas fa-comment"></i>
+                                </small>
+                            </a>
+                            <div class="muted">{{ visita.estabelecimento_penal }}</div>
+                        </td>
+                        <td class="span2">{{ visita.data_atendimento | date:'d/m/Y H:i' }}</td>
+                        {% if visita.prisao.tipo == prisao.TIPO_PROVISORIO %}
+                            <td class="span2"><span class="label label-warning"> Provisório</span></td>
+                        {% else %}
+                            <td class="span2"><span class="label label-important"> Condenado</span></td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">Nenhuma visita cadastrada</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

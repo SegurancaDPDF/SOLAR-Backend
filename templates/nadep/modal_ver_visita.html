@@ -1,0 +1,28 @@
+<!-- Modal excluir processo -->
+<div id="modal-ver-visita" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Visita ao Preso</h3>
+    </div>
+    <div class="modal-body">
+        <dl class="dl-horizontal">
+            <dt>Número</dt>
+            <dd><b class="text-info">[[ visita.numero ]]</b></dd>
+            <dt>Data Atendimento</dt>
+            <dd>[[ visita.data_atendimento | utc | date:"dd/MM/yyyy HH:mm" ]]</dd>
+            <dt>Defensor</dt>
+            <dd>[[ visita.defensor.nome ]]</dd>
+            <dt>Defensoria</dt>
+            <dd>[[ visita.defensoria.nome ]]</dd>
+            <dt>Histórico</dt>
+            <dd>
+                <small>[[ visita.historico ]]</small>
+            </dd>
+        </dl>
+    </div>
+    <div class="modal-footer">
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Fechar</a>
+    </div>
+</div>
+<!-- Modal excluir processo -->

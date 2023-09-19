@@ -1,0 +1,45 @@
+<div class="btn-group">
+    <button id="btn-ajuda" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" disabled>
+        <i class="fas fa-question-circle"></i> Ajuda
+    </button>
+    <ul id="dropdown-menu-ajuda" class="dropdown-menu" style="right: 0; left: auto;">
+        <li>
+            <a href="#tour_diligencia_visao_geral" class="tour" data-tour-id="diligencia_visao_geral">
+                Visão geral
+            </a>
+        </li>
+        {% if solicitacoes_agendadas_count %}
+        <li>
+            <a href="#tour_diligencia_agendada" class="tour" data-tour-id="diligencia_agendada">
+                Como atender uma nova diligência?
+            </a>
+        </li>
+        {% endif %}
+        {% if solicitacoes.exists %}
+            <li>
+                <a href="#tour_diligencia_nova_atividade" class="tour" data-tour-id="diligencia_nova_atividade">
+                    Como registrar uma nova atividade?
+                </a>
+            </li>
+            {% if atividades.exists %}
+                <li>
+                    <a href="#tour_diligencia_excluir_atividade" class="tour" data-tour-id="diligencia_excluir_atividade">
+                        Como excluir uma atividade?
+                    </a>
+                </li>
+                <li>
+                    <a href="#tour_diligencia_novo_documento" class="tour" data-tour-id="diligencia_novo_documento">
+                        Como incluir uma nova certidão?
+                    </a>
+                </li>
+            {% endif %}
+            {% if documentos.exists %}
+                <li>
+                    <a href="#tour_diligencia_finalizar" class="tour" data-tour-id="diligencia_diligencia_finalizar">
+                        Como finalizar uma diligência?
+                    </a>
+                </li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>

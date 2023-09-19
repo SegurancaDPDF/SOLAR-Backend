@@ -1,0 +1,31 @@
+<form id="BaixarPrisaoForm" name="BaixarPrisaoForm" method="POST" action="{% url "nadep_baixar_preso" pessoa.id %}">
+    {% csrf_token %}
+    <div class="alert">
+        <h4>Atenção!</h4>
+        <p>Todas as prisões em andamento serão baixadas. Essa operação é irreversível!</p>
+    </div>
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="control-group span12">
+                <label class="control-label">Data</label>
+                <div class="controls">
+                    {{ form.data_baixa }}
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="control-group span12">
+                <label class="control-label">Motivo</label>
+                <div class="controls">
+                    {{ form.motivo_baixa }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $("input.datepicker").datepicker();
+    $("input[data-mask]").each(function(){
+        $(this).mask($(this).attr('data-mask'));
+    });
+</script>

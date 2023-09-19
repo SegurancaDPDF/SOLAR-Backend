@@ -1,0 +1,58 @@
+{% load static %}
+<!-- Modal Buscar Processo -->
+<div id="modal-vincular-acao-penal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-header">
+        <h3>Vincular Ação Penal</h3>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-body">
+        <div ng-if="carregando"><img src="{% static "img/loader_16.gif" %}"> Carregando...</div>
+        <div ng-if="!carregando">
+            <div class="text-alert" ng-if="processo.consultados && !processo.acao_penal">
+                <h5 class="text-alert"><i class="fas fa-warning"></i> Fique atento!</h5>
+                <p>
+                    Você está cadastrando uma prisão num inquérito policial que possui processos dependentes.
+                </p>
+            </div>
+            <div class="text-error" ng-if="processo.consultados && processo.acao_penal">
+                <h5 class="text-error"><i class="fas fa-warning"></i> Erro!</h5>
+                <p>
+                    Não é possível cadastrar uma prisão neste inquérito policial. Já existe uma ação penal vinculada. Cadastre a prisão nela.
+                </p>
+            </div>
+            <form name="VincularProcessoForm" id="VincularProcessoForm">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Classe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="vinculado in processo.vinculados | filter:{'vinculo':'DP'} track by $index" ng-class="{'error':vinculado.processo.classe.acao_penal}">
+                            <td>
+                                [[ vinculado.numero ]]
+                            </td>
+                            <td>
+                                <div ng-if="vinculado.carregando"><img src="{% static "img/loader_16.gif" %}"> Carregando...</div>
+                                <div ng-if="!vinculado.carregando && vinculado.processo">
+                                    <span ng-if="vinculado.processo.classe.nome">[[ vinculado.processo.classe.nome ]]</span>
+                                </div>
+                                <span class="muted" ng-if="!vinculado.carregando && !vinculado.processo">Marque para consultar</span>
+                            </td>
+                        </tr>
+                        <tr ng-if="!processo.vinculados.length">
+                            <td colspan="2">Nenhum processo vinculado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-footer">
+        <a href="{% url "nadep_visualizar_pessoa" pessoa.id %}#/processos" class="btn">Voltar</a>
+        <button class="btn" data-dismiss="modal" ng-disabled="processo.consultados && processo.acao_penal">Continuar</button>
+    </div>
+</div>
+<!-- Modal Buscar Processo -->

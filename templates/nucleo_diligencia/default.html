@@ -1,0 +1,52 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+{% load static %}
+
+{% block titulo %}Diligência{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2>
+        <i class="fas fa-envelope" aria-hidden="true"></i> Diligência
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_nucleo_diligencia.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/tours/tour_diligencia.js" %}"></script>
+
+    {% block js_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

@@ -1,0 +1,66 @@
+{% load static %}
+<!-- Modal Processo -->
+<div id="modal-cadastrar-processo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-header">
+        <h3 ng-if="processo.acao.inquerito">Cadastrar Ação Penal</h3>
+        <h3 ng-if="!processo.acao.inquerito">Cadastrar Execução Penal</h3>
+    </div>
+    <div class="modal-body">
+        <form name="CadastrarProcessoForm" id="CadastrarProcessoForm" class="form form-horizontal" ng-init="execucao={atendimento_numero:{% if prisao.parte %}{{ prisao.parte.atendimento }}{% else %}{{ prisao.origem.parte.atendimento | default:'null' }}{% endif %},requerente:{{ pessoa.id }},parte:1,tipo:2}">
+            {% csrf_token %}
+            <div class="control-group">
+                <label class="control-label"><label>Número</label></label>
+                <div class="controls">
+                    <input type="text" disabled ng-model="execucao.numero">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label"><label>Chave</label></label>
+                <div class="controls">
+                    <input type="text" name="chave" ng-model="execucao.chave">
+                </div>
+            </div>
+            <div class="control-group" ng-class="{true:'error'}[!execucao.area.id]">
+                <label class="control-label"><label>Área</label></label>
+                <div class="controls">
+                    <input type="text" class="span12" placeholder="Digite o nome da área" ng-model="execucao.area" typeahead="i as i.nome for i in areas | filter:{nome:$viewValue} | limitTo:8">
+                    <label class="text-error helper-font-small" ng-show="execucao.area && !execucao.area.id">Esta área não existe no banco de dados</label>
+                </div>
+            </div>
+            <div class="control-group" ng-class="{true:'error'}[!execucao.defensor_cadastro.id]">
+                <label class="control-label"><label>Defensor Cad.</label></label>
+                <div class="controls">
+                    <input type="text" class="span12" placeholder="Digite o nome do defensor" ng-model="execucao.defensor_cadastro" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:8">
+                    <label class="text-error helper-font-small" ng-show="execucao.defensor_cadastro && !execucao.defensor_cadastro.id">Este defensor não existe no banco de dados</label>
+                </div>
+            </div>
+            <div class="control-group" ng-class="{true:'error'}[!execucao.defensoria_cadastro.id]">
+                <label class="control-label"><label>Orgão Cad.</label></label>
+                <div class="controls">
+                    <input type="text" class="span12" placeholder="Digite o nome da defensoria" ng-focus="carregar_defensorias(execucao.defensor_cadastro.id)" ng-model="execucao.defensoria_cadastro" typeahead="i as i.nome for i in defensorias | filter:{plantao:false} | filter:{nome:$viewValue} | limitTo:8">
+                    <label class="text-error helper-font-small" ng-show="execucao.defensoria_cadastro && !execucao.defensoria_cadastro.id">Esta defensoria não existe no banco de dados</label>
+                </div>
+            </div>
+            <div class="control-group" ng-class="{true:'error'}[!execucao.defensor.id]">
+                <label class="control-label"><label>Defensor Resp.</label></label>
+                <div class="controls">
+                    <input type="text" class="span12" placeholder="Digite o nome do defensor" ng-model="execucao.defensor" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:8" ng-change="execucao.defensoria=null">
+                    <label class="text-error helper-font-small" ng-show="execucao.defensor && !execucao.defensor.id">Este defensor não existe no banco de dados</label>
+                </div>
+            </div>
+            <div class="control-group" ng-class="{true:'error'}[!execucao.defensoria.id]">
+                <label class="control-label"><label>Orgão Resp.</label></label>
+
+                <div class="controls">
+                    <input type="text" class="span12" placeholder="Digite o nome da defensoria" ng-focus="carregar_defensorias(execucao.defensor.id)" ng-model="execucao.defensoria" typeahead="i as i.nome for i in defensorias | filter:{plantao:false} | filter:{nome:$viewValue} | limitTo:8">
+                    <label class="text-error helper-font-small" ng-show="execucao.defensoria && !execucao.defensoria.id">Esta defensoria não existe no banco de dados</label>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" data-dismiss="modal" ng-click="salvar_processo(execucao)">Salvar</button>
+        <a href="{% url "nadep_visualizar_pessoa" pessoa.id %}" class="btn">Cancelar</a>
+    </div>
+</div>
+<!-- Modal Processo -->

@@ -1,0 +1,21 @@
+{% load contrib_tags %}
+<!-- Modal Cadastrar Visita -->
+<div id="modal-distribuir-nucleo-diligencia" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Deseja atender esta solicitação?</h3>
+    </div>
+    <!--  Corpo do Modal -->
+    <div class="modal-body">
+        {% if modal_body %}
+            {% include 'nucleo_diligencia/modal_nucleo_diligencia_distribuir_body.html' %}
+        {% endif %}
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-footer">
+        <button id="btn-modal-distribuir-nucleo-diligencia-sim" class="btn btn-primary" type="submit" form="DistribuirNucleoDiligenciaForm">Sim</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Não</button>
+    </div>
+</div>
+<!-- Modal Cadastrar Visita -->

@@ -1,0 +1,81 @@
+<!-- informacoes processuais -->
+<div class="span3">
+    <h4>Informações da prisão</h4>
+
+    <div class="well well-small">
+        {% if prisao %}
+            <p>
+                <span class="block"><strong>Número do processo: </strong></span>
+                {{ prisao.processo.numero |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Defensor Responsável: </strong></span>
+                {{ prisao.parte.defensor |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Defensor Cadastro: </strong></span>
+                {{ prisao.parte.defensor_cadastro |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Situação: </strong></span>
+                {{ prisao.get_situacao_display |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Tipificação: </strong></span>
+                {{ prisao.tipificacao |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Regime Atual: </strong></span>
+                {{ prisao.get_regime_atual_display |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Data do Fato: </strong></span>
+                {{ prisao.data_fato|date:"d/m/Y" |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Data da Prisão: </strong></span>
+                {{ prisao.data_prisao|date:"d/m/Y"  |default:"---" }}
+            </p>
+            <p>
+                <span class="block"><strong>Estabelecimento Penal: </strong></span>
+                {{ prisao.estabelecimento_penal |default:"---" }}
+            </p>
+            <div class="pull-right actions-m5 btn-group">
+                {% if perms.nadep.change_prisao %}
+                    <a href="{% url "nadep_editar_prisao" prisao.id %}" role="button" class="btn" rel="tooltip"
+                       data-placement="left" data-original-title="Editar dados da prisão">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                {% endif %}
+                {% if perms.nadep.delete_prisao %}
+                    <a href="#modal-excluir-prisao" role="button" data-toggle="modal" class="btn btn-danger"
+                       rel="tooltip" data-placement="left" data-original-title="Excluir prisão">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="alert">
+                Esse atendimento ao preso não possui uma prisão vinculada
+            </div>
+        {% endif %}
+        <span class="clearfix"></span>
+    </div>
+</div>
+<!-- /informaoes processuais -->
+{% if prisao and perms.nadep.delete_prisao %}
+    <div id="modal-excluir-prisao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Excluir Prisão</h3>
+        </div>
+        <div class="modal-body">
+            <p>Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url "nadep_excluir_prisao" prisao.id %}" class="btn btn-danger">Excluir</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,145 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+    <style>
+    .last td {border-bottom: 5px #B5B5B5 solid;}
+	#popover_pessoa .popover{width: 500px;}
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <form class="navbar-form" ng-init="init({ {% for k, v in request.GET.items %}'{{ k }}':'{{ v }}'{% if not forloop.last %},{% endif %}{% endfor %} })">
+                    {% csrf_token %}
+                    {{ form.data_ini }}
+                    {{ form.data_fim }}
+                    <input type="text" class="span2" placeholder="Digite o nome da comarca..." ng-model="comarca" typeahead="i as i.nome for i in comarcas | filter:{nome:$viewValue} | limitTo:12" ng-style="(comarca && !comarca.id) ? {'border-color':'#b94a48'} : ''">
+                    <input type="text" class="span2" placeholder="Digite o nome da defensoria..." ng-model="defensoria" typeahead="i as i.nome for i in defensorias | filter:{nome:$viewValue} | limitTo:12" ng-style="(defensoria && !defensoria.id) ? {'border-color':'#b94a48'} : ''">
+                    <input type="text" class="span2" placeholder="Digite o nome do defensor..." ng-model="defensor" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:12" ng-style="(defensor && !defensor.id) ? {'border-color':'#b94a48'} : ''">
+                    {{ form.filtro }}
+                    <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom" data-original-title="Buscar prisão" ng-click="buscar(0, true)" ng-disabled="!valido">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar Prisão ([[ filtro.total ]])
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th>Assistido</th>
+            <th>Processo</th>
+            <th>Tipificação</th>
+            <th>Data da prisão</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="registro in registros track by $index" ng-class="{'last':registro.ultimo}">
+                <td>
+                    <div>
+                        <small class="muted">#[[ $index + 1 ]]</small>
+                        {% if request.user.is_superuser %}
+                        <a href="/admin/nadep/prisao/[[ registro.id ]]/" target="_blank" class="text-info">
+                            <i class="fas fa-link"></i>
+                        </a>
+                        {% endif %}
+                        <a href="/nucleo/nadep/pessoa/visualizar/[[ registro.pessoa__id ]]/"
+                            class="btn-link">
+                            [[ registro.pessoa__nome ]]
+                        </a>
+                        <a href="javascript:void(0)"
+                            data-container="#popover_pessoa"
+                            data-placement="bottom"
+                            data-title="[[ registro.pessoa__nome ]]"
+                            data-trigger="focus"
+                            bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                            ng-mouseover="get_pessoa(registro.pessoa__id, '{{ config.PREFIXO_HIPERLINK_TEL }}')"
+                            data-tooltip="Ver Detalhes">
+                            <i class="fas fa-info-circle"></i>
+                        </a>
+                        <a href="?filtro=[[ registro.pessoa__nome ]]" class="text-info" title="Buscar prisões desse assistido" bs-tooltip>
+                            <i class="fas fa-search"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <small class="muted">[[ registro.estabelecimento_penal__nome ]]</small>
+                    </div>
+                    <div class="btn-group">
+                        <a href="/nucleo/nadep/prisao/editar/[[ registro.id ]]/" class="btn btn-mini" title="Alterar dados da prisão" bs-tooltip>
+                            <i class="fas fa-pencil-alt"></i> Alterar
+                        </a>
+                        <a href="/nucleo/nadep/pessoa/visualizar/[[ registro.pessoa__id ]]/" class="btn btn-mini" title="Ficha prisional do assistido" bs-tooltip>
+                            <i class="fas fa-lock"></i> Ficha
+                        </a>
+                    </div>
+                <td>
+                    <div>
+                        <span class="label label-warning" title="Provisório" ng-if="!registro.tipo" bs-tooltip>P</span>
+                        <span class="label label-important" title="Condenado" ng-if="registro.tipo" bs-tooltip>C</span>
+                        <span ng-class="{0:'text-warning', 1:'text-error'}[registro.tipo]" bs-tooltip="registro.processo__acao__nome">[[ registro.processo__numero|default:"Processo não vinculado" ]]</span>
+                        <a href="?filtro=[[ registro.processo__numero ]]" class="text-info" title="Buscar prisões desse processo" bs-tooltip>
+                            <i class="fas fa-search"></i>
+                        </a>
+                    </div>
+                    <small class="muted">[[ registro.parte__defensoria__nome ]]</small>
+                </td>
+                <td>
+                    [[ registro.tipificacao__nome ]]
+                </td>
+                <td>
+                    <div>[[ registro.data_prisao | date:"dd/MM/yyyy" ]]</div>
+                    <div class="muted">[[ registro.dias_preso ]]</div>
+                </td>
+            </tr>
+            <tr ng-if="!registros.length">
+                <td colspan="4">Nenhum registro encontrado</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center">
+        <div class="pagination">
+            <ul>
+                <li ng-if="!filtro.ultima && !carregando"><button ng-click="buscar(filtro.pagina+1)" class="btn btn-link"><i class="fas fa-chevron-down"></i> Carregar mais...</button></li>
+                <li ng-if="carregando" class="disabled"><a href="#" ><img src="{% static 'img/loading.gif' %}"> Carregando...</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="popover_pessoa" style="width: 500px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+    $('a[data-toggle=popover]').popover();
+
+{% endblock %}

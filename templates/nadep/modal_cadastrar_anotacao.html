@@ -1,0 +1,23 @@
+<!-- Modal Anotacao  -->
+<div id="modal-anotacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Nova Anotação</h3>
+    </div>
+    <div class="modal-body">
+        <form id="AnotacaoForm" name="AnotacaoForm">
+            {% csrf_token %}
+            <div>Número: <b>[[registro.anotacao.numero]]</b></div>
+            <div>Requerente: <b>[[registro.pessoa__nome]]</b></div>
+            <div>Data: <b>[[registro.anotacao.data_atendimento | date:"dd/MM/yyyy"]] <span class="muted">[[ registro.anotacao.dias_atendimento ]]</span></b></div>
+            <div>Anotação: <b><small>[[registro.anotacao.historico]]</small></b></div>
+            <hr>
+            {{ form.as_bs }}
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-disabled="AnotacaoForm.$invalid || anotacao.salvando" ng-click="salvar_anotacao()">Salvar</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>
+<!-- Modal Anotacao -->

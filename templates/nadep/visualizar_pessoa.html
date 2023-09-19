@@ -1,0 +1,119 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3></h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    {% csrf_token %}
+    <div ng-app="siapApp">
+        <div ng-controller="VerPessoaCtrl" ng-init="init({id:{{ pessoa.id }}, data_base:{{ preso.data_base|date:"Ymd" }}, prisao:{id:{{ preso.prisoes_condenado.0.id | default:'null' }}, numero:'{{ preso.prisoes_condenado.0.processo.numero }}', 'estabelecimento_penal':{{ preso.prisoes_condenado.0.estabelecimento_penal_id | default:'null' }}}, regime_atual:{{ preso.prisoes_condenado.0.regime_atual | default:'null' }}}, {is_superuser:{{ request.user.is_superuser|lower }}, NOME_PROCESSO_TJ: '{{ config.NOME_PROCESSO_TJ }}', URL_PROCESSO_TJ: '{{ config.URL_PROCESSO_TJ }}'})">
+            <!-- BOX INFORMACOES PESSOAIS -->
+            <div class="row-fluid">
+                <div class="span6">
+                    <div class="media">
+                        <a class="pull-left" href="{% url 'assistido_editar' pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/">
+                            <img class="media-object img-polaroid" data-src="js/holder.js/112x112" src="{{ pessoa.get_foto }}" height="100" width="100">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">
+                                {{ pessoa.nome }}
+                            </h4>
+                            <div>CPF: <b>{{ pessoa.cpf | default:"Não informado" }}</b></div>
+                            <div>Data de Nascimento: <b>{{ pessoa.data_nascimento |date:"d/m/Y" |default:"Não informada" }}</b>
+                            </div>
+                            <div>
+                                {% for filiacao in pessoa.filiacoes.all %}
+                                    {{ filiacao.get_tipo_display }}: <b>{{ filiacao.nome }}</b><br/>
+                                {% endfor %}
+                            </div>
+                            <div class="btn-group">
+                                {% if preso.prisao_principal.parte.atendimento %}
+                                <a href="{% url 'atendimento_atender' preso.prisao_principal.parte.atendimento %}" class="btn btn-small btn-primary">
+                                    <i class="fas fa-comments"></i> Atendimento
+                                </a>
+                                {% else %}
+                                <a class="btn btn-small btn-primary disabled">
+                                    <i class="fas fa-lock"></i> Atendimento
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'assistido_editar' pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/"
+                                   class="btn btn-small">
+                                    <i class="fas fa-pencil-alt"></i> Cadastro
+                                </a>
+                                <a href="{% url 'assistido_editar' pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/&amp;tab=6"
+                                   class="btn btn-small">
+                                    <i class="fas fa-address-card"></i> Documentos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span6">
+                    {% include 'nadep/visualizar_pessoa_dados_prisao.html' with mostrar_acoes=True %}
+                </div>
+            </div>
+            <div class="divider-content"><span></span></div>
+            <!-- /BOX INFORMACOES PESSOAIS -->
+            <div class="row-fluid">
+                <!-- atendimentos e andamentos -->
+                <div class="span12">
+                    <div class="tabbable">
+                        <ul class="nav nav-tabs">
+                            <li ng-class="{true:'active'}[tab==2]" class="bold">
+                                <a href="#/guias/[[ preso.data_base ]]" data-toggle="tab">Guias</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==6]">
+                                <a href="#/aprisionamentos" data-toggle="tab">Detrações</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==7]">
+                                <a href="#/interrupcoes" data-toggle="tab">Interrupções</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==4]">
+                                <a href="#/remissoes" data-toggle="tab">Remições</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==3]">
+                                <a href="#/faltas" data-toggle="tab">Faltas</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==1]" class="bold">
+                                <a href="#/prisoes" data-toggle="tab">Prisões</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==5]" class="bold">
+                                <a href="#/processos" data-toggle="tab">Processos</a>
+                            </li>
+                            <li ng-class="{true:'active'}[tab==8]" class="bold">
+                                <a href="#/historico" data-toggle="tab">Histórico Penal</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" style="overflow:inherit;">
+                            <div class="tab-pane fade active in" id="tab-default" ng-view=""></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /atendimentos e andamentos -->
+                <div ng-include="modalTransferirUrl" onload="showModalTransferir()"></div>
+                <div ng-include="modalSoltarUrl" onload="showModalSoltar()"></div>
+            </div>
+            <div ng-include="modalAlterarRegimeUrl" onload="showModalAlterarRegime()"></div>
+            <div ng-include="modalBaixaUrl" onload="showModalBaixar()"></div>
+        </div>
+    </div>
+    {% include "nadep/modal_registrar_baixa.html" %}
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+
+{% endblock %}

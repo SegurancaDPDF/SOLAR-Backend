@@ -1,0 +1,134 @@
+{% with prisao=preso.prisoes.0 %}
+    {% if not prisao or prisao.esta_em_regime_aberto or preso.is_solto %}
+        <h4 class="media-heading text-success">
+            ASSISTIDO ESTÁ SOLTO
+        </h4>
+    {% else %}
+        <small class="text-error bold">ATUALMENTE PRESO EM</small>
+        <h5 class="media-heading text-error">
+            {{ preso.estabelecimento_penal_atual }}
+        </h5>
+    {% endif %}
+    <small class="bold">DADOS DA ÚLTIMA PRISÃO</small>
+    <div>
+        Tipo/Regime:
+        {% if prisao.tipo == prisao.TIPO_PROVISORIO %}
+            <span class="label label-warning">Provisório</span>
+        {% else %}
+            <span class="label label-important">Condenado</span>
+        {% endif %}
+        {% if prisao.regime_atual == prisao.REGIME_FECHADO %}
+            <span class="label label-important">Fechado</span>
+        {% elif prisao.regime_atual == prisao.REGIME_SEMIABERTO %}
+            <span class="label label-warning">Semiaberto</span>
+        {% elif prisao.regime_atual == prisao.REGIME_ABERTO %}
+            <span class="label label-success">Aberto</span>
+        {% endif %}
+    </div>
+    <div>
+        Data da Prisão: <b>{{ prisao.data_prisao|date:"d/m/Y" }}
+        {% with preso.total_aprisionamentos as tempo_preso %}
+            <small class="muted">
+                {{ tempo_preso.anos|default:"0" }} ano(s),
+                {{ tempo_preso.meses|default:"0" }} mes(es),
+                {{ tempo_preso.dias|default:"0" }} dia(s) preso(a)
+            </small>
+        {% endwith %}
+    </b>
+    </div>
+    {% if prisao.tipo == prisao.TIPO_CONDENADO %}
+        {% with preso.duracao_total_pena as duracao_pena %}
+            <div>
+                Pena: <b>{{ duracao_pena.anos|default:"0" }} ano(s),
+                {{ duracao_pena.meses|default:"0" }} mes(es),
+                {{ duracao_pena.dias|default:"0" }} dia(s)</b>
+            </div>
+        {% endwith %}
+        <div>
+            {% if prisao.regime_atual == prisao.REGIME_ABERTO %}
+                Término da Pena: <b>{{ preso.calcular_data_termino_pena|date:"d/m/Y"|default:"Não informado" }}</b>
+            {% else %}
+                {% with data_progressao=preso.calcular_data_progressao_regime %}
+                    Próxima Progressão: <b>{{ data_progressao|date:"d/m/Y"|default:"Não informado" }}</b>
+                    {% if data_progressao == hoje %}
+                        <span class="text-warning">
+                            <small>(Hoje!)</small>
+                        </span>
+                    {% elif data_progressao > hoje %}
+                        <span class="text-success">
+                            <small>({{ data_progressao|timeuntil:hoje }})</small>
+                        </span>
+                    {% else %}
+                        <span class="text-error">
+                            <small>({{ hoje|timeuntil:data_progressao }} atrasada)</small>
+                        </span>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+        </div>
+    {% endif %}
+    <div>
+        Processo: <b>{{ prisao.processo.numero|default:"Não informado" }}</b>
+    </div>
+    {% if prisao.infopen %}
+    <div>
+        INFOPEN: <b>{{ prisao.infopen }}</b>
+    </div>
+    {% endif %}
+
+    {% if config.ATIVAR_LIVRE_API and prisao and prisao.tipo == prisao.TIPO_CONDENADO and prisao.processo.numero_puro %}
+        <div class="btn-group">
+            <button id="btn-relatorios-seeu" class="btn btn-small dropdown-toggle" data-toggle="dropdown" rel="tooltip" data-original-title="Mais opções">
+                <i class="fas fa-print"></i> Relatórios SEEU 
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="{% url 'livre:consultar_relatorio' processo_numero=prisao.processo.numero_puro relatorio_tipo=1 %}" target="_blank">
+                        <i class="fas fa-print"></i> Situação Carcerária
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'livre:consultar_relatorio' processo_numero=prisao.processo.numero_puro relatorio_tipo=2 %}" target="_blank">
+                        <i class="fas fa-print"></i> Atestado de Pena
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'livre:consultar_relatorio' processo_numero=prisao.processo.numero_puro relatorio_tipo=3 %}" target="_blank">
+                        <i class="fas fa-print"></i> Linha do Tempo
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+    {% if prisao and mostrar_acoes %}
+        <div class="btn-group">
+            <a data-target="#modal-registrar-baixa" href="{% url "nadep_baixar_preso" pessoa.id %}" class="btn btn-small" data-toggle="modal">
+                <i class="fas fa-folder"></i> Baixar
+            </a>
+            {% if preso.is_solto %}
+                {% if preso.prisoes_provisorio.count %}
+                    <a data-target="#modal-registrar-transferencia" class="btn btn-small" data-toggle="modal" ng-click="btnTransferir_click()">
+                        <i class="fas fa-lock"></i> Prender
+                    </a>
+                {% endif %}
+            {% else %}
+                {% if preso.prisoes_provisorio.count %}
+                    <a data-target="#modal-registrar-soltura" class="btn btn-small" data-toggle="modal" ng-click="btnSoltar_click()">
+                        <i class="fas fa-unlock"></i> Soltar
+                    </a>
+                {% endif %}
+                <a data-target="#modal-registrar-transferencia" class="btn btn-small" data-toggle="modal" ng-click="btnTransferir_click()">
+                    <i class="fas fa-share"></i> Transferir
+                </a>
+            {% endif %}
+        </div>
+    {% elif atendimento %}
+        <div class="btn-group">
+            <a href="{% url 'nadep_visualizar_pessoa' atendimento.requerente.pessoa.id %}"
+            class="btn btn-small btn-danger">
+                <i class="fas fa-leaf"></i> Ficha Penal
+            </a>
+        </div>
+    {% endif %}
+{% endwith %}

@@ -1,0 +1,64 @@
+<!-- informacoes pessoais -->
+<div class="span3 pull-left">
+    <div>
+        <h4>Informações do Assistido</h4>
+    </div>
+    <div class="well well-small">
+        <p>
+            <span class="block"><strong>Nome:</strong></span>
+            {{ pessoa.nome }}
+        </p>
+
+        <p>
+            <span class="block"><strong>CPF:</strong></span>
+            {{ pessoa.cpf|default:"Não informado" }}
+        </p>
+
+        <p>
+            <span class="block"><strong>Data de nascimento:</strong></span>
+            {{ pessoa.data_nascimento |date:"d/m/Y" |default:"Não informada" }}
+        </p>
+        {% for filiacao in pessoa.filiacoes.all %}
+            <p>
+                <span class="block"><strong>{{ filiacao.get_tipo_display }}:</strong></span>
+                {{ filiacao.nome }}
+            </p>
+        {% endfor %}
+        <div class="pull-right actions-m5 btn-group">
+            {% if perms.assistido.change_pessoaassistida %}
+                <a href="{% url "assistido_editar" pessoa.id %}?next=/nucleo/nadep/pessoa/visualizar/" role="button"
+                   class="btn" rel="tooltip" data-placement="left" data-original-title="Editar dados da pessoa">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+            {% endif %}
+            {% if perms.assistido.delete_pessoaassistida %}
+                <a href="#modal-excluir-pessoa" role="button" data-toggle="modal" class="btn btn-danger" rel="tooltip"
+                   data-placement="left" data-original-title="Excluir pessoa">
+                    <i class="fas fa-trash"></i>
+                </a>
+            {% endif %}
+        </div>
+        <span class="clearfix"></span>
+    </div>
+    {% if prisao %}
+        {% include 'nadep/box_processo.html' %}
+    {% endif %}
+</div>
+<!-- /informacoes pessoais -->
+{% if perms.assistido.delete_pessoaassistida %}
+    <div id="modal-excluir-pessoa" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Excluir Pessoa</h3>
+        </div>
+        <div class="modal-body">
+            <p>Atenção! Essa exclusão é <b>irreversível</b>.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url "assistido_excluir" pessoa.id %}?next={% url "nadep_buscar_pessoa" %}"
+               class="btn btn-danger">Excluir</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </div>
+{% endif %}

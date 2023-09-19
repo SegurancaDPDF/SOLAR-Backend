@@ -1,0 +1,438 @@
+{% extends "nucleo_diligencia/default.html" %}
+{% load humanize contrib_tags static %}
+
+{% block css_pag %}
+    <link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+    <style>
+        #popover_pessoa .popover{width: 500px;}
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3></h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<div class="row-fluid">
+    <div class="span9">
+        <div class="media">
+            <div class="pull-left">
+                <img class="media-object img-polaroid" data-src="js/holder.js/112x112" src="{{ pessoa.get_foto }}" height="100" width="100">
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading" class="margin-top: 0;">
+                    <a href="{% url 'assistido_editar' pessoa.id %}?tipo=0&amp;next={% url 'nucleo_diligencia_atender_pessoa' pessoa.id atendimento.numero %}"
+                        class="text-info">
+                        {% if pessoa.nome_social %}
+                            {{ pessoa.nome_social }}
+                        {% else %}
+                            {{ pessoa.nome }}
+                        {% endif %}
+                    </a>
+                    <a href="javascript:void(0)"
+                        data-container="#popover_pessoa"
+                        data-placement="bottom"
+                        data-title="{{ pessoa.nome }}"
+                        data-trigger="focus"
+                        bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                        ng-mouseover="get_pessoa({{ pessoa.id }}, '{{ config.PREFIXO_HIPERLINK_TEL }}')"
+                        data-tooltip="Ver Detalhes">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                    {% if pessoa.nome_social %}
+                        <span title="Nome Social" class="label label-important">NS</span>
+                    {% endif %}
+                </h4>
+                <div>
+                    {% for telefone in pessoa.telefones.all %}
+                        {{ telefone.get_tipo_display }}: <b>{{ telefone }}</b> {% if telefone.nome %} ({{ telefone.nome }}){% endif %}
+                        {% if telefone.eh_whatsapp %}
+                            <i class="fab fa-whatsapp color-green"></i>
+                        {% endif %}
+                        <br/>
+                    {% endfor %}
+
+                    {% for endereco in pessoa.enderecos.ativos %}
+                        Endereço:
+                        {% if endereco.principal %}
+                            <b>{{ endereco }}</b>
+                        {% else %}
+                            {{ endereco }}
+                        {% endif %}
+                        <br>
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="span3">
+        <div class="pull-right">
+            {% include 'nucleo_diligencia/tour.html' %}
+        </div>
+    </div>
+</div>
+
+<div class="divider-content"><span></span></div>
+<div class="row-fluid" ng-init="init({{ atendimento.defensoria.nucleo.id }})">
+        <div class="span4">
+
+            <!-- Lista de solicitações em andamento -->
+            <div class="well" id="box-solicitacoes-andamento">
+                {% for resposta in respostas %}
+                    {% with solicitacao=resposta.origem.at_defensor %}
+                        {% with documento=solicitacao.documento_set.ativos.ordem_data_cadastro_crescente.first %}
+                            {% if resposta.data_atendimento %}
+                                <span class="label label-success">
+                                    <small>Finalizada</small>
+                                </span>
+                            {% elif resposta.participantes.exists %}
+                                <span class="label label-warning">
+                                    <small>Em Andamento</small>
+                                </span>
+                            {% else %}
+                                <span class="label label-important">
+                                    <small>Agendada</small>
+                                </span>
+                            {% endif %}
+                            <h4>
+                                <i class="fas fa-envelope" aria-hidden="true"></i> Solicitação nº {{ solicitacao.numero }}
+                                {% if request.user.is_superuser %}
+                                    <a href="/admin/atendimento/atendimento/{{ solicitacao.id }}" target="_blank" class="text-info"
+                                    title="Solicitação Admin" rel="tooltip">
+                                        <i class="fas fa-link"></i></a>
+                                    <a href="/admin/atendimento/atendimento/{{ resposta.id }}" target="_blank" class="text-info"
+                                        title="Resposta Admin" rel="tooltip">
+                                        <i class="fas fa-link"></i></a>
+                                {% endif %}
+                            </h4>
+                            {% with responsavel=resposta.participantes.first %}
+                                {% if responsavel %}
+                                    <span>Responsável: <b>{{ resposta.participantes.first.nome }}</b></span>
+                                {% endif %}
+                            {% endwith %}
+                            <hr>
+                            <div class="btn-group pull-right">
+                                <a href="/atendimento/{{ solicitacao.numero }}/#/documentos" target="_blank" class="btn btn-small" title="Ver Atendimento" rel="tooltip" id="btn-ver-documento-{{ forloop.parentloop.counter }}">
+                                    <i class="fas fa-comments"></i>
+                                </a>
+                                {% if documento.documento_online %}
+                                    <a href="{% url 'documentos:validar_detail_pdf' slug=documento.documento_online.pk_uuid  %}" target="_blank" class="btn btn-small" title="Ver Documento" rel="tooltip" id="btn-ver-documento-{{ forloop.parentloop.counter }}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ documento.arquivo.url }}" target="_blank" class="btn btn-small" title="Ver Documento" rel="tooltip" id="btn-ver-documento-{{ forloop.parentloop.counter }}">
+                                    <i class="fas fa-eye"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <h5 target="_blank" style="margin-bottom: 0;">
+                                <i class="fas fa-cloud"></i>
+                                <b>{{ documento.nome }}</b>
+                                <small>({{ documento.documento_online.identificador_versao }})</small>
+                            </h5>
+                            <h6>
+                                Pedido
+                            </h6>
+                            <ul>
+                                <li>
+                                    Defensoria: <b>{{ solicitacao.defensoria }}</b>
+                                </li>
+                                <li>
+                                    Solicitado por: <b title="{{ solicitacao.cadastrado_por }}" rel="tooltip">{{ solicitacao.cadastrado_por.usuario.username }}</b> em <b>
+                                    {{ solicitacao.data_cadastro|date:'d/m/Y H:i' }}</b>
+                                </li>
+                                <li>
+                                    Prazo:
+                                    <b>{{ resposta.data_agendamento|date:'d/m/Y'|default:"Não informado" }}</b>
+                                    {% if not resposta.data_atendimento %}
+                                        {% if resposta.data_agendamento.date == hoje.date %}
+                                            <span class="label label-warning">
+                                                <small>Hoje!</small>
+                                            </span>
+                                        {% elif resposta.data_agendamento.date > hoje.date %}
+                                            <span class="label">
+                                                <small>{{ resposta.data_agendamento.date|timeuntil:hoje.date }}</small>
+                                            </span>
+                                        {% else %}
+                                            <span class="label label-important">
+                                                <small>{{ hoje.date|timeuntil:resposta.data_agendamento.date }} atrasada</small>
+                                            </span>
+                                        {% endif %}
+                                    {% endif %}
+                                </li>
+                                <li>
+                                    Tipo de Pedido: <b>{{ resposta.qualificacao.titulo }}</b>
+                                </li>
+                                <li>
+                                    Observações:
+                                    <b>{{ solicitacao.historico|default:"Não informada" }}</b>
+                                </li>
+                                <li>
+                                    Anexos:
+                                    {% for anexo in solicitacao.documento_set.ativos %}
+                                        <ul>
+                                            <li>
+                                                {% if anexo.documento_online %}
+                                                    <a href="{% url 'documentos:validar_detail_pdf' slug=anexo.documento_online.pk_uuid  %}" target="_blank" class="text-success"
+                                                        title="Anexo" rel="tooltip">
+                                                        <small><i class="helper-font-small fas fa-cloud"></i> {{ anexo.nome }}</small>
+                                                        <br/>
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{{ anexo.arquivo.url }}" target="_blank" class="text-success"
+                                                        title="Anexo" rel="tooltip">
+                                                        <small><i class="helper-font-small fas fa-paperclip"></i> {{ anexo.nome }}</small>
+                                                        <br/>
+                                                    </a>
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    {% empty %}
+                                        <b>Não informado</b>
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                            {% if resposta.data_atendimento %}
+                                <h6>Resposta</h6>
+                                <ul>
+                                    <li>
+                                        Respondido por: <b title="{{ resposta.atendido_por }}" rel="tooltip">{{ resposta.atendido_por.usuario.username }}</b> em <b>
+                                        {{ resposta.data_atendimento|date:'d/m/Y H:i' }}</b>
+                                    </li>
+                                    <li>
+                                        Observações:
+                                        <b>{{ resposta.historico|default:"Não informada" }}</b>
+                                    </li>
+                                    <li>
+                                        Certidões:
+                                        <ul>
+                                            {% for documento in resposta.documento_set.ativos %}
+                                                <li>
+                                                {% if documento.arquivo %}
+                                                    <a href="{{ documento.arquivo.url }}" target="_blank" class="text-success"
+                                                        title="Anexo" rel="tooltip">
+                                                        <small><i class="helper-font-small fas fa-paperclip"></i> {{ documento.nome }}</small>
+                                                        <br/>
+                                                    </a>
+                                                {% elif documento.documento_online %}
+                                                    {% if not documento.documento_online.possui_assinatura_assinada %}
+                                                        <a href="{{ documento.documento_online.get_edit_url }}"
+                                                            target="_blank" class="text-warning" title="GED {{ documento.documento_online.identificador_versao }}" rel="tooltip"
+                                                            onclick="recarregar=true">
+                                                            <small><i class="helper-font-small fas fa-cloud"></i> {{ documento.nome }} (não assinado)</small>
+                                                            <br/>
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="{{ documento.documento_online.get_preview_url }}" target="_blank" class="text-success" title="GED {{ documento.documento_online.identificador_versao }}" rel="tooltip">
+                                                            <small><i class="helper-font-small fas fa-cloud"></i> {{ documento.nome }} {% if documento.documento_online.esta_assinado_e_finalizado %} (assinado e finalizado) {% else %} (assinado) {% endif %}</small>
+                                                            <br/>
+                                                        </a>
+                                                    {% endif %}
+                                                {% endif %}
+                                                </li>
+                                            {% empty %}
+                                                <b>Não informado</b>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        {% endwith %}
+                    {% endwith %}
+                {% empty %}
+                    <i>Nenhuma solicitação</i>
+                {% endfor %}
+            </div>
+            <!-- Lista de solicitações em andamento -->
+        </div>
+        <div class="span8">
+            <div class="pull-right">
+                {% if atendimento.data_atendimento %}
+                    <button id="btn-reabrir" data-target="#modal-cadastrar-atividade" data-toggle="modal"
+                            class="btn btn-small btn-success"
+                            ng-click="set_nova_atividade(true)">
+                        <i class="fas fa-undo icon-white"></i> Reabrir
+                    </button>
+                {% else %}
+                    <button id="btn-nova-atividade" data-target="#modal-cadastrar-atividade" data-toggle="modal"
+                            class="btn btn-small btn-primary"
+                            ng-click="set_nova_atividade(false)">
+                        <i class="fas fa-plus-circle icon-white"></i> Nova Atividade
+                    </button>
+                    {% if documentos.exists %}
+                        <button id="btn-finalizar"
+                                data-target="#modal-finalizar-atividade" data-toggle="modal" class="btn btn-small btn-success"
+                                ng-click="set_ultima_atividade('{{ atividades.first.qualificacao.titulo }}', {{ atividades.first.qualificacao.id }}, '{{ atividades.first.historico }}')">
+                            <i class="fas fa-check icon-white"></i> Finalizar
+                        </button>
+                    {% else %}
+                        <button class="btn btn-small btn-success disabled" title="Anexe uma certidão antes de finalizar" rel="tooltip">
+                            <i class="fas fa-check icon-white"></i> Finalizar
+                        </button>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <h5 id="box-atividades" >Atividades</h5>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th class="span1">#</th>
+                    <th class="span1">Data</th>
+                    <th class="span3">Atividade</th>
+                    <th class="span2">Participante(s)</th>
+                    <th class="span3">Documento(s)</th>
+                    <th class="span2">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for atividade in atividades %}
+                    <tr>
+                        <td>
+                            {% if request.user.is_superuser %}
+                                <a href="/admin/atendimento/atendimento/{{ atividade.id }}" target="_blank" class="text-info"
+                                    title="Atividade Admin" rel="tooltip">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                            {{ forloop.revcounter }}
+                        </td>
+                        <td>
+                            {{ atividade.data_atendimento|date:'d/m/Y' }}<br/>
+                            {{ atividade.data_atendimento|date:'H:i' }}
+                        </td>
+                        <td>
+                            <div>
+                                <b>{{ atividade.qualificacao|upper }}</b>
+                            </div>
+                            <i>{{ atividade.historico }}</i>
+                        </td>
+                        <td>
+                            {% for participante in atividade.participantes.all %}
+                                <small>{{ participante }}</small><br/>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for documento in atividade.origem.origem.documento_set.ativos %}
+                                {% if documento.documento_online %}
+                                    {% if documento.documento_online.esta_finalizado %}
+                                        <a href="{% url 'documentos:validar-detail' slug=documento.documento_online.pk_uuid  %}"
+                                           target="_blank" class="" title="GED {{ documento.documento_online.identificador_versao }}" rel="tooltip">
+                                            <b>{{ documento.nome }}</b>
+                                            <br/>
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for documento in atividade.documento_set.ativos %}
+                                {% if documento.arquivo %}
+                                    <a href="{{ documento.arquivo.url }}" target="_blank" class="text-success"
+                                        title="Anexo" rel="tooltip">
+                                        <small><i class="helper-font-small fas fa-paperclip"></i> {{ documento.nome }}</small>
+                                        <br/>
+                                    </a>
+                                {% elif documento.documento_online %}
+                                    {% if not documento.documento_online.possui_assinatura_assinada %}
+                                        <a href="{{ documento.documento_online.get_edit_url }}"
+                                            target="_blank" class="text-warning" title="GED {{ documento.documento_online.identificador_versao }}" rel="tooltip"
+                                            onclick="recarregar=true">
+                                            <small><i class="helper-font-small fas fa-cloud"></i> {{ documento.nome }} (não assinado)</small>
+                                            <br/>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ documento.documento_online.get_preview_url }}" target="_blank" class="text-success" title="GED {{ documento.documento_online.identificador_versao }}" rel="tooltip">
+                                            <small><i class="helper-font-small fas fa-cloud"></i> {{ documento.nome }} {% if documento.documento_online.esta_assinado_e_finalizado %} (assinado e finalizado) {% else %} (assinado) {% endif %}</small>
+                                            <br/>
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="text-center">
+                            {% if not atividade.origem.realizado %}
+                                <div class="btn-group">
+                                    <button id="btn-atividade-novo-anexo-{{ forloop.counter }}" class="btn btn-small"
+                                        data-target="#modal-documentos-atividade" data-toggle="modal"
+                                        ng-click="documento.link='{% url 'atendimento_documento_salvar' atividade.numero %}'"
+                                        tooltip="Incluir Certidão Anexo">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <a id="btn-atividade-novo-ged-{{ forloop.counter }}" class="btn btn-small djpopup djfullscreen reloadparentonclose"
+                                       href="{% url 'atendimento_ged_criar' atendimento_numero=atividade.numero %}"
+                                       data-placement="left" rel="tooltip" tooltip="Incluir Certidão GED">
+                                        <i class="fas fa-cloud"></i>
+                                    </a>
+                                    {% if atividade.data_atendimento >= dia_min %}
+                                        <button id="btn-atividade-excluir-{{ forloop.counter }}" class="btn btn-small btn-danger" data-target="#modal-excluir-atividade" data-toggle="modal" tooltip="Excluir Atividade"
+                                                ng-click="set_atividade({url:'{% url 'atendimento_excluir' atividade.numero %}'})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">Nenhum registro encontrado</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'nucleo_diligencia/atender_modal_atividade_cadastrar.html' %}
+
+    {% if not atendimento.data_atendimento %}
+        {% include 'nucleo_diligencia/atender_modal_atividade_finalizar.html' %}
+        {% include 'nucleo_diligencia/atender_modal_atividade_documentos.html' %}
+        {% include 'nucleo_diligencia/atender_modal_atividade_excluir.html' %}
+    {% endif %}
+
+    <div id="popover_pessoa" style="width: 500px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+    <script type="text/javascript" src="{% static 'luzfcb_djdocuments/js/luzfcb_djdocuments.js' %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript">
+        var focus = true;
+        var recarregar = false;
+        setInterval(checkPageFocus, 200);
+        function checkPageFocus() {
+            if ( document.hasFocus() ) {
+                if(!focus && recarregar){
+                    location.reload();
+                }
+                focus = true;
+            } else {
+                focus = false;
+            }
+        }
+    </script>
+    {% if form %}
+        {{ form.media }}
+    {% endif %}
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    if(hopscotch.getState())
+    {
+        if (hopscotch.getState().indexOf('diligencia_agendada')===0) {
+            hopscotch.startTour(tours['diligencia_agendada']);
+        }
+    }
+
+{% endblock %}

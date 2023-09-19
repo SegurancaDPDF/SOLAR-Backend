@@ -1,0 +1,73 @@
+{% load contrib_tags %}
+
+<tr class="{% if not finalizadas and solicitacao.data_agendamento.date == data_ref.date %}warning{% elif not finalizadas and solicitacao.data_agendamento.date < data_ref.date %}error{% endif %}">
+    <td>
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img class="media-object img-polaroid" data-src="holder.js/64x64" alt="64x64" width="64" height="64">
+            </a>
+            <div class="media-body">
+                <div class="btn-group pull-right">
+                    {% if agendadas %}
+                        <a href="{% url 'nucleo_diligencia_confirmar_pessoa' solicitacao.id solicitacao.numero %}" data-toogle="modal" data-target="#modal-distribuir-nucleo-diligencia" class="btn btn-mini" id="btn-atender-diligencia-{{ forloop.counter }}">Atender</a>
+                    {% else %}
+                        <a href="{% url 'nucleo_diligencia_atender_pessoa' solicitacao.id solicitacao.numero %}" class="btn btn-mini">Ver</a>
+                    {% endif %}
+                </div>
+                <h4 class="media-heading">{{ solicitacao.nome }}</h4>
+                <div {% if not solicitacao.enderecos %}class="text-error"{% endif %}>
+                    <i class="fas fa-map-marker-alt" title="Endereço" rel="tooltip"></i>
+                    {% if solicitacao.enderecos and not solicitacao.enderecos__desativado_em %}
+                        {{ solicitacao.enderecos__logradouro|default:"" }},
+                        {{ solicitacao.enderecos__numero|default:"S/N" }},
+                        {{ solicitacao.enderecos__bairro__nome|default:"" }} -
+                        {{ solicitacao.enderecos__municipio__nome|default:"" }}/
+                        {{ solicitacao.enderecos__municipio__estado__uf|default:"" }}
+                    {% else %}
+                        Endereço não informado
+                    {% endif %}
+                </div>
+                {% if finalizadas %}
+                    <i class="fas fa-calendar-alt" title="Data do atendimento" rel="tooltip"></i>
+                    {{ solicitacao.data_atendimento|date:'d/m/Y'|default:"Não informado" }}
+                {% else %}
+                <div>
+                    <i class="fas fa-calendar-alt" title="Prazo" rel="tooltip"></i>
+                    {{ solicitacao.data_agendamento|date:'d/m/Y'|default:"Não informado" }}
+                    {% if solicitacao.data_agendamento.date == data_ref.date %}
+                        <span class="label label-warning">
+                            <small>Hoje!</small>
+                        </span>
+                    {% elif solicitacao.data_agendamento.date > data_ref.date %}
+                        <span class="label">
+                            <small>{{ solicitacao.data_agendamento.date|timeuntil:data_ref.date }}</small>
+                        </span>
+                    {% elif solicitacao.data_agendamento.date < data_ref.date %}
+                        <span class="label label-important">
+                            <small>{{ data_ref.date|timeuntil:solicitacao.data_agendamento.date }} atrasada</small>
+                        </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if solicitacao.atendimentos__atendimento__filhos__participantes__nome %}
+                    <div>
+                        <i class="fas fa-user" title="Responsável" rel="tooltip"></i>
+                        {{ solicitacao.atendimentos__atendimento__filhos__participantes__nome }}
+                    </div>
+                {% endif %}
+                <div>
+                    <i class="fas fa-briefcase" title="Documento" rel="tooltip"></i>
+                    {{ solicitacao.setor_origem }}
+                </div>
+                <div>
+                    <i class="fas fa-info-circle" title="Tipo Pedido" rel="tooltip"></i>
+                    {{ solicitacao.atendimentos__atendimento__filhos__qualificacao__titulo|upper }}
+                </div>
+                <div class="text-info">
+                    <i class="helper-font-small fas fa-paperclip" title="Documento" rel="tooltip"></i>
+                    <b>{{ solicitacao.atendimentos__atendimento__documento__nome|upper }}</b>
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>

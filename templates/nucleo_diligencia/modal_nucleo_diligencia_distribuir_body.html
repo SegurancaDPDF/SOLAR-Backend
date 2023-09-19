@@ -1,0 +1,71 @@
+<form name="DistribuirNucleoDiligenciaForm" id="DistribuirNucleoDiligenciaForm" class="form-horizontal" action="{% url 'nucleo_diligencia_distribuir_pessoa' pessoa=pessoa_id atendimento_numero=atendimento_numero %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="participantes" value="{{ request.user.servidor.id }}">
+    <div class="media-body">
+        <h5 class="media-heading">{{ pessoa.nome }}</h5>
+        <div>
+            <i class="fas fa-map-marker-alt"></i>
+            {{ pessoa.endereco }}
+        </div>
+        <hr/>
+        <div>
+            {% for resposta in atendimentos_pessoa %}
+                {% with solicitacao=resposta.origem %}
+                    {% with documento=solicitacao.documento_set.ativos.ordem_data_cadastro_crescente.first %}
+                        <input type="hidden" name="atendimentos" value="{{ resposta.numero }}">
+                        <div target="_blank" class="text-info">
+                            <i class="fas fa-cloud"></i>
+                            <b>{{ documento.nome }}</b>
+                            <small>({{ documento.documento_online.identificador_versao }})</small>
+                        </div>
+                        <ul>
+                            {% if solicitacao.at_origem %}
+                            <li>
+                                Atendimento:
+                                <a href="{% url "atendimento_atender" solicitacao.at_origem.numero %}" target="_blank">
+                                    <b>{{ solicitacao.at_origem.numero }}</b>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                Defensoria: <b>{{ solicitacao.defensor.defensoria }}</b>
+                            </li>
+                            <li>
+                                Solicitado por: <b>{{ solicitacao.cadastrado_por }}</b> em <b>
+                                {{ solicitacao.data_cadastro|date:'d/m/Y H:i' }}</b>
+                            </li>
+                            <li>
+                                Prazo:
+                                <b>{{ resposta.data_agendamento|date:'d/m/Y'|default:"Não informado" }}</b>
+                                {% if resposta.data_agendamento.date == data_ref.date %}
+                                    <span class="label label-warning">
+                                        <small>Hoje!</small>
+                                    </span>
+                                {% elif resposta.data_agendamento.date > data_ref.date %}
+                                    <span class="label">
+                                        <small>{{ resposta.data_agendamento.date|timeuntil:data_ref.date }}</small>
+                                    </span>
+                                {% elif resposta.data_agendamento.date < data_ref.date %}
+                                    <span class="label label-important">
+                                        <small>{{ data_ref.date|timeuntil:resposta.data_agendamento.date }} atrasada</small>
+                                    </span>
+                                {% else %}
+                                    <span class="label">
+                                        <small>Não informado</small>
+                                    </span>
+                                {% endif %}
+                            </li>
+                            <li>
+                                Tipo de Pedido: <b>{{ resposta.qualificacao.titulo }}</b>
+                            </li>
+                            <li>
+                                Observações:
+                                {{ solicitacao.historico|default:"Não informada" }}
+                            </li>
+                        </ul>
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</form>

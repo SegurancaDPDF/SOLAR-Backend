@@ -1,0 +1,38 @@
+<!-- informacoes processuais -->
+<h4>Informações do Processo</h4>
+<div class="well well-small">
+        <p>
+            <span class="block"><strong>Número do processo: </strong></span>
+            <div>{{ prisao.processo.numero|default:"---" }}</div>
+            <a href="{{ prisao.processo.url_eproc }}" class="btn-link ng-scope" target="_blank">
+                <small>Abrir no {{ config.NOME_PROCESSO_TJ }} <i class="fas fa-external-link-alt"></i></small>
+            </a>
+        </p>
+        <p>
+            <span class="block"><strong>Parte: </strong></span>
+            {{ prisao.parte.get_parte_display }}
+        </p>
+        <p>
+            <span class="block"><strong>Defensoria Responsável: </strong></span>
+            <div>{{ prisao.parte.defensor|default:"---" }}</div>
+            <small>{{ prisao.parte.defensoria|default:"---" }}</small>
+        </p>
+        <p>
+            <span class="block"><strong>Defensoria Cadastro: </strong></span>
+            <div>{{ prisao.parte.defensor_cadastro|default:"---" }}</div>
+            <small>{{ prisao.parte.defensoria_cadastro|default:"---" }}</small>
+        </p>
+        <p>
+            <span class="block"><strong>Ação: </strong></span>
+            {{ prisao.processo.acao|default:"---" }}
+        </p>
+        <div class="pull-right actions-m5 btn-group">
+            {% if perms.nadep.change_prisao and prisao.parte.atendimento %}
+                <a href="{% url 'atendimento_atender' prisao.parte.atendimento.numero %}#/processo/{{ prisao.processo.numero_puro }}/grau/{{ prisao.processo.grau }}" role="button" class="btn" rel="tooltip"
+                   data-placement="left" data-original-title="Visualizar Processo">
+                    <i class="fas fa-search"></i>
+                </a>
+            {% endif %}
+        </div>
+    <span class="clearfix"></span>
+</div>

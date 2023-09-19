@@ -1,0 +1,193 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+    <style>
+    .last td {border-bottom: 5px #B5B5B5 solid;}
+    #popover_pessoa .popover{width: 500px;}
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+                <form class="navbar-form" ng-init="init({ {% for k, v in request.GET.items %}'{{ k }}':'{{ v }}'{% if not forloop.last %},{% endif %}{% endfor %} })">
+                    {% csrf_token %}
+                    {{ form.data_ini }}
+                    {{ form.data_fim }}
+                    {{ form.comarca }}
+                    <input type="text" class="span2" placeholder="Digite o nome do defensor..." ng-model="defensor" typeahead="i as i.nome for i in defensores | filter:{nome:$viewValue} | limitTo:12" ng-style="(defensor && !defensor.id) ? {'border-color':'#b94a48'} : ''">
+                    <input type="text" class="span2" placeholder="Digite o nome da defensoria..." ng-model="defensoria" typeahead="i as i.nome for i in defensorias | filter:{nome:$viewValue} | limitTo:12" ng-style="(defensoria && !defensoria.id) ? {'border-color':'#b94a48'} : ''">
+                    {{ form.filtro }}
+                    <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom" data-original-title="Buscar atendimento" ng-click="buscar(0, true)" ng-disabled="!valido">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar Atendimentos ([[ filtro.total ]])
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th class="span1">#</th>
+            <th class="span1">Número</th>
+            <th class="span1">Data/Hora</th>
+            <th class="span1">Tipo/Agenda</th>
+            <th class="span2">Requerente</th>
+            <th class="span2">Processo</th>
+            <th class="span1">Defensoria</th>
+            <th class="span1">Área/Pedido</th>
+            <th class="span1">Defensor</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="atendimento in atendimentos track by $index" ng-class="{'last':atendimento.ultimo}">
+                <td class="text-center">
+                    <div><small class="muted">#[[ $index + 1 ]]</small></div>
+                    <a href="#modal-informacoes" class="btn btn-small" title="Informações Adicionais" rel="tooltip" data-toggle="modal" ng-click="informacoes(atendimento.numero)">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                </td>
+                <td class="text-center">
+                    <div>[[ atendimento.numero ]]</div>
+                    <span class="label label-success" title="Realizado" rel="tooltip" ng-if="atendimento.data_atendimento">Realizado</span>
+                    <span class="label label-important" title="Não Realizado" rel="tooltip" ng-if="atendimento.atrasado">Atrasado</span>
+                    <span class="label label-info" title="Agendado" rel="tooltip" ng-if="!atendimento.data_atendimento">Agendado</span>
+                </td>
+                <td class="text-center">
+                        <div ng-if="atendimento.data_atendimento">
+                            <div>[[ atendimento.data_atendimento|date:"dd/MM/yyyy" ]]</div>
+                            [[ atendimento.data_atendimento|date:"HH:mm" ]]
+                        </div>
+                        <div ng-if="!atendimento.data_atendimento">
+                            <div>[[ atendimento.data_agendamento|date:"dd/MM/yyyy" ]]</div>
+                            <span class="label label-warning" ng-if="atendimento.extra">Extra</span>
+                            <span ng-if="!atendimento.extra">[[ atendimento.data_agendamento|date:"HH:mm" ]]</span>
+                        </div>
+                </td>
+                <td>
+                    [[ LISTA.TIPO[atendimento.tipo] ]]
+                </td>
+                <td>
+                    <a href="?filtro=[[ atendimento.prisao__pessoa__nome ]]"
+                        class="btn-link">
+                        [[ atendimento.prisao__pessoa__nome ]]
+                    </a>
+                    <a href="javascript:void(0)"
+                        data-container="#popover_pessoa"
+                        data-placement="bottom"
+                        data-title="[[ atendimento.prisao__pessoa__nome ]]"
+                        data-trigger="focus"
+                        bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                        ng-mouseover="get_pessoa(atendimento.prisao__pessoa__id, '{{ config.PREFIXO_HIPERLINK_TEL }}')"
+                        data-tooltip="Ver Detalhes">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                </td>
+                <td>
+                    <span class="label label-warning" title="Provisória" ng-if="!atendimento.prisao__tipo" bs-tooltip>P</span>
+                    <span class="label label-important" title="Condenação" ng-if="atendimento.prisao__tipo" bs-tooltip>C</span>
+                    <span ng-class="{0:'text-warning', 1:'text-error'}[atendimento.prisao__tipo]">[[ atendimento.prisao__processo__numero ]]</span>
+                </td>
+                <td>
+                    [[ atendimento.defensoria__nome ]]
+                </td>
+                <td>
+				<span bs-tooltip="atendimento.qualificacao__titulo">
+					<i class="fas fa-info-circle"></i>
+					[[ atendimento.qualificacao__area__nome ]]
+				</span>
+                </td>
+                <td>
+                    <div ng-if="atendimento.substituto__servidor__nome">
+                        <span class="label label-info" bs-tooltip="'Substituindo: '+atendimento.defensor__servidor__nome">S</span>
+                        [[ atendimento.substituto__servidor__nome ]]
+                    </div>
+                    <div ng-if="!atendimento.substituto__servidor__nome">
+                        <span class="label label-success" title="Titular" rel="tooltip">T</span>
+                        [[ atendimento.defensor__servidor__nome ]]
+                    </div>
+                </td>
+                <td class="text-center">
+                    <div class="btn-group">
+                        <a href="#modal-excluir" class="btn btn-small btn-danger" title="Excluir" bs-tooltip data-toggle="modal"
+                           ng-click="informacoes(atendimento.numero)" ng-if="atendimento.perm_recepcao">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        <a href="/nucleo/nadep/pessoa/visualizar/[[ atendimento.prisao__pessoa__id ]]/" class="btn btn-small" title="Histórico Penal" bs-tooltip data-placement="top">
+                            <i class="fas fa-leaf"></i>
+                        </a>
+                        <a href="/atendimento/[[ atendimento.numero ]]/#/historico" class="btn btn-small" title="Histórico de Atendimento" bs-tooltip data-placement="top">
+                            <i class="fas fa-comments"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr ng-if="!atendimentos.length">
+                <td colspan="10">Nenhum registro encontrado</td>
+            </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Número</th>
+            <th>Data</th>
+            <th>Tipo/Agenda</th>
+            <th>Requerente</th>
+            <th>Requerido</th>
+            <th>Defensoria</th>
+            <th>Área/Pedido</th>
+            <th>Defensor</th>
+            <th>Ações</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <div id="popover_pessoa" style="width: 500px;"></div>
+
+    <div class="text-center">
+        <div class="pagination">
+            <ul>
+                <li ng-if="!filtro.ultima && !carregando"><button ng-click="buscar(filtro.pagina+1)" class="btn btn-link"><i class="fas fa-chevron-down"></i> Carregar mais...</button></li>
+                <li ng-if="carregando" class="disabled"><a href="#" ><img src="{% static 'img/loading.gif' %}"> Carregando...</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% include 'atendimento/buscar_modal_informacoes.html' %}
+
+    {% include 'atendimento/buscar_modal_excluir.html' %}
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $('.datepicker').datepicker();
+    $('a[data-toggle=popover]').popover();
+
+{% endblock %}

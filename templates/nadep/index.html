@@ -1,0 +1,68 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+<div class="shortcut-group">
+    <ul class="a-btn-group">
+        {% if perms.assistido.view_pessoaassistida %}
+        <li>
+            <a rel="tooltip" class="a-btn grd-white" href="{% url 'nadep_buscar_pessoa' %}" data-original-title="Pessoas">
+                <span></span>
+                <span><i class="fas fa-user color-silver-dark"></i></span>
+                <span class="color-silver-dark"><i class="fas fa-user color-teal"></i></span>
+                <div class="badge badge-info">{{ total_pessoas }}</div> <!--don't use span here!-->
+                <div style="margin:10px;"><b>Pessoas</b></div>
+            </a>
+        </li>
+        {% endif %}
+        {% if perms.nadep.view_prisao %}
+        <li>
+            <a rel="tooltip" class="a-btn grd-white" href="{% url 'nadep_buscar_preso' %}" data-original-title="Presos">
+                <span></span>
+                <span><i class="fas fa-lock color-silver-dark"></i></span>
+                <span class="color-silver-dark"><i class="fas fa-lock color-teal"></i></span>
+                <div class="badge badge-info">{{ total_presos }}</div> <!--don't use span here!-->
+            <div style="margin:10px;"><b>Presos</b></div>
+            </a>
+        </li>
+        {% endif %}
+        {% if perms.nadep.view_atendimento %}
+        <li>
+            <a rel="tooltip" class="a-btn grd-white" href="{% url 'nadep_buscar_atendimento' %}" data-original-title="Atendimentos">
+                <span></span>
+                <span><i class="fas fa-comments color-silver-dark"></i></span>
+                <span class="color-silver-dark"><i class="fas fa-comments color-teal"></i></span>
+                <div class="badge badge-info">{{ total_atendimentos }}</div> <!--don't use span here!-->
+            <div style="margin:10px;"><b>Atendimentos</b></div>
+            </a>
+        </li>
+        {% endif %}
+        {% if perms.nadep.view_estabelecimentopenal %}
+        <li>
+            <a rel="tooltip" class="a-btn grd-white" href="{% url 'nadep_buscar_estabelecimento' %}" data-original-title="Estabelecimentos Penais">
+                <span></span>
+                <span><i class="fas fa-gavel color-silver-dark"></i></span>
+                <span class="color-silver-dark"><i class="fas fa-gavel color-teal"></i></span>
+                <div class="badge badge-info">{{ total_estabelecimentos }}</div> <!--don't use span here!-->
+            <div style="margin:10px;"><b>Estabelecimentos</b></div>
+            </a>
+        </li>
+        {% endif %}
+        <li class="clearfix"></li>
+    </ul>
+</div>
+<div class="divider-content"><span></span></div>
+{% endblock %}
+
+{% block conteudo_pag %}
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

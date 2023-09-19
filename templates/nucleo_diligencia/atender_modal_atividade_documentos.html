@@ -1,0 +1,55 @@
+{% load contrib_tags spurl static %}
+<div id="modal-documentos-atividade" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel" class="text-success">
+             <i class="fas fa-paperclip"></i> Incluir Certidão Anexo
+        </h3>
+        <span class="muted">Enviar arquivo do computador</span>
+    </div>
+    <div class="modal-body" ng-init="documento.modo=2">
+        <form name="AnexarDocumentoForm" id="AnexarDocumentoForm" enctype="multipart/form-data"
+              action="{% url 'atendimento_documento_salvar' atendimento.numero %}" method="POST" onsubmit="return preventMultipleSubmit(this);"
+              ng-if="documento.modo">
+            {% csrf_token %}
+            <input type="hidden" name="pessoa" value="{{ pessoa.id }}">
+            <input type="hidden" name="next" value="{% url 'nucleo_diligencia_atender_pessoa' pessoa.id atendimento.numero %}">
+            <label>Nome</label>
+            <input type="text" class="span12" name="nome" ng-model="documento.nome" required>
+            <label>Arquivo</label>
+
+            <div class="fileupload fileupload-new" data-provides="fileupload">
+                <div class="input-append">
+                    <div class="uneditable-input span3">
+                        <i class="fas fa-file-upload fileupload-exists"></i>
+                        <span class="fileupload-preview">Enviar arquivo</span>
+                    </div>
+                    <span class="btn btn-file">
+                        <span class="fileupload-new">Procurar</span>
+                        <span class="fileupload-exists">Procurar</span>
+                        <input type="file" accept="{{ config.FORMATO_SUPORTADO_UPLOADS }}" name="arquivo" id="ArquivoAnexarDocumentoForm" file-model="documento.arquivo" required>
+                    </span>
+                </div>
+            </div>
+            <p class="text-error" ng-show="documento_anexo_resultado">
+                <i class="fas fa-warning color-red"></i>  Extensão de arquivo inválida! Para arquivos do Word, crie um "Documento GED" no botão "Incluir Certidão GED"
+            </p>
+            <br/>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" form="AnexarDocumentoForm" class="btn btn-primary"
+                ng-disabled="!(documento.nome && (documento.arquivo))"
+                ng-hide="documento.salvando"
+                ng-click="documento.salvando=true" id="btn-modal-documentos-atividade-anexar">
+                    <i class="fas fa-paperclip"></i> Anexar Arquivo
+        </button>
+        <button type="button" class="btn btn-primary" ng-show="documento.salvando" disabled>
+            <i class="fas fa-paperclip"></i> Anexando Arquivo...
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-times"></i> Fechar
+        </button>
+    </div>
+</div>

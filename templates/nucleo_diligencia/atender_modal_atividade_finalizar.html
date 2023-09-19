@@ -1,0 +1,105 @@
+{% load contrib_tags %}
+<div id="modal-finalizar-atividade" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Finalizar</h3>
+    </div>
+    <div class="modal-body">
+        <form name="FinalizarAtividadeForm" id="FinalizarAtividadeForm" enctype="multipart/form-data"
+              action="{% url 'atendimento_salvar_atividade' atendimento.numero %}" method="POST"
+              class="form-horizontal" ng-init="data_atendimento='{{ hoje|date:'Y-m-d' }}'; hora_atendimento='{{ hoje|date:'H:i' }}';">
+            {% csrf_token %}
+            <input type="hidden" name="qualificacao" ng-value="atividade.qualificacao.id">
+            <input type="hidden" name="data_atendimento" ng-value="atividade.data_atendimento">
+            <input type="hidden" name="next" value="{% url 'nucleo_diligencia_atender_pessoa' pessoa.id atendimento.numero %}">
+            <input type="hidden" name="participantes" value="{{ request.user.servidor.id }}">
+            <input type="hidden" name="finalizar" value="true">
+            <div class="control-group" ng-class="{true:'error'}[!atividade.qualificacao.id]">
+                <label class="control-label">Tipo</label>
+
+                <div class="controls">
+                    <input type="text" class="span12" placeholder="Digite o tipo da atividade"
+                           ng-model="atividade.qualificacao"
+                           typeahead="i as i.titulo for i in qualificacoes | filter:{titulo:$viewValue} | limitTo:8">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Data/Hora</label>
+                <div class="controls">
+                    <input class="span4" maxlength="10" type="text" ng-model="data_atendimento"
+                           data-date-format="dd/mm/yyyy" data-mask="99/99/9999" bs-datepicker required
+                           data-date-startdate="{{ diaMin|date:'d/m/Y' }}" data-date-enddate="{{ diaMax|date:'d/m/Y' }}" ng-pattern="">
+                    <input class="span3" maxlength="5" type="text" placeholder="hh:mm"
+                           ng-model="hora_atendimento"
+                           pattern="([01][0-9]|2[0-3]):([0-5][0-9])"
+                           data-mask="99:99" required>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Resposta para o Solicitante</label>
+
+                <div class="controls">
+                    <textarea class="span12" name="historico" rows="3" ng-model="atividade.historico"
+                              required></textarea>
+                </div>
+            </div>
+            <div class="control-group" ng-show="atividade.qualificacao.multiplica_estatistica">
+                <label class="control-label">Multiplicador</label>
+                <div class="controls">
+                    <input type="number" class="span12" name="multiplicador" rows="3" min="1" ng-model="atividade.multiplicador" required>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Certidão</label>
+                <div class="controls">
+                    {% for documento in documentos %}
+                        <label class="checkbox">
+                            {% if documento.arquivo %}
+                                <input type="checkbox" name="documentos" value="{{ documento.id }}"
+                                       ng-model="atividade.documentos[{{ forloop.counter0 }}]" ng-init="atividade.documentos[{{ forloop.counter0 }}]=true">
+                                <small class="text-success"><i class="fas fa-paperclip"></i> {{ documento.nome }}</small>
+                            {% elif documento.documento_online %}
+                                {% if documento.documento_online.esta_assinado and documento.documento_online.assinatura_hash %}
+                                    <input type="checkbox" name="documentos" value="{{ documento.id }}"
+                                           ng-model="atividade.documentos[{{ forloop.counter0 }}]" ng-init="atividade.documentos[{{ forloop.counter0 }}]=true">
+                                    <small class="text-info" tooltip="{{ documento.documento_online.identificador_versao }} (finalizado)"><i class="fas fa-cloud"></i> {{ documento.nome }}</small>
+                                {% else %}
+                                    <input type="checkbox" name="documentos" ng-init="atividade.documentos[{{ forloop.counter0 }}]=false" disabled>
+                                    <small class="muted" tooltip="{{ documento.documento_online.identificador_versao }} (não finalizado)"><i class="fas fa-cloud"></i> {{ documento.nome }}</small>
+                                {% endif %}
+                            {% endif%}
+                            <small class="muted" style="display: block;">
+                                {{ documento.atendimento.origem.origem.documento_set.ativos.documento_online_assinado.first }}
+                            </small>
+                        </label>
+                    {% empty %}
+                        <label class="checkbox">
+                            <input type="checkbox" disabled>
+                            <i class="muted">Nenhum documento finalizado para incluir</i>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="control-group text-error">
+                <label class="control-label bold">Atenção!</label>
+                <div class="controls">
+                    <label class="checkbox">
+                        <input type="checkbox" name="atencao" ng-model="atividade.atencao" required>
+                        <small class="">Compreendo que essa ação é <b>irreversível</b>. Minha resposta será encaminhada para o solicitate.</small>
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button id="btn-modal-finalizar-atividade-finalizar" class="btn btn-success" type="submit" form="FinalizarAtividadeForm"
+                ng-disabled="FinalizarAtividadeForm.$invalid || !atividade.qualificacao.id  || !atividade.atencao
+                            || !(atividade.documentos|filter:true).length">
+            <i class="fas fa-save"></i> Salvar e Finalizar
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
