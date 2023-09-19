@@ -1,8 +1,0 @@
-{% if debug and databases.default.HOST != '127.0.0.1' %}
-<!--Mensagem para alertar que esá utilizando um banco de dados em produção-->
-    <div class="msg-producao alert">
-        <i class="fas fa-warning"></i>
-        <b>Atenção!</b> Você está utilizando um banco de dados em produção: <b>{{ databases.default.NAME }}</b>
-    </div>
-{% endif %}
-
