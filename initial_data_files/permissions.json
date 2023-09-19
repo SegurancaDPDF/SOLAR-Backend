@@ -1,0 +1,2442 @@
+[
+    {
+        "name": "Permissão: Gerenciar Assistido",
+        "permissions": [
+            {
+                "model": "documento",
+                "codename": "add_documento",
+                "app_label": "assistido"
+            },
+            {
+                "model": "documento",
+                "codename": "change_documento",
+                "app_label": "assistido"
+            },
+            {
+                "model": "documento",
+                "codename": "delete_documento",
+                "app_label": "assistido"
+            },
+            {
+                "model": "filiacao",
+                "codename": "add_filiacao",
+                "app_label": "assistido"
+            },
+            {
+                "model": "filiacao",
+                "codename": "change_filiacao",
+                "app_label": "assistido"
+            },
+            {
+                "model": "filiacao",
+                "codename": "delete_filiacao",
+                "app_label": "assistido"
+            },
+            {
+                "model": "imovel",
+                "codename": "add_imovel",
+                "app_label": "assistido"
+            },
+            {
+                "model": "imovel",
+                "codename": "change_imovel",
+                "app_label": "assistido"
+            },
+            {
+                "model": "imovel",
+                "codename": "delete_imovel",
+                "app_label": "assistido"
+            },
+            {
+                "model": "moradia",
+                "codename": "add_moradia",
+                "app_label": "assistido"
+            },
+            {
+                "model": "moradia",
+                "codename": "change_moradia",
+                "app_label": "assistido"
+            },
+            {
+                "model": "moradia",
+                "codename": "delete_moradia",
+                "app_label": "assistido"
+            },
+            {
+                "model": "movel",
+                "codename": "add_movel",
+                "app_label": "assistido"
+            },
+            {
+                "model": "movel",
+                "codename": "change_movel",
+                "app_label": "assistido"
+            },
+            {
+                "model": "movel",
+                "codename": "delete_movel",
+                "app_label": "assistido"
+            },
+            {
+                "model": "patrimonio",
+                "codename": "add_patrimonio",
+                "app_label": "assistido"
+            },
+            {
+                "model": "patrimonio",
+                "codename": "change_patrimonio",
+                "app_label": "assistido"
+            },
+            {
+                "model": "patrimonio",
+                "codename": "delete_patrimonio",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoa",
+                "codename": "add_pessoa",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoa",
+                "codename": "change_pessoa",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoa",
+                "codename": "delete_pessoa",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoaassistida",
+                "codename": "add_pessoaassistida",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoaassistida",
+                "codename": "change_pessoaassistida",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoaassistida",
+                "codename": "delete_pessoaassistida",
+                "app_label": "assistido"
+            },
+            {
+                "model": "pessoaassistida",
+                "codename": "view_pessoaassistida",
+                "app_label": "assistido"
+            },
+            {
+                "model": "profissao",
+                "codename": "add_profissao",
+                "app_label": "assistido"
+            },
+            {
+                "model": "profissao",
+                "codename": "change_profissao",
+                "app_label": "assistido"
+            },
+            {
+                "model": "profissao",
+                "codename": "delete_profissao",
+                "app_label": "assistido"
+            },
+            {
+                "model": "renda",
+                "codename": "add_renda",
+                "app_label": "assistido"
+            },
+            {
+                "model": "renda",
+                "codename": "change_renda",
+                "app_label": "assistido"
+            },
+            {
+                "model": "renda",
+                "codename": "delete_renda",
+                "app_label": "assistido"
+            },
+            {
+                "model": "semovente",
+                "codename": "add_semovente",
+                "app_label": "assistido"
+            },
+            {
+                "model": "semovente",
+                "codename": "change_semovente",
+                "app_label": "assistido"
+            },
+            {
+                "model": "semovente",
+                "codename": "delete_semovente",
+                "app_label": "assistido"
+            },
+            {
+                "model": "bairro",
+                "codename": "add_bairro",
+                "app_label": "contrib"
+            },
+            {
+                "model": "bairro",
+                "codename": "change_bairro",
+                "app_label": "contrib"
+            },
+            {
+                "model": "bairro",
+                "codename": "delete_bairro",
+                "app_label": "contrib"
+            },
+            {
+                "model": "cep",
+                "codename": "add_cep",
+                "app_label": "contrib"
+            },
+            {
+                "model": "cep",
+                "codename": "change_cep",
+                "app_label": "contrib"
+            },
+            {
+                "model": "cep",
+                "codename": "delete_cep",
+                "app_label": "contrib"
+            },
+            {
+                "model": "endereco",
+                "codename": "add_endereco",
+                "app_label": "contrib"
+            },
+            {
+                "model": "endereco",
+                "codename": "change_endereco",
+                "app_label": "contrib"
+            },
+            {
+                "model": "endereco",
+                "codename": "delete_endereco",
+                "app_label": "contrib"
+            },
+            {
+                "model": "telefone",
+                "codename": "add_telefone",
+                "app_label": "contrib"
+            },
+            {
+                "model": "telefone",
+                "codename": "change_telefone",
+                "app_label": "contrib"
+            },
+            {
+                "model": "telefone",
+                "codename": "delete_telefone",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Perfil de Campos Obrigatórios",
+        "permissions": [
+            {
+                "model": "perfilcamposobrigatorios",
+                "codename": "add_perfilcamposobrigatorios",
+                "app_label": "assistido"
+            },
+            {
+                "model": "perfilcamposobrigatorios",
+                "codename": "change_perfilcamposobrigatorios",
+                "app_label": "assistido"
+            },
+            {
+                "model": "perfilcamposobrigatorios",
+                "codename": "delete_perfilcamposobrigatorios",
+                "app_label": "assistido"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Acesso de Atendimento",
+        "permissions": [
+            {
+                "model": "acesso",
+                "codename": "add_acesso",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "acesso",
+                "codename": "change_acesso",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "acesso",
+                "codename": "delete_acesso",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Atendimento",
+        "permissions": [
+            {
+                "model": "acordo",
+                "codename": "add_acordo",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "acordo",
+                "codename": "change_acordo",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "acordo",
+                "codename": "delete_acordo",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "arvore",
+                "codename": "add_arvore",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "arvore",
+                "codename": "change_arvore",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "arvore",
+                "codename": "delete_arvore",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimento",
+                "codename": "add_atendimento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimento",
+                "codename": "change_atendimento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimento",
+                "codename": "delete_atendimento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimento",
+                "codename": "view_atendimento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimentoparticipante",
+                "codename": "add_atendimentoparticipante",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimentoparticipante",
+                "codename": "change_atendimentoparticipante",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "atendimentoparticipante",
+                "codename": "delete_atendimentoparticipante",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "coletivo",
+                "codename": "add_coletivo",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "coletivo",
+                "codename": "change_coletivo",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "coletivo",
+                "codename": "delete_coletivo",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "cronometro",
+                "codename": "add_cronometro",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "cronometro",
+                "codename": "change_cronometro",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "cronometro",
+                "codename": "delete_cronometro",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "defensor",
+                "codename": "add_defensor",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "defensor",
+                "codename": "change_defensor",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "defensor",
+                "codename": "delete_defensor",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "pessoa",
+                "codename": "add_pessoa",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "pessoa",
+                "codename": "change_pessoa",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "pessoa",
+                "codename": "delete_pessoa",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Excluir Atendimento Agendado",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "delete_atendimento_agendado",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Excluir Atendimento Realizado",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "delete_atendimento_realizado",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Remeter Atendimento para Outra Defensoria",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "remeter_atendimento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Especialização de Atendimento",
+        "permissions": [
+            {
+                "model": "especializado",
+                "codename": "add_especializado",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "especializado",
+                "codename": "change_especializado",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "especializado",
+                "codename": "delete_especializado",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Assunto de Atendimento",
+        "permissions": [
+            {
+                "model": "assunto",
+                "codename": "add_assunto",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "assunto",
+                "codename": "change_assunto",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "assunto",
+                "codename": "delete_assunto",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Agendar Atendimento em Dia Bloqueado",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "agendar_com_bloqueio",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Painel 129",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_129",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Todos Pré-agendamentos CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_all_preagendamentos_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Defensorias Definidas nas Configurações do CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_defensorias_gerais_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Agendar Pré-agendamentos CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "agendar_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Distribuir Pré-agendamentos CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "distribuir_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Redistribuir Pré-agendamentos CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "redistribuir_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Redistribuir Todos Pré-agendamentos CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "redistribuir_all_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Atendimentos Aguardando Distribuição CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_aguardando_distribuicao_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Atendimentos Aguardando Análise CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_aguardando_analise_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Atendimentos Agendados CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_agendados_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Atendimentos Excluídos CRC",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_excluidos_crc",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Atendimento com Acesso Privado",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_all_atendimentos",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Atendimento",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_atendimento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Painel Defensor",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_defensor",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Painel Distribuição",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_distribuicao",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Painel Recepção",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_recepcao",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Documento de Atendimento",
+        "permissions": [
+            {
+                "model": "documento",
+                "codename": "add_documento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "documento",
+                "codename": "change_documento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "documento",
+                "codename": "delete_documento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Encaminhamento Externo (129)",
+        "permissions": [
+            {
+                "model": "encaminhamento",
+                "codename": "add_encaminhamento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "encaminhamento",
+                "codename": "change_encaminhamento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "encaminhamento",
+                "codename": "delete_encaminhamento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Encaminhamento Externo (129)",
+        "permissions": [
+            {
+                "model": "encaminhamento",
+                "codename": "view_encaminhamento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Informações (129)",
+        "permissions": [
+            {
+                "model": "informacao",
+                "codename": "add_informacao",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "informacao",
+                "codename": "change_informacao",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "informacao",
+                "codename": "delete_informacao",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Informações (129)",
+        "permissions": [
+            {
+                "model": "informacao",
+                "codename": "view_informacao",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Justificativa de Atendimento",
+        "permissions": [
+            {
+                "model": "justificativa",
+                "codename": "add_justificativa",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "justificativa",
+                "codename": "change_justificativa",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "justificativa",
+                "codename": "delete_justificativa",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Modelo de Documento de Atendimento",
+        "permissions": [
+            {
+                "model": "modelodocumento",
+                "codename": "add_modelodocumento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "modelodocumento",
+                "codename": "change_modelodocumento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "modelodocumento",
+                "codename": "delete_modelodocumento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Pergunta de Qualificação de Atendimento",
+        "permissions": [
+            {
+                "model": "pergunta",
+                "codename": "add_pergunta",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "pergunta",
+                "codename": "change_pergunta",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "pergunta",
+                "codename": "delete_pergunta",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Procedimento de Atendimento 129",
+        "permissions": [
+            {
+                "model": "procedimento",
+                "codename": "add_procedimento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "procedimento",
+                "codename": "change_procedimento",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "procedimento",
+                "codename": "delete_procedimento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Qualificação de Atendimento",
+        "permissions": [
+            {
+                "model": "qualificacao",
+                "codename": "add_qualificacao",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "qualificacao",
+                "codename": "change_qualificacao",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "qualificacao",
+                "codename": "delete_qualificacao",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Qualificação de Atendimento",
+        "permissions": [
+            {
+                "model": "qualificacao",
+                "codename": "view_qualificacao",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Tarefas de Atendimento",
+        "permissions": [
+            {
+                "model": "tarefa",
+                "codename": "add_tarefa",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "tarefa",
+                "codename": "change_tarefa",
+                "app_label": "atendimento"
+            },
+            {
+                "model": "tarefa",
+                "codename": "delete_tarefa",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Usuários",
+        "permissions": [
+            {
+                "model": "group",
+                "codename": "add_group",
+                "app_label": "auth"
+            },
+            {
+                "model": "group",
+                "codename": "change_group",
+                "app_label": "auth"
+            },
+            {
+                "model": "group",
+                "codename": "delete_group",
+                "app_label": "auth"
+            },
+            {
+                "model": "permission",
+                "codename": "add_permission",
+                "app_label": "auth"
+            },
+            {
+                "model": "permission",
+                "codename": "change_permission",
+                "app_label": "auth"
+            },
+            {
+                "model": "permission",
+                "codename": "delete_permission",
+                "app_label": "auth"
+            },
+            {
+                "model": "user",
+                "codename": "add_user",
+                "app_label": "auth"
+            },
+            {
+                "model": "user",
+                "codename": "change_user",
+                "app_label": "auth"
+            },
+            {
+                "model": "user",
+                "codename": "delete_user",
+                "app_label": "auth"
+            },
+            {
+                "model": "servidor",
+                "codename": "add_servidor",
+                "app_label": "contrib"
+            },
+            {
+                "model": "servidor",
+                "codename": "change_servidor",
+                "app_label": "contrib"
+            },
+            {
+                "model": "servidor",
+                "codename": "delete_servidor",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Guichês",
+        "permissions": [
+            {
+                "model": "guiche",
+                "codename": "add_guiche",
+                "app_label": "comarca"
+            },
+            {
+                "model": "guiche",
+                "codename": "change_guiche",
+                "app_label": "comarca"
+            },
+            {
+                "model": "guiche",
+                "codename": "delete_guiche",
+                "app_label": "comarca"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Prédios",
+        "permissions": [
+            {
+                "model": "predio",
+                "codename": "add_predio",
+                "app_label": "comarca"
+            },
+            {
+                "model": "predio",
+                "codename": "change_predio",
+                "app_label": "comarca"
+            },
+            {
+                "model": "predio",
+                "codename": "delete_predio",
+                "app_label": "comarca"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Configurações do Sistema",
+        "permissions": [
+            {
+                "model": "config",
+                "codename": "change_config",
+                "app_label": "constance"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Áreas",
+        "permissions": [
+            {
+                "model": "area",
+                "codename": "add_area",
+                "app_label": "contrib"
+            },
+            {
+                "model": "area",
+                "codename": "change_area",
+                "app_label": "contrib"
+            },
+            {
+                "model": "area",
+                "codename": "delete_area",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Cargos",
+        "permissions": [
+            {
+                "model": "cargo",
+                "codename": "add_cargo",
+                "app_label": "contrib"
+            },
+            {
+                "model": "cargo",
+                "codename": "change_cargo",
+                "app_label": "contrib"
+            },
+            {
+                "model": "cargo",
+                "codename": "delete_cargo",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Comarcas",
+        "permissions": [
+            {
+                "model": "comarca",
+                "codename": "add_comarca",
+                "app_label": "contrib"
+            },
+            {
+                "model": "comarca",
+                "codename": "change_comarca",
+                "app_label": "contrib"
+            },
+            {
+                "model": "comarca",
+                "codename": "delete_comarca",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Todas as Defensorias",
+        "permissions": [
+            {
+                "model": "defensoria",
+                "codename": "view_all_defensorias",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Defensorias",
+        "permissions": [
+            {
+                "model": "defensoria",
+                "codename": "add_defensoria",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoria",
+                "codename": "change_defensoria",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoria",
+                "codename": "delete_defensoria",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Tipos de Eventos das Defensorias",
+        "permissions": [
+            {
+                "model": "defensoriatipoevento",
+                "codename": "add_defensoriatipoevento",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoriatipoevento",
+                "codename": "change_defensoriatipoevento",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoriatipoevento",
+                "codename": "delete_defensoriatipoevento",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Papel de Usuários",
+        "permissions": [
+            {
+                "model": "papel",
+                "codename": "add_papel",
+                "app_label": "contrib"
+            },
+            {
+                "model": "papel",
+                "codename": "change_papel",
+                "app_label": "contrib"
+            },
+            {
+                "model": "papel",
+                "codename": "delete_papel",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Salário e Índice de Renda",
+        "permissions": [
+            {
+                "model": "salario",
+                "codename": "add_salario",
+                "app_label": "contrib"
+            },
+            {
+                "model": "salario",
+                "codename": "change_salario",
+                "app_label": "contrib"
+            },
+            {
+                "model": "salario",
+                "codename": "delete_salario",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Processo Interno",
+        "permissions": [
+            {
+                "model": "apenso",
+                "codename": "add_apenso",
+                "app_label": "core"
+            },
+            {
+                "model": "apenso",
+                "codename": "change_apenso",
+                "app_label": "core"
+            },
+            {
+                "model": "apenso",
+                "codename": "delete_apenso",
+                "app_label": "core"
+            },
+            {
+                "model": "documento",
+                "codename": "add_documento",
+                "app_label": "core"
+            },
+            {
+                "model": "documento",
+                "codename": "change_documento",
+                "app_label": "core"
+            },
+            {
+                "model": "documento",
+                "codename": "delete_documento",
+                "app_label": "core"
+            },
+            {
+                "model": "evento",
+                "codename": "add_evento",
+                "app_label": "core"
+            },
+            {
+                "model": "evento",
+                "codename": "change_evento",
+                "app_label": "core"
+            },
+            {
+                "model": "evento",
+                "codename": "delete_evento",
+                "app_label": "core"
+            },
+            {
+                "model": "parte",
+                "codename": "add_parte",
+                "app_label": "core"
+            },
+            {
+                "model": "parte",
+                "codename": "change_parte",
+                "app_label": "core"
+            },
+            {
+                "model": "parte",
+                "codename": "delete_parte",
+                "app_label": "core"
+            },
+            {
+                "model": "participante",
+                "codename": "add_participante",
+                "app_label": "core"
+            },
+            {
+                "model": "participante",
+                "codename": "change_participante",
+                "app_label": "core"
+            },
+            {
+                "model": "participante",
+                "codename": "delete_participante",
+                "app_label": "core"
+            },
+            {
+                "model": "processo",
+                "codename": "add_processo",
+                "app_label": "core"
+            },
+            {
+                "model": "processo",
+                "codename": "change_processo",
+                "app_label": "core"
+            },
+            {
+                "model": "processo",
+                "codename": "delete_processo",
+                "app_label": "core"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Administrar Processo Interno",
+        "permissions": [
+            {
+                "model": "classe",
+                "codename": "add_classe",
+                "app_label": "core"
+            },
+            {
+                "model": "classe",
+                "codename": "change_classe",
+                "app_label": "core"
+            },
+            {
+                "model": "classe",
+                "codename": "delete_classe",
+                "app_label": "core"
+            },
+            {
+                "model": "modelodocumento",
+                "codename": "add_modelodocumento",
+                "app_label": "core"
+            },
+            {
+                "model": "modelodocumento",
+                "codename": "change_modelodocumento",
+                "app_label": "core"
+            },
+            {
+                "model": "modelodocumento",
+                "codename": "delete_modelodocumento",
+                "app_label": "core"
+            },
+            {
+                "model": "tipodocumento",
+                "codename": "add_tipodocumento",
+                "app_label": "core"
+            },
+            {
+                "model": "tipodocumento",
+                "codename": "change_tipodocumento",
+                "app_label": "core"
+            },
+            {
+                "model": "tipodocumento",
+                "codename": "delete_tipodocumento",
+                "app_label": "core"
+            },
+            {
+                "model": "tipoevento",
+                "codename": "add_tipoevento",
+                "app_label": "core"
+            },
+            {
+                "model": "tipoevento",
+                "codename": "change_tipoevento",
+                "app_label": "core"
+            },
+            {
+                "model": "tipoevento",
+                "codename": "delete_tipoevento",
+                "app_label": "core"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Lotação",
+        "permissions": [
+            {
+                "model": "atuacao",
+                "codename": "add_atuacao",
+                "app_label": "defensor"
+            },
+            {
+                "model": "atuacao",
+                "codename": "change_atuacao",
+                "app_label": "defensor"
+            },
+            {
+                "model": "atuacao",
+                "codename": "delete_atuacao",
+                "app_label": "defensor"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Defensor",
+        "permissions": [
+            {
+                "model": "defensor",
+                "codename": "add_defensor",
+                "app_label": "defensor"
+            },
+            {
+                "model": "defensor",
+                "codename": "change_defensor",
+                "app_label": "defensor"
+            },
+            {
+                "model": "defensor",
+                "codename": "delete_defensor",
+                "app_label": "defensor"
+            },
+            {
+                "model": "documento",
+                "codename": "add_documento",
+                "app_label": "defensor"
+            },
+            {
+                "model": "documento",
+                "codename": "change_documento",
+                "app_label": "defensor"
+            },
+            {
+                "model": "documento",
+                "codename": "delete_documento",
+                "app_label": "defensor"
+            },
+            {
+                "model": "supervisor",
+                "codename": "add_supervisor",
+                "app_label": "defensor"
+            },
+            {
+                "model": "supervisor",
+                "codename": "change_supervisor",
+                "app_label": "defensor"
+            },
+            {
+                "model": "supervisor",
+                "codename": "delete_supervisor",
+                "app_label": "defensor"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Documento GED",
+        "permissions": [
+            {
+                "model": "assinatura",
+                "codename": "add_assinatura",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "assinatura",
+                "codename": "change_assinatura",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "assinatura",
+                "codename": "delete_assinatura",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "documento",
+                "codename": "add_documento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "documento",
+                "codename": "change_documento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "documento",
+                "codename": "delete_documento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "historicaldocumento",
+                "codename": "add_historicaldocumento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "historicaldocumento",
+                "codename": "change_historicaldocumento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "historicaldocumento",
+                "codename": "delete_historicaldocumento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "pdfdocument",
+                "codename": "add_pdfdocument",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "pdfdocument",
+                "codename": "change_pdfdocument",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "pdfdocument",
+                "codename": "delete_pdfdocument",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "tipodocumento",
+                "codename": "add_tipodocumento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "tipodocumento",
+                "codename": "change_tipodocumento",
+                "app_label": "djdocuments"
+            },
+            {
+                "model": "tipodocumento",
+                "codename": "delete_tipodocumento",
+                "app_label": "djdocuments"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Agenda",
+        "permissions": [
+            {
+                "model": "agenda",
+                "codename": "add_agenda",
+                "app_label": "evento"
+            },
+            {
+                "model": "agenda",
+                "codename": "change_agenda",
+                "app_label": "evento"
+            },
+            {
+                "model": "agenda",
+                "codename": "delete_agenda",
+                "app_label": "evento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Categoria de Agenda",
+        "permissions": [
+            {
+                "model": "categoria",
+                "codename": "add_categoria",
+                "app_label": "evento"
+            },
+            {
+                "model": "categoria",
+                "codename": "change_categoria",
+                "app_label": "evento"
+            },
+            {
+                "model": "categoria",
+                "codename": "delete_categoria",
+                "app_label": "evento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Bloqueio de Agenda",
+        "permissions": [
+            {
+                "model": "evento",
+                "codename": "add_evento",
+                "app_label": "evento"
+            },
+            {
+                "model": "evento",
+                "codename": "change_evento",
+                "app_label": "evento"
+            },
+            {
+                "model": "evento",
+                "codename": "delete_evento",
+                "app_label": "evento"
+            },
+            {
+                "model": "evento",
+                "codename": "view_evento",
+                "app_label": "evento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Honorário",
+        "permissions": [
+            {
+                "model": "alertaprocessomovimento",
+                "codename": "add_alertaprocessomovimento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "alertaprocessomovimento",
+                "codename": "change_alertaprocessomovimento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "alertaprocessomovimento",
+                "codename": "delete_alertaprocessomovimento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "analise",
+                "codename": "add_analise",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "analise",
+                "codename": "change_analise",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "analise",
+                "codename": "delete_analise",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "documento",
+                "codename": "add_documento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "documento",
+                "codename": "change_documento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "documento",
+                "codename": "delete_documento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "honorario",
+                "codename": "add_honorario",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "honorario",
+                "codename": "change_honorario",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "honorario",
+                "codename": "delete_honorario",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "honorario",
+                "codename": "view_honorario",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "movimento",
+                "codename": "add_movimento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "movimento",
+                "codename": "change_movimento",
+                "app_label": "honorarios"
+            },
+            {
+                "model": "movimento",
+                "codename": "delete_movimento",
+                "app_label": "honorarios"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Indeferimento de Atendimento",
+        "permissions": [
+            {
+                "model": "indeferimento",
+                "codename": "add_indeferimento",
+                "app_label": "indeferimento"
+            },
+            {
+                "model": "indeferimento",
+                "codename": "change_indeferimento",
+                "app_label": "indeferimento"
+            },
+            {
+                "model": "indeferimento",
+                "codename": "delete_indeferimento",
+                "app_label": "indeferimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Itinerante",
+        "permissions": [
+            {
+                "model": "evento",
+                "codename": "add_evento",
+                "app_label": "itinerante"
+            },
+            {
+                "model": "evento",
+                "codename": "change_evento",
+                "app_label": "itinerante"
+            },
+            {
+                "model": "evento",
+                "codename": "delete_evento",
+                "app_label": "itinerante"
+            },
+            {
+                "model": "evento",
+                "codename": "view_evento",
+                "app_label": "itinerante"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Autorizar Itinerante",
+        "permissions": [
+            {
+                "model": "evento",
+                "codename": "auth_evento",
+                "app_label": "itinerante"
+            },
+            {
+                "model": "evento",
+                "codename": "view_evento",
+                "app_label": "itinerante"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Livre",
+        "permissions": [
+            {
+                "model": "aprisionamento",
+                "codename": "add_aprisionamento",
+                "app_label": "nadep"
+            },
+            {
+                "model": "aprisionamento",
+                "codename": "change_aprisionamento",
+                "app_label": "nadep"
+            },
+            {
+                "model": "aprisionamento",
+                "codename": "delete_aprisionamento",
+                "app_label": "nadep"
+            },
+            {
+                "model": "calculoexecucaopenal",
+                "codename": "add_calculoexecucaopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "calculoexecucaopenal",
+                "codename": "change_calculoexecucaopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "calculoexecucaopenal",
+                "codename": "delete_calculoexecucaopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "falta",
+                "codename": "add_falta",
+                "app_label": "nadep"
+            },
+            {
+                "model": "falta",
+                "codename": "change_falta",
+                "app_label": "nadep"
+            },
+            {
+                "model": "falta",
+                "codename": "delete_falta",
+                "app_label": "nadep"
+            },
+            {
+                "model": "historico",
+                "codename": "add_historico",
+                "app_label": "nadep"
+            },
+            {
+                "model": "historico",
+                "codename": "change_historico",
+                "app_label": "nadep"
+            },
+            {
+                "model": "historico",
+                "codename": "delete_historico",
+                "app_label": "nadep"
+            },
+            {
+                "model": "interrupcao",
+                "codename": "add_interrupcao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "interrupcao",
+                "codename": "change_interrupcao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "interrupcao",
+                "codename": "delete_interrupcao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "motivobaixaprisao",
+                "codename": "add_motivobaixaprisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "motivobaixaprisao",
+                "codename": "change_motivobaixaprisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "motivobaixaprisao",
+                "codename": "delete_motivobaixaprisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "mudancaregime",
+                "codename": "add_mudancaregime",
+                "app_label": "nadep"
+            },
+            {
+                "model": "mudancaregime",
+                "codename": "change_mudancaregime",
+                "app_label": "nadep"
+            },
+            {
+                "model": "mudancaregime",
+                "codename": "delete_mudancaregime",
+                "app_label": "nadep"
+            },
+            {
+                "model": "penarestritiva",
+                "codename": "add_penarestritiva",
+                "app_label": "nadep"
+            },
+            {
+                "model": "penarestritiva",
+                "codename": "change_penarestritiva",
+                "app_label": "nadep"
+            },
+            {
+                "model": "penarestritiva",
+                "codename": "delete_penarestritiva",
+                "app_label": "nadep"
+            },
+            {
+                "model": "prisao",
+                "codename": "add_prisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "prisao",
+                "codename": "change_prisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "prisao",
+                "codename": "delete_prisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "prisao",
+                "codename": "view_prisao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "remissao",
+                "codename": "add_remissao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "remissao",
+                "codename": "change_remissao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "remissao",
+                "codename": "delete_remissao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "restricaoprestacaoservico",
+                "codename": "add_restricaoprestacaoservico",
+                "app_label": "nadep"
+            },
+            {
+                "model": "restricaoprestacaoservico",
+                "codename": "change_restricaoprestacaoservico",
+                "app_label": "nadep"
+            },
+            {
+                "model": "restricaoprestacaoservico",
+                "codename": "delete_restricaoprestacaoservico",
+                "app_label": "nadep"
+            },
+            {
+                "model": "soltura",
+                "codename": "add_soltura",
+                "app_label": "nadep"
+            },
+            {
+                "model": "soltura",
+                "codename": "change_soltura",
+                "app_label": "nadep"
+            },
+            {
+                "model": "soltura",
+                "codename": "delete_soltura",
+                "app_label": "nadep"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Visita ao Preso",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "add_atendimento",
+                "app_label": "nadep"
+            },
+            {
+                "model": "atendimento",
+                "codename": "change_atendimento",
+                "app_label": "nadep"
+            },
+            {
+                "model": "atendimento",
+                "codename": "delete_atendimento",
+                "app_label": "nadep"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Visita ao Preso",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "view_atendimento",
+                "app_label": "nadep"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Administrar Livre",
+        "permissions": [
+            {
+                "model": "estabelecimentopenal",
+                "codename": "add_estabelecimentopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "estabelecimentopenal",
+                "codename": "change_estabelecimentopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "estabelecimentopenal",
+                "codename": "delete_estabelecimentopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "estabelecimentopenal",
+                "codename": "view_estabelecimentopenal",
+                "app_label": "nadep"
+            },
+            {
+                "model": "tipificacao",
+                "codename": "add_tipificacao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "tipificacao",
+                "codename": "change_tipificacao",
+                "app_label": "nadep"
+            },
+            {
+                "model": "tipificacao",
+                "codename": "delete_tipificacao",
+                "app_label": "nadep"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Administrar Núcleo Especializado",
+        "permissions": [
+            {
+                "model": "formulario",
+                "codename": "add_formulario",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "formulario",
+                "codename": "change_formulario",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "formulario",
+                "codename": "delete_formulario",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "pergunta",
+                "codename": "add_pergunta",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "pergunta",
+                "codename": "change_pergunta",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "pergunta",
+                "codename": "delete_pergunta",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "resposta",
+                "codename": "add_resposta",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "resposta",
+                "codename": "change_resposta",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "resposta",
+                "codename": "delete_resposta",
+                "app_label": "nucleo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Núcleo Especializado",
+        "permissions": [
+            {
+                "model": "nucleo",
+                "codename": "add_nucleo",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "nucleo",
+                "codename": "change_nucleo",
+                "app_label": "nucleo"
+            },
+            {
+                "model": "nucleo",
+                "codename": "delete_nucleo",
+                "app_label": "nucleo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Distribuir Atividades Multidisciplinar",
+        "permissions": [
+            {
+                "model": "nucleo",
+                "codename": "admin_multidisciplinar",
+                "app_label": "nucleo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Administrar Processo Judicial",
+        "permissions": [
+            {
+                "model": "vara",
+                "codename": "add_vara",
+                "app_label": "contrib"
+            },
+            {
+                "model": "vara",
+                "codename": "change_vara",
+                "app_label": "contrib"
+            },
+            {
+                "model": "vara",
+                "codename": "delete_vara",
+                "app_label": "contrib"
+            },
+            {
+                "model": "acao",
+                "codename": "add_acao",
+                "app_label": "processo"
+            },
+            {
+                "model": "acao",
+                "codename": "change_acao",
+                "app_label": "processo"
+            },
+            {
+                "model": "acao",
+                "codename": "delete_acao",
+                "app_label": "processo"
+            },
+            {
+                "model": "assunto",
+                "codename": "add_assunto",
+                "app_label": "processo"
+            },
+            {
+                "model": "assunto",
+                "codename": "change_assunto",
+                "app_label": "processo"
+            },
+            {
+                "model": "assunto",
+                "codename": "delete_assunto",
+                "app_label": "processo"
+            },
+            {
+                "model": "documentotipo",
+                "codename": "add_documentotipo",
+                "app_label": "processo"
+            },
+            {
+                "model": "documentotipo",
+                "codename": "change_documentotipo",
+                "app_label": "processo"
+            },
+            {
+                "model": "documentotipo",
+                "codename": "delete_documentotipo",
+                "app_label": "processo"
+            },
+            {
+                "model": "fasetipo",
+                "codename": "add_fasetipo",
+                "app_label": "processo"
+            },
+            {
+                "model": "fasetipo",
+                "codename": "change_fasetipo",
+                "app_label": "processo"
+            },
+            {
+                "model": "fasetipo",
+                "codename": "delete_fasetipo",
+                "app_label": "processo"
+            },
+            {
+                "model": "processo",
+                "codename": "add_processo",
+                "app_label": "processo"
+            },
+            {
+                "model": "processo",
+                "codename": "change_processo",
+                "app_label": "processo"
+            },
+            {
+                "model": "processo",
+                "codename": "delete_processo",
+                "app_label": "processo"
+            },
+            {
+                "model": "processo",
+                "codename": "view_processo",
+                "app_label": "processo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Audiência de Processo Judicial",
+        "permissions": [
+            {
+                "model": "audiencia",
+                "codename": "add_audiencia",
+                "app_label": "processo"
+            },
+            {
+                "model": "audiencia",
+                "codename": "change_audiencia",
+                "app_label": "processo"
+            },
+            {
+                "model": "audiencia",
+                "codename": "delete_audiencia",
+                "app_label": "processo"
+            },
+            {
+                "model": "audiencia",
+                "codename": "view_audiencia",
+                "app_label": "processo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Processo Judicial",
+        "permissions": [
+            {
+                "model": "documentofase",
+                "codename": "add_documentofase",
+                "app_label": "processo"
+            },
+            {
+                "model": "documentofase",
+                "codename": "change_documentofase",
+                "app_label": "processo"
+            },
+            {
+                "model": "documentofase",
+                "codename": "delete_documentofase",
+                "app_label": "processo"
+            },
+            {
+                "model": "documentofase",
+                "codename": "view_documentofase",
+                "app_label": "processo"
+            },
+            {
+                "model": "fase",
+                "codename": "add_fase",
+                "app_label": "processo"
+            },
+            {
+                "model": "fase",
+                "codename": "change_fase",
+                "app_label": "processo"
+            },
+            {
+                "model": "fase",
+                "codename": "delete_fase",
+                "app_label": "processo"
+            },
+            {
+                "model": "fase",
+                "codename": "view_fase",
+                "app_label": "processo"
+            },
+            {
+                "model": "parte",
+                "codename": "add_parte",
+                "app_label": "processo"
+            },
+            {
+                "model": "parte",
+                "codename": "change_parte",
+                "app_label": "processo"
+            },
+            {
+                "model": "parte",
+                "codename": "delete_parte",
+                "app_label": "processo"
+            },
+            {
+                "model": "processoapenso",
+                "codename": "add_processoapenso",
+                "app_label": "processo"
+            },
+            {
+                "model": "processoapenso",
+                "codename": "change_processoapenso",
+                "app_label": "processo"
+            },
+            {
+                "model": "processoapenso",
+                "codename": "delete_processoapenso",
+                "app_label": "processo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Processo Judicial",
+        "permissions": [
+            {
+                "model": "processo",
+                "codename": "view_processo",
+                "app_label": "processo"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar PROPAC",
+        "permissions": [
+            {
+                "model": "documentopropac",
+                "codename": "add_documentopropac",
+                "app_label": "propac"
+            },
+            {
+                "model": "documentopropac",
+                "codename": "change_documentopropac",
+                "app_label": "propac"
+            },
+            {
+                "model": "documentopropac",
+                "codename": "delete_documentopropac",
+                "app_label": "propac"
+            },
+            {
+                "model": "movimento",
+                "codename": "add_movimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "movimento",
+                "codename": "change_movimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "movimento",
+                "codename": "delete_movimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "movimentotipo",
+                "codename": "add_movimentotipo",
+                "app_label": "propac"
+            },
+            {
+                "model": "movimentotipo",
+                "codename": "change_movimentotipo",
+                "app_label": "propac"
+            },
+            {
+                "model": "movimentotipo",
+                "codename": "delete_movimentotipo",
+                "app_label": "propac"
+            },
+            {
+                "model": "procedimento",
+                "codename": "add_procedimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "procedimento",
+                "codename": "change_procedimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "procedimento",
+                "codename": "delete_procedimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "situacaoprocedimento",
+                "codename": "add_situacaoprocedimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "situacaoprocedimento",
+                "codename": "change_situacaoprocedimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "situacaoprocedimento",
+                "codename": "delete_situacaoprocedimento",
+                "app_label": "propac"
+            },
+            {
+                "model": "tipoanexodocumentopropac",
+                "codename": "add_tipoanexodocumentopropac",
+                "app_label": "propac"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Administrar PROPAC",
+        "permissions": [
+            {
+                "model": "tipoanexodocumentopropac",
+                "codename": "change_tipoanexodocumentopropac",
+                "app_label": "propac"
+            },
+            {
+                "model": "tipoanexodocumentopropac",
+                "codename": "delete_tipoanexodocumentopropac",
+                "app_label": "propac"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Administrar Relatórios",
+        "permissions": [
+            {
+                "model": "relatorios",
+                "codename": "add_relatorios",
+                "app_label": "relatorios"
+            },
+            {
+                "model": "relatorios",
+                "codename": "change_relatorios",
+                "app_label": "relatorios"
+            },
+            {
+                "model": "relatorios",
+                "codename": "delete_relatorios",
+                "app_label": "relatorios"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Relatórios",
+        "permissions": [
+            {
+                "model": "relatorios",
+                "codename": "view_relatorios",
+                "app_label": "relatorios"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Filtro Defensor em Relatórios",
+        "permissions": [
+            {
+                "model": "relatorios",
+                "codename": "view_filter_defensores",
+                "app_label": "relatorios"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Filtro Servidor em Relatórios",
+        "permissions": [
+            {
+                "model": "relatorios",
+                "codename": "view_filter_servidores",
+                "app_label": "relatorios"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Gerenciar Etiquetas",
+        "permissions": [
+            {
+                "model": "etiqueta",
+                "codename": "add_etiqueta",
+                "app_label": "contrib"
+            },
+            {
+                "model": "etiqueta",
+                "codename": "change_etiqueta",
+                "app_label": "contrib"
+            },
+            {
+                "model": "etiqueta",
+                "codename": "delete_etiqueta",
+                "app_label": "contrib"
+            },
+            {
+                "model": "etiqueta",
+                "codename": "view_etiqueta",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Vincular Etiquetas a Defensorias/Servidores",
+        "permissions": [
+            {
+                "model": "defensoriaetiqueta",
+                "codename": "add_defensoriaetiqueta",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoriaetiqueta",
+                "codename": "change_defensoriaetiqueta",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoriaetiqueta",
+                "codename": "delete_defensoriaetiqueta",
+                "app_label": "contrib"
+            },
+            {
+                "model": "defensoriaetiqueta",
+                "codename": "view_defensoriaetiqueta",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Visualizar Etiquetas",
+        "permissions": [
+            {
+                "model": "etiqueta",
+                "codename": "view_etiqueta",
+                "app_label": "contrib"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Arquivar Atendimento",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "arquivar_atendimento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Desarquivar Atendimento",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "desarquivar_atendimento",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Atender Retroativo",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "atender_retroativo",
+                "app_label": "atendimento"
+            }
+        ]
+    },
+    {
+        "name": "Permissão: Atender sem Liberar",
+        "permissions": [
+            {
+                "model": "atendimento",
+                "codename": "atender_sem_liberar",
+                "app_label": "atendimento"
+            }
+        ]
+    }
+]

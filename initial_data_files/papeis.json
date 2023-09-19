@@ -1,0 +1,259 @@
+[
+    {
+        "name": "Papel: Atendente 129",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Justificativa de Atendimento",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Encaminhamento Externo (129)",
+            "Permissão: Visualizar Informações (129)",
+            "Permissão: Visualizar Painel 129",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Atendente Recepção",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Justificativa de Atendimento",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Painel Recepção",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Defensor",
+        "marcar_usuario_como_defensor": true,
+        "groups": [
+            "Permissão: Gerenciar Acesso de Atendimento",
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Audiência de Processo Judicial",
+            "Permissão: Gerenciar Defensorias",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Indeferimento de Atendimento",
+            "Permissão: Gerenciar Justificativa de Atendimento",
+            "Permissão: Gerenciar Livre",
+            "Permissão: Gerenciar Processo Judicial",
+            "Permissão: Gerenciar PROPAC",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Gerenciar Visita ao Preso",
+            "Permissão: Vincular Etiquetas a Defensorias/Servidores",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Etiquetas",
+            "Permissão: Visualizar Painel Defensor",
+            "Permissão: Visualizar Painel Distribuição",
+            "Permissão: Visualizar Processo Judicial",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Assessor",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Acesso de Atendimento",
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Audiência de Processo Judicial",
+            "Permissão: Gerenciar Defensorias",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Justificativa de Atendimento",
+            "Permissão: Gerenciar Livre",
+            "Permissão: Gerenciar Processo Judicial",
+            "Permissão: Gerenciar PROPAC",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Gerenciar Visita ao Preso",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Etiquetas",
+            "Permissão: Visualizar Painel Defensor",
+            "Permissão: Visualizar Painel Distribuição",
+            "Permissão: Visualizar Processo Judicial",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Estagiário",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Acesso de Atendimento",
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Audiência de Processo Judicial",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Livre",
+            "Permissão: Gerenciar Processo Judicial",
+            "Permissão: Gerenciar PROPAC",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Gerenciar Visita ao Preso",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Etiquetas",
+            "Permissão: Visualizar Painel Defensor",
+            "Permissão: Visualizar Painel Distribuição",
+            "Permissão: Visualizar Processo Judicial",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Administrador de Unidade",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Agendar Atendimento em Dia Bloqueado",
+            "Permissão: Gerenciar Agenda",
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Bloqueio de Agenda",
+            "Permissão: Gerenciar Defensor",
+            "Permissão: Gerenciar Defensorias",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Etiquetas",
+            "Permissão: Gerenciar Guichês",
+            "Permissão: Gerenciar Indeferimento de Atendimento",
+            "Permissão: Gerenciar Itinerante",
+            "Permissão: Gerenciar Justificativa de Atendimento",
+            "Permissão: Gerenciar Lotação",
+            "Permissão: Gerenciar Prédios",
+            "Permissão: Gerenciar Processo Interno",
+            "Permissão: Gerenciar Usuários",
+            "Permissão: Vincular Etiquetas a Defensorias/Servidores",
+            "Permissão: Visualizar Atendimento com Acesso Privado",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Painel Recepção",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Supervisor Itinerante",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Autorizar Itinerante",
+            "Permissão: Gerenciar Itinerante"
+        ]
+    },
+    {
+        "name": "Papel: Administrador do Sistema",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Administrar Livre",
+            "Permissão: Administrar Núcleo Especializado",
+            "Permissão: Administrar Processo Interno",
+            "Permissão: Administrar Processo Judicial",
+            "Permissão: Administrar PROPAC",
+            "Permissão: Administrar Relatórios",
+            "Permissão: Gerenciar Áreas",
+            "Permissão: Gerenciar Assunto de Atendimento",
+            "Permissão: Gerenciar Cargos",
+            "Permissão: Gerenciar Categoria de Agenda",
+            "Permissão: Gerenciar Comarcas",
+            "Permissão: Gerenciar Configurações do Sistema",
+            "Permissão: Gerenciar Defensorias",
+            "Permissão: Gerenciar Encaminhamento Externo (129)",
+            "Permissão: Gerenciar Especialização de Atendimento",
+            "Permissão: Gerenciar Etiquetas",
+            "Permissão: Gerenciar Informações (129)",
+            "Permissão: Gerenciar Modelo de Documento de Atendimento",
+            "Permissão: Gerenciar Núcleo Especializado",
+            "Permissão: Gerenciar Papel de Usuários",
+            "Permissão: Gerenciar Perfil de Campos Obrigatórios",
+            "Permissão: Gerenciar Pergunta de Qualificação de Atendimento",
+            "Permissão: Gerenciar Procedimento de Atendimento 129",
+            "Permissão: Gerenciar Qualificação de Atendimento",
+            "Permissão: Gerenciar Salário e Índice de Renda",
+            "Permissão: Gerenciar Tipos de Eventos das Defensorias",
+            "Permissão: Vincular Etiquetas a Defensorias/Servidores",
+            "Permissão: Visualizar Todas as Defensorias"
+        ]
+    },
+    {
+        "name": "Papel: Corregedor",
+        "marcar_usuario_como_defensor": true,
+        "groups": [
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Indeferimento de Atendimento",
+            "Permissão: Gerenciar Processo Interno",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Atendimento com Acesso Privado",
+            "Permissão: Visualizar Relatórios"
+        ]
+    },
+    {
+        "name": "Papel: Defensor Público Geral",
+        "marcar_usuario_como_defensor": true,
+        "groups": [
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Indeferimento de Atendimento",
+            "Permissão: Gerenciar Processo Interno",
+            "Permissão: Visualizar Atendimento"
+        ]
+    },
+    {
+        "name": "Papel: Gerente de Honorários",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Honorário",
+            "Permissão: Gerenciar Processo Judicial",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Visualizar Processo Judicial"
+        ]
+    },
+    {
+        "name": "Papel: Oficial de Diligências",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Processo Judicial",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Servidor Equipe Multidisciplinar",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Processo Judicial",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    },
+    {
+        "name": "Papel: Supervisor Equipe Multidisciplinar",
+        "marcar_usuario_como_defensor": false,
+        "groups": [
+            "Permissão: Distribuir Atividades Multidisciplinar",
+            "Permissão: Gerenciar Assistido",
+            "Permissão: Gerenciar Atendimento",
+            "Permissão: Gerenciar Documento de Atendimento",
+            "Permissão: Gerenciar Documento GED",
+            "Permissão: Gerenciar Tarefas de Atendimento",
+            "Permissão: Visualizar Atendimento",
+            "Permissão: Visualizar Processo Judicial",
+            "Permissão: Visualizar Qualificação de Atendimento",
+            "Permissão: Visualizar Visita ao Preso"
+        ]
+    }
+]
