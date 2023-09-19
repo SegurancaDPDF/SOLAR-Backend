@@ -1,0 +1,7 @@
+# **/.env
+
+binarios_executaveis/
+data/
+log/
+media/
+staticfiles_producao/

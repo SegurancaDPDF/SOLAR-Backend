@@ -1,0 +1,191 @@
+#
+# DEBUG E LOGS
+#
+
+DEBUG=True
+DEBUG_TOOLBAR=True
+DEBUG_TEMPLATE=True
+
+DEBUG_VSCODE=False
+
+# Registro de logs no Setry (use sua instalação local ou crie uma conta no site oficial https://sentry.io/)
+# Para mais informações, acesse https://docs.sentry.io/platforms/python/guides/django/
+SENTRY_DSN=
+SENTRY_TRACES_SAMPLE_RATE=1.0
+
+#
+# ANALYTICS
+#
+
+GOOGLE_ANALYTICS_ID=
+GOOGLE_ANALYTICS_4_ID=
+
+#
+# ACESSO
+#
+
+SECRET_KEY=
+ALLOWED_HOSTS=solar.site.com, 127.0.0.1, localhost
+TIME_ZONE=America/Araguaina
+
+#
+# SESSÃO
+#
+
+# Duração da sessão (em segundos) (padrão 24 horas)
+SESSION_COOKIE_AGE=86400
+SESSION_SAVE_EVERY_REQUEST=False
+
+#
+# BANCO DE DADOS
+#
+
+DATABASE_URL=postgres://usuario:senha@host:porta/banco
+
+# * número zero: faz o django criar uma conexao com o banco no inicio do
+# processamento da requisição, e fechar a conexao ao final da requisição
+# * número inteiro maior do que zero: faz o django reutilizar a conexao
+# com o banco de dados pelo numero de segundos informado. pode melhorar
+# o desempenho.
+DATABASE_CONN_MAX_AGE=60
+
+# string ASCII
+# util para filtrar origem das queries no banco de dados
+DATABASE_APPLICATION_ID=
+DATABASE_APPLICATION_NAME=
+
+MEMCACHED_DATABASE_URL=memcached:11211
+REDIS_DATABASE_URL=redis://redis:6379
+CACHEOPS_ENABLED=True
+
+#
+# CONSTANCE
+# Backend Redis = 'constance.backends.redisd.RedisBackend' (default)
+# Backend Database = 'constance.backends.database.DatabaseBackend' (essa versão garante melhor a persistência)
+CONSTANCE_BACKEND = 'constance.backends.redisd.RedisBackend'
+
+#
+# APIs
+#
+
+# Habilite para gerar arquivos XLSX sem paginação (Chronus 2.0 ou superior)
+CHRONUS_PODE_GERAR_XLSX_SEM_PAGINACAO=False
+CHRONUS_URL=
+
+PROCAPI_URL=
+PROCAPI_TOKEN=
+
+LIVRE_API_URL=
+LIVRE_API_TOKEN=
+
+ATHENAS_API_URL=
+ATHENAS_API_TOKEN=
+
+PLANTAO_API_URL=
+
+#
+# LDAP
+#
+
+LDAP_AUTH_BIND_DN=
+LDAP_AUTH_BIND_PASSWORD=
+LDAP_AUTH_BIND_SUFFIX=
+LDAP_AUTH_SERVER_URI=
+
+#
+# EGIDE
+#
+
+EGIDE_CLIENT_ID=
+EGIDE_CLIENT_SECRET=
+EGIDE_URL=
+EGIDE_REDIRECT_URI=
+#EGIDE_AUTHORIZE_URL=
+#EGIDE_TOKEN_URL=
+
+#
+# E-MAIL
+#
+
+EMAIL_HOST=
+DEFAULT_FROM_EMAIL=
+EMAIL_TO_REPORT_ERRORS=
+
+# configuracoes opcionais
+EMAIL_HOST_PASSWORD=
+EMAIL_HOST_USER=
+EMAIL_PORT=25
+
+EMAIL_USE_TLS=False
+EMAIL_USE_SSL=False
+EMAIL_SSL_CERTFILE=None
+EMAIL_SSL_KEYFILE=None
+EMAIL_TIMEOUT=None
+
+#
+# NOTIFICAÇÕES
+#
+
+SIGNO_REST_API_URL=
+SIGNO_WEBSOCKET_URL=
+
+#
+# CHATBOT
+#
+
+CHATBOT_USERNAME=lunachatbot
+CHATBOT_FULL_NAME=Luna Chatbot DPE
+
+CHATBOT_LUNA_USERNAME=lunaweb
+CHATBOT_LUNA_API_TOKEN=
+CHATBOT_LUNA_WEBHOOK_URL=
+CHATBOT_LUNA_VERIFY_CERTFILE=True
+
+#
+# E-DEFENSOR (DPE-RR)
+#
+
+USAR_EDEFENSOR=False
+EDEFENSOR_ADONIS_HOSTNAME=
+EDEFENSOR_ADONIS_PORT=
+EDEFENSOR_CHAT_WEBSERVICE_TOKEN_URL=
+EDEFENSOR_CHAT_WEBSERVICE_TOKEN_USERNAME=
+EDEFENSOR_CHAT_WEBSERVICE_TOKEN_PASSWORD=
+EDEFENSOR_CHAT_WEBSERVICE_APP_SYSTEM=
+EDEFENSOR_CATEGORIA_AGENDA_ID=
+
+VERIFY_CERTFILE=
+CORS_ORIGIN_ALLOW_ALL=False
+
+#
+# MOVILE SMS
+#
+
+# URL da API do envio de SMS. Se for utilizada uma que não seja da Movile, talvez não funcione, tendo que alterar a regra de negócio.
+MOVILE_API_URL=http://api-messaging.movile.com/v1/send-sms
+MOVILE_AUTH_TOKEN=
+MOVILE_AUTH_USER=
+
+#
+# OUTRAS
+#
+
+SIGLA_UF=uf
+SIGLA_INSTITUICAO=DPE
+NOME_INSTITUICAO=Solução Avançada em Atendimento de Referência
+CNPJ_INSTITUICAO=00000000000000
+
+EXIBIR_ALERTA_AVALIACAO_ASSISTIDO=True
+MENSAGEM_ALERTA_AVALIACAO_ASSISTIDO=<p></p>
+
+EXIBIR_ALERTA_AVALIACAO_ASSISTIDO_129=True
+MENSAGEM_ALERTA_AVALIACAO_ASSISTIDO_129=<p></p>
+
+# Tamanho máximo de uploads no GED (Padrão do Django 2.5 MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE=2621440
+
+#
+# DJANGO REST FRAMEWORK 
+#
+
+SIMPLE_JWT_SIGNING_KEY=

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  python:
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/python
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web

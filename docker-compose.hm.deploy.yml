@@ -1,0 +1,173 @@
+version: '3'
+
+networks:
+  web_proxy:
+    external: true
+
+volumes:
+  data:
+    driver: local
+  static:
+    driver: local
+  media:
+    driver: local
+
+services:
+  memcached:
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    image: memcached
+  redis:
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    image: redis
+    volumes:
+      - data:/data
+  web:
+    cap_add:
+      - CAP_SYS_ADMIN
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web_proxy"
+        - "traefik.http.routers.solar-hm.rule=Host(`solar-hm.defensoria.to.def.br`)"
+        - "traefik.http.routers.solar-hm.entrypoints=http"
+        - "traefik.http.routers.solar-hm.middlewares=redirect-to-https@file"
+        - "traefik.http.routers.solar-hm-secure.rule=Host(`solar-hm.defensoria.to.def.br`)"
+        - "traefik.http.routers.solar-hm-secure.entrypoints=https"
+        - "traefik.http.routers.solar-hm-secure.tls=true"
+        - "traefik.http.services.solar-hm.loadbalancer.server.port=1024"
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web:homolog
+    networks:
+      - default
+      - web_proxy
+    volumes:
+      - /mnt/solar_media/wkhtmltox/:/app/src/binarios_executaveis/
+  worker_geral:
+    command: ["celery", "--app=taskapp", "worker", "--queues=default,geral", "--concurrency=4", "-n worker-geral@%h"]
+    depends_on:
+      - redis
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    environment:
+      - C_FORCE_ROOT=true
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web:homolog
+    volumes:
+      - /mnt/solar_media/wkhtmltox/:/app/src/binarios_executaveis/
+  worker_sobdemanda:
+    command: ["celery", "--app=taskapp", "worker", "--queues=sobdemanda", "--concurrency=4", "-n worker-sobdemanda@%h"]
+    depends_on:
+      - redis
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    environment:
+      - C_FORCE_ROOT=true
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web:homolog
+    volumes:
+      - /mnt/solar_media/wkhtmltox/:/app/src/binarios_executaveis/
+  worker_prioridade:
+    command: ["celery", "--app=taskapp", "worker", "--queues=prioridade", "--concurrency=4", "-n worker-prioridade@%h"]
+    depends_on:
+      - redis
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    environment:
+      - C_FORCE_ROOT=true
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web:homolog
+    volumes:
+      - /mnt/solar_media/wkhtmltox/:/app/src/binarios_executaveis/
+  worker_manifestacao:
+    command: ["celery", "--app=taskapp", "worker", "--queues=manifestacao", "--concurrency=4", "-n worker-manifestacao@%h"]
+    depends_on:
+      - redis
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    environment:
+      - C_FORCE_ROOT=true
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web:homolog
+    volumes:
+      - /mnt/solar_media/wkhtmltox/:/app/src/binarios_executaveis/
+  beat:
+    command: ["celery", "--app=taskapp", "beat", "--loglevel", "INFO", "--scheduler=django_celery_beat.schedulers:DatabaseScheduler"]
+    depends_on:
+      - worker_geral
+      - worker_sobdemanda
+      - worker_prioridade
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    environment:
+      - C_FORCE_ROOT=true
+    image: gitlab.defensoria.to.def.br:5000/defensoria/sisat/web:homolog
+  flower:
+    command: ["flower", "--broker=redis://redis:6379/2", "--port=5555", "--purge_offline_workers=10"]
+    depends_on:
+      - worker_geral
+      - worker_sobdemanda
+      - worker_prioridade
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web_proxy"
+        - "traefik.http.routers.flower-solar-hm.rule=Host(`flower-solar-hm.defensoria.to.def.br`)"
+        - "traefik.http.routers.flower-solar-hm.entrypoints=http"
+        - "traefik.http.services.flower-solar-hm.loadbalancer.server.port=5555"
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    image: mher/flower:0.9.7
+    networks:
+      - default
+      - web_proxy
