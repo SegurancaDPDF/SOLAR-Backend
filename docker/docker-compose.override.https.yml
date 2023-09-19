@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  web:
+    ports:
+      - 443:1024
+    volumes:
+     - ./uwsgi/solar.https.ini:/app/src/uwsgi/solar.ini
+     - /etc/letsencrypt/live/solar.defensoria.to.def.br/fullchain.pem:/app/src/uwsgi/fullchain.pem
+     - /etc/letsencrypt/live/solar.defensoria.to.def.br/privkey.pem:/app/src/uwsgi/privkey.pem

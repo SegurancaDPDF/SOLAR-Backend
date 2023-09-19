@@ -1,0 +1,38 @@
+# Balanceamento via Nginx (informar os nomes dos containers)
+# upstream django_app {
+#         server src_web_1:1024;
+#         server src_web_2:1024;
+# }
+
+# Balanceamento via Docker (informar o nome do serviço, o docker escolhe o container em cada requisição)
+upstream django_app {
+        server web:1024;
+}
+
+server {
+
+        listen 1023;
+        listen [::]:1023;
+        server_name _;
+
+        # SSL
+        ssl on;
+        ssl_certificate /app/src/uwsgi/server.crt;
+        ssl_certificate_key /app/src/uwsgi/server.key;
+
+        gzip on;
+        client_max_body_size 20M;
+        location / {
+                include uwsgi_params;
+                uwsgi_pass django_app;
+        }
+        location /media {
+                alias /app/src/media;
+        }
+        location /static {
+                expires           120m;
+                add_header        Cache-Control "public, revalidate, proxy-revalidate";
+                alias /app/src/staticfiles_producao;
+        }
+        error_log  /app/logs/nginx/solar-error.log;
+}

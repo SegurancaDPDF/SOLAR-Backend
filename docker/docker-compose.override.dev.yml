@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  redis:
+    ports:
+      - 6379:6379
+  memcached:
+    ports:
+      - 11211:11211
+  python:
+    build:
+      args:
+        requirements: local
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.desenvolvimento
+  web:
+    build:
+      args:
+        requirements: local
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.desenvolvimento
+    ports:
+      - 3000:3000
+      - 8000:8000
+      - 8888:8888
+    volumes:
+      - ./:/app/src/
+  worker_geral:
+    volumes:
+      - ./:/app/src/
+  worker_sobdemanda:
+    volumes:
+      - ./:/app/src/
+  worker_prioridade:
+    volumes:
+      - ./:/app/src/
+  worker_manifestacao:
+    volumes:
+      - ./:/app/src/

@@ -1,0 +1,17 @@
+server {
+
+        listen 1023 default_server;
+        listen [::]:1023 default_server;
+        server_name _;
+        gzip on;
+        client_max_body_size 20M;
+        location / {
+                include uwsgi_params;
+                uwsgi_pass 127.0.0.1:1024;
+        }
+        location /static {
+                expires           120m;
+                add_header        Cache-Control "public, revalidate, proxy-revalidate";
+                alias /app/src/staticfiles_producao;
+        }
+}

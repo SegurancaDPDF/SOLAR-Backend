@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  web:
+    volumes:
+     - ./uwsgi/solar-socket.ini:/app/src/uwsgi/solar.ini
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    depends_on:
+      - web
+    ports:
+      - 80:1023
+      - 443:1023
+    volumes:
+      - ./media/:/app/src/media/
+      - ./data/wkhtmltox/:/app/src/binarios_executaveis/
