@@ -1,0 +1,83 @@
+{% load contrib_tags %}
+<div class="media">
+    <a class="pull-left" href="#">
+        <img class="media-object img-polaroid" data-src="holder.js/64x64" alt="64x64" width="64" height="64">
+    </a>
+    <div class="media-body">
+        <div class="btn-group pull-right">
+            {% if agendadas %}
+                {% if permissao_distribuir %}
+                    <a href="?distribuir={{ solicitacao.numero }}" class="btn btn-mini">Distribuir</a>
+                {% endif %}
+                <a href="{% url 'atendimento_atender' solicitacao.numero %}#/historico" class="btn btn-mini">Ver</a>
+            {% else %}
+                <a href="{% url 'atendimento_atender' solicitacao.numero %}#/atividades" class="btn btn-mini">Atender</a>
+            {% endif %}
+        </div>
+        <div class="bold muted">{{ solicitacao.numero }}</div>
+        <div>
+            <div class="label">{{ solicitacao.get_tipo_display }}</div>
+        </div>
+        <h4 class="media-heading">{{ solicitacao.requerente.nome }}</h4>
+
+        <div>
+            Requerido: <b>
+            {{ solicitacao.requerido.nome|default:"Não informado" }}</b>
+        </div>
+        {% if solicitacao.defensoria %}
+            <div>
+                Defensoria: <b>{{ solicitacao.defensoria.nome|default_if_none:"" }}</b>
+            </div>
+        {% endif %}
+        <div>
+            Área/Pedido:
+            <b>{{ solicitacao.qualificacao.area }}/{{ solicitacao.qualificacao.titulo }}</b>
+        </div>
+        <div>
+            Solicitado por: <b tooltip="{{ solicitacao.cadastrado_por }}">{{ solicitacao.cadastrado_por.usuario }}</b> em <b>
+            {{ solicitacao.data_cadastro|date:'d/m/Y H:i' }}</b>
+        </div>
+        {% if solicitacao.data_atendimento %}
+            <div>
+                Respondido por: <b tooltip="{{ solicitacao.atendido_por }}">{{ solicitacao.atendido_por.usuario }}</b> em <b>
+                {{ solicitacao.data_atendimento|date:'d/m/Y H:i' }}</b>
+            </div>
+        {% else %}
+        <div>
+            Responder até: <b>
+            {{ solicitacao.data_agendamento|date:'d/m/Y'|default:"Não informado" }}</b>
+            {% if solicitacao.data_agendamento %}
+                {% if solicitacao.data_agendamento.date == data_ref.date %}
+                    <span class="label label-warning">
+                        <small>Hoje!</small>
+                    </span>
+                {% elif solicitacao.data_agendamento.date > data_ref.date %}
+                    <span class="label label-success">
+                        <small>{{ solicitacao.data_agendamento.date|timeuntil:data_ref.date }}</small>
+                    </span>
+                {% else %}
+                    <span class="label label-important">
+                        <small>{{ data_ref.date|timeuntil:solicitacao.data_agendamento.date }} atrasada</small>
+                    </span>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if solicitacao.distribuido or solicitacao.total %}
+            <div>
+                Responsáveis:
+                {% if permissao_distribuir %}
+                    {% if not finalizadas %}
+                        <a href="?distribuir={{ solicitacao.numero }}" class="btn-link">Redistribuir
+                        <i class="fas fa-random color-blue"></i></a>
+                    {% endif %}
+                {% endif %}
+                <ul>
+                    {% for participante in solicitacao.participantes.all %}
+                        <li><b tooltip="{{ participante }}">{{ participante.usuario }}</b></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</div>

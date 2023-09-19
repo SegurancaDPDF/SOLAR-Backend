@@ -1,0 +1,79 @@
+{% load i18n %}
+{% load contrib_tags %}
+{% if is_paginated %}
+    <div>
+        Página {{ page_obj.number }} de {{ paginator.num_pages }}
+    </div>
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li>
+                    <a href="?{% param_replace page=1 %}" title="Primeira página" rel="tooltip">
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?{% param_replace page=page_obj.previous_page_number %}" title="Página anterior" rel="tooltip">
+                        <span>&lsaquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <a href="#" title="Primeira página" rel="tooltip">
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a href="#" title="Página anterior" rel="tooltip">
+                        <span>&lsaquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% for page in paginator.page_range %}
+                {% if page >= page_obj.number|add:"-2" and page < page_obj.number %}
+                    <li>
+                        <a href="?{% param_replace page=page %}">{{ page }}</a>
+                    </li>
+                {% endif %}
+                {% ifequal page_obj.number page %}
+                    <li class="active">
+                        <a href="#">{{ page_obj.number }}</a>
+                    </li>
+                {% endifequal %}
+                {% if page <= page_obj.number|add:"2" and page > page_obj.number %}
+                    <li>
+                        <a href="?{% param_replace page=page %}">{{ page }}</a>
+                    </li>
+                {% endif %}
+                {% comment %}
+                <li {% if page == page_obj.number %}class="active" {% endif %}>
+                    <a href="?{% param_replace page=page %}">{{ page }}</a>
+                </li>
+                {% endcomment %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li>
+                    <a href="?{% param_replace page=page_obj.next_page_number %}" title="Próxima página" rel="tooltip">
+                        <span>&rsaquo;</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?{% param_replace page=page_obj.paginator.num_pages %}" title="Última página" rel="tooltip">
+                        <span>&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li {% if not page_obj.has_next %}class="disabled" {% endif %}>
+                    <a href="#" title="Próxima página" rel="tooltip">
+                        <span>&rsaquo;</span>
+                    </a>
+                </li>
+                <li {% if not page_obj.has_next %}class="disabled" {% endif %}>
+                    <a href="#" title="Última página" rel="tooltip">
+                        <span>&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}

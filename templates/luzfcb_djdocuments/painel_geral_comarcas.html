@@ -1,0 +1,23 @@
+
+{% for comarca in comarcas %}
+<tr style="cursor: pointer;">
+    <td>
+        <a href="{% url 'ged:painel_geral_modelos_publicos_comarca' comarca_id=comarca.id %}?atendimento_numero={{ atendimento_numero }}" class="row-fluid">
+            <div class="span1">
+                <i class="helper-font-24 fas fa-folder {% if comarca.total %}color-yellow{% else %}color-silver-dark{% endif %}"></i>
+            </div>
+            <div class="span10">
+                <div>
+                    {{ comarca.nome|upper }} <span class="badge">{{ comarca.total }}</span>
+                </div>
+                <small class="muted">
+                    {{ comarca.nome }}
+                </small>
+            </div>
+            <div class="span1">
+                <i class="fas fa-chevron-right pull-right" style="margin-top:40%;"></i>
+            </div>
+        </a>
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,57 @@
+<form id="NucleoDiligenciaForm"
+        name="NucleoDiligenciaForm"
+        action="{% url 'indeferimento:salvar_diligencia' nucleo_id=nucleo_id processo_uuid=processo.uuid %}" method="POST"
+        onsubmit="btn_enviar_diligencia.disabled = true; return true;">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="">
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">Núcleo</label>
+            <div class="controls">
+                {{ form_diligencia.defensoria }}
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">Tipo de Pedido</label>
+            <div class="controls">
+                {{ form_diligencia.qualificacao }}
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">Prazo p/ Resposta</label>
+            <div class="controls">
+                {{ form_diligencia.data_agendamento }}
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">Documento</label>
+            <div class="controls">
+                {{ form_diligencia.documento }}
+            </div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Anexos</label>
+        <div class="controls">
+            {{ form_diligencia.anexos }}
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">Observações / Recomendações</label>
+            {{ form_diligencia.historico }}
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $("input.datepicker").datepicker();
+    $("input[data-mask]").each(function(){
+        $(this).mask($(this).attr('data-mask'));
+    });
+</script>

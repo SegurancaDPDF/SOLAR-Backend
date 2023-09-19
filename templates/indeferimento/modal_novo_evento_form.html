@@ -1,0 +1,34 @@
+{% load contrib_tags %}
+<form name="NovoEventoForm{{ tipo_evento }}" id="NovoEventoForm{{ tipo_evento }}" action="{% url 'indeferimento:evento_criar_tipo' processo_uuid=processo.uuid tipo=tipo_evento %}" method="POST" class="form-horizontal" onsubmit="return preventMultipleSubmit(this);">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'indeferimento:ver_solicitacao' setor_id=setor_id nucleo_id=nucleo_id processo_uuid=processo.uuid %}">
+    <input type="hidden" name="setor_criacao" value="{{ setor_id }}">
+    <div class="control-group">
+        <label class="control-label">Tipo</label>
+        <div class="controls">
+            {{ form_evento.tipo }}
+        </div>
+    </div>
+    {% if tipo_evento != TipoEvento.TIPO_ANOTACAO %}
+    <div class="control-group">
+        <label class="control-label">Encaminhar para</label>
+        <div class="controls">
+            {{ form_evento.setor_encaminhado }}
+        </div>
+    </div>
+    {% endif %}
+    <div class="control-group">
+        <label class="control-label">Histórico</label>
+        <div class="controls">
+            {{ form_evento.historico }}
+        </div>
+    </div>
+    {% if form_evento.incluir_documentos|klass != 'HiddenInput' %}
+    <div class="control-group">
+        <label class="control-label">Incluir documentos?</label>
+        <div class="controls">
+            {{ form_evento.incluir_documentos }}
+        </div>
+    </div>
+    {% endif %}
+</form>

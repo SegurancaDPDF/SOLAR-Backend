@@ -1,0 +1,151 @@
+{% extends "indeferimento/default.html" %}
+{% load humanize contrib_tags static luzfcb_djdocuments_tags %}
+
+{% block css_pag %}
+    <link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3></h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<div class="row-fluid">
+    <div class="span9">
+        <div class="media">
+            <div class="pull-left">
+                <img class="media-object img-polaroid" data-src="js/holder.js/112x112" src="{{ pessoa.get_foto }}" height="100" width="100">
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading" class="margin-top: 0;">
+                    {{ pessoa.nome }}
+                </h4>
+                <div>CPF: <b>{{ pessoa.cpf | default:"Não informado" }}</b></div>
+                <div>Data de Nascimento: <b>{{ pessoa.data_nascimento |date:"d/m/Y" |default:"Não informada" }}</b>
+                </div>
+                <div>
+                    {% for filiacao in pessoa.filiacoes.all %}
+                        {{ filiacao.get_tipo_display }}: <b>{{ filiacao.nome }}</b><br/>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider-content"><span></span></div>
+<form id="NovaSolicitacaoForm" name="NovaSolicitacaoForm" action="{{ form_action }}" method="POST" enctype="multipart/form-data" class="hidden">
+    {% csrf_token %}
+    {{ form_solicitacao }}
+</form>
+
+<div class="row-fluid" ng-init="init()">
+    <div class="span4">
+        <div class="well" id="box-solicitacoes-andamento">
+            <h4 class="text-info">
+                <i class="fas fa-envelope"></i> {{ indeferimento.processo.classe.nome }}
+            </h4>
+            <hr>
+            <h5 target="_blank" class="text-info" style="margin-bottom: 0;">
+                Dados do Atendimento
+            </h5>
+            <ul>
+                <li>
+                    Atendimento: <b>{{ atendimento.numero }}</b>
+                </li>
+                <li>
+                    Defensor: <b>{{ indeferimento.defensor }}</b>
+                </li>
+                <li>
+                    Defensoria: <b>{{ indeferimento.defensoria|default:'Não informada' }}</b>
+                </li>
+                <li>
+                    Área/Pedido: <b>{{ atendimento.qualificacao.area }}/{{ atendimento.qualificacao }}</b>
+                </li>
+            </ul>
+            {% if recurso %}
+                <h5 target="_blank" class="text-info" style="margin-bottom: 0;">
+                    Medida Pretendida:
+                </h5>
+                <p>{{ indeferimento.medida_pretendida|truncatewords:50|default:"Não informado" }}</p>
+                <h5 target="_blank" class="text-info" style="margin-bottom: 0;">
+                    Justificativa:
+                </h5>
+                <p>{{ indeferimento.justificativa|truncatewords:50|default:"Não informado" }}</p>
+                <h5 target="_blank" class="text-info" style="margin-bottom: 0;">
+                    Encaminhar para:
+                </h5>
+                <p>{{ processo.setor_encaminhado }}</p>
+            {% else %}
+                <h5 target="_blank" class="text-info" style="margin-bottom: 0;">
+                    Medida Pretendida:
+                </h5>
+                <p>{{ dados.medida_pretendida|truncatewords:50|default:"Não informado" }}</p>
+                <h5 target="_blank" class="text-info" style="margin-bottom: 0;">
+                    Justificativa:
+                </h5>
+                <p>{{ dados.justificativa|truncatewords:50|default:"Não informado" }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="span8">
+        {% include 'indeferimento/nova_solicitacao_documentos.html' %}
+    </div>
+</div>
+
+<div class="form-actions">
+    <div class="pull-right">
+        <a href="{% url 'atendimento_atender' atendimento.numero %}#/historico" class="btn">Cancelar</a>
+        {% if pode_registrar %}
+            <button class="btn btn-success" form="NovaSolicitacaoForm" type="submit">Registrar</button>
+        {% else %}
+            <button class="btn btn-success" disabled>Registrar</button>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script src="{% static 'luzfcb_djdocuments/js/luzfcb_djdocuments.js' %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+
+    <script type="text/javascript">
+        var focus = true;
+        var recarregar = false;
+        setInterval(checkPageFocus, 200);
+        function checkPageFocus() {
+            if ( document.hasFocus() ) {
+                if(!focus && recarregar){
+                    location.reload();
+                }
+                focus = true;
+            } else {
+                focus = false;
+            }
+        }
+    </script>
+
+    {% if form %}
+        {{ form.media }}
+    {% endif %}
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    $(document).on('click','button[data-target=#modal-anexar-arquivo-indeferimento]', function(){
+        $('#modal-anexar-arquivo-indeferimento input[name=id]').attr('value', $(this).data('id'));
+        $('#modal-anexar-arquivo-indeferimento input[name=nome]').attr('value', $(this).data('nome'));
+    });
+
+{% endblock %}

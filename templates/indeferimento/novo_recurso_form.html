@@ -1,0 +1,35 @@
+{% load contrib_tags %}
+<form name="RecursoNegacaoForm" id="RecursoNegacaoForm" action="{% url 'indeferimento:novo_recurso_form' processo_uuid=processo.uuid %}" method="POST" onsubmit="return preventMultipleSubmit(this);">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'indeferimento:novo_recurso' processo_uuid=processo.uuid %}">
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">
+                Exposição de motivos do recurso do(a) assistido(a)
+            </label>
+            <div class="controls">
+                <textarea class="span12" cols="10" name="medida_pretendida" rows="5" required placeholder="Razões do(a) assistido(a)"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">Exposição de motivos do indeferimento da assistência</label>
+            <div class="controls">
+                <textarea class="span12" cols="10" name="justificativa" rows="5" required placeholder="Razões do(a) defensor(a)">
+                    {{ indeferimento.justificativa }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="control-group span12">
+            <label class="control-label">
+                    Encaminhar para:
+            </label>
+            <div class="controls">
+                {{ form.setor_encaminhado }}
+            </div>
+        </div>
+    </div>
+</form>

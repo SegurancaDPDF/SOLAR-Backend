@@ -1,0 +1,50 @@
+{% extends "indeferimento/default.html" %}
+
+{% load humanize contrib_tags static %}
+
+{% block css_pag %}
+    <link href="{% static "css/fileicon.css" %}" rel="stylesheet">
+    <link href="{% static "css/bootstrap-fileupload.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3></h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    {% include 'indeferimento/ver_solicitacao_default.html' %}
+    {% include 'indeferimento/modal_novo_evento_encaminhamento.html' with sufix=CoreTipoEvento.TIPO_ANOTACAO %}
+    {% include 'indeferimento/modal_novo_evento_encaminhamento.html' with sufix=CoreTipoEvento.TIPO_ENCAMINHAMENTO %}
+    {% include 'indeferimento/modal_novo_evento_encaminhamento.html' with sufix=CoreTipoEvento.TIPO_DECISAO %}
+    {% include 'indeferimento/modal_novo_evento_baixa.html' %}
+    {% include 'indeferimento/modal_nucleo_diligencia.html' %}
+
+    <div class="form-actions">
+        <div class="pull-right">
+            <a href="{% url 'indeferimento:index' nucleo_id=setor.nucleo_id %}" class="btn">
+                <i class="fas fa-chevron-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript" src="{% static "js/bootstrap-fileupload.min.js" %}"></script>
+    <script src="{% static 'luzfcb_djdocuments/js/luzfcb_djdocuments.js' %}?v={{ config.JSVERSION }}"></script>
+    {% if form_documento %}
+        {{ form_documento.media }}
+    {% endif %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}
+

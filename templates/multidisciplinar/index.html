@@ -1,0 +1,351 @@
+{% extends "multidisciplinar/default.html" %}
+{% load humanize contrib_tags %}
+
+{% block css_pag %}
+
+    <style>
+        .box-tab > .box-body .media, .box-tab > .box-body .media:last-child {
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .total_presos_prov .span3 {
+            border-right: solid 1px silver;
+        }
+
+        .total_presos_prov .span3:last-child {
+            border-right: none;
+        }
+
+        .total_presos_prov h4 {
+            margin: 5px 0;
+        }
+    </style>
+
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+
+                <div class="nav-collapse collapse navbar-responsive-collapse">
+                    <div class="row-fluid">
+                        <div class="span6">
+                            <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#">
+                                <h5>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ comarca_nome }}
+                                    <i class="fas fa-caret-down"></i>
+                                </h5>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                {% for comarca in comarcas %}
+                                    <li>
+                                        <a href="{% url 'multidisciplinar_index_comarca' comarca.0 %}"ng-model="comarca_nome">{{ comarca.1 }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="span6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary" data-target="#modal-imprimir-periodo" data-toggle="modal" ng-init="init({defensoria_id:{{ atuacao.first.defensoria_id }},servidor_id:{{ defensor.servidor_id }}})">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.nav-collapse -->
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <!-- Agendamentos -->
+            <div class="pull-right" style="margin-top: 10px;">
+                <span class="label label-success">&nbsp;&nbsp;</span> Atendimentos
+                <span class="label label-info">&nbsp;&nbsp;</span> Tarefas
+            </div>
+            <h5><i class="fas fa-calendar-alt"></i> Eventos ({{ data_ref | date:'M/Y' }})</h5>
+            <table class="table table-bordered calendario" ng-hide="carregando_resumo">
+                <thead>
+                <tr class="muted">
+                    <th>Dom</th>
+                    <th>Seg</th>
+                    <th>Ter</th>
+                    <th>Qua</th>
+                    <th>Qui</th>
+                    <th>Sex</th>
+                    <th>Sab</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for semana in calendario %}
+                    <tr>
+                        {% for dia in semana %}
+                            <td>
+                                <span>{{ dia | default:'&nbsp;' }}</span>
+                                {% if dia in calendario_apoios or dia in calendario_tarefas %}
+                                    <div>
+                                        <a href="{% url 'atendimento_buscar' %}?defensoria={{ defensorias_id|join:',' }}&data_ini={{ dia }}/{{ data_ref | date:'m/Y' }}&data_fim={{ dia }}/{{ data_ref | date:'m/Y' }}"
+                                           class="text-success" title="Atendimentos" rel="tooltip">
+                                            {{ calendario_apoios | get_value_by_key:dia | default:0 }}</a> |
+                                        <a href="{% url 'atendimento_buscar' %}?defensoria={{ defensorias_id|join:',' }}&data_ini={{ dia }}/{{ data_ref | date:'m/Y' }}&data_fim={{ dia }}/{{ data_ref | date:'m/Y' }}"
+                                           class="text-info" title="Tarefas" rel="tooltip">
+                                            {{ calendario_tarefas | get_value_by_key:dia | default:0 }}</a>
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <a href="#">&nbsp;</a>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="span6">
+
+            <h5><i class="fas fa-chart-bar"></i> Dados Gerais</h5>
+
+            <div class="well well-small">
+                <h6 class="text-center">Atendimentos e Solicitações de Apoio</h6>
+
+                <div class="row-fluid">
+                    <div class="span4 text-center">
+                        <a href="#">
+                            <h4 class="text-info">
+                                <i class="fas fa-envelope"></i> {{ solicitacoes_agendadas_count|intcomma }}
+                            </h4>
+                            <h5 class="color-black text-center">Agendados</h5>
+                        </a>
+                    </div>
+                    <div class="span4 text-center">
+                        <a href="#">
+                            <h4 class="text-warning text-center">
+                                <i class="fas fa-folder-open"></i> {{ solicitacoes_andamento_count|intcomma }}
+                            </h4>
+                            <h5 class="color-black text-center">Em Andamento</h5>
+                        </a>
+                    </div>
+                    <div class="span4 text-center">
+                        <a href="#">
+                            <h4 class="text-success text-center">
+                                <i class="fas fa-folder"></i> {{ tot_solicitacoes_finalizadas|intcomma }}
+                            </h4>
+                            <h5 class="color-black text-center">Finalizados</h5>
+                        </a>
+                    </div>
+                </div>
+                <div class="divider-content"></div>
+                <h6 class="text-center">Principais Atividades Desenvolvidas</h6>
+
+                <div class="row-fluid total_presos_prov">
+                    {% for atividade in top_atividades %}
+                        <div class="span3 text-center">
+                            <a href="#">
+                                <h4 class="text-center">{{ atividade.total|intcomma }}</h4>
+                                <span class="bold" title="{{ atividade.titulo }}" rel="tooltip">{{ atividade.titulo | truncatewords:2}}</span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                    <div class="span3 text-center">
+                        <a href="#">
+                            <h4 class="text-center">{{ tot_atividades.total|intcomma }}</h4>
+                            <span class="bold">OUTRAS</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span6">
+            <div class="pull-right" style="margin-top: 8px;">
+                <a href="?mostrar_todas=true" class="btn btn-small" {% if mostrar_todas %}disabled{% endif %}>
+                    <i class="fas fa-users"></i> Todos
+                </a>
+                <a href="?mostrar_todas=false" class="btn btn-small" {% if not mostrar_todas %}disabled{% endif %}>
+                    <i class="fas fa-user"></i> Meus
+                </a>
+            </div>
+            <h5>
+                {% if mostrar_todas %}
+                    <i class="fas fa-users"></i> Todos Atendimentos
+                {% else %}
+                    <i class="fas fa-user"></i> Meus Atendimentos
+                {% endif %}
+            </h5>
+
+            <div class="box-tab corner-all">
+                <div class="box-header corner-top">
+                    <ul class="nav nav-tabs">
+                        <li {% if mostrar_todas and permissao_distribuir %}class="active"{% endif %}>
+                            <a data-toggle="tab" data-target="#solicitacoes_agendadas">Não Distribuídos
+                                <small class="muted">({{ solicitacoes_agendadas_count }})</small>
+                            </a>
+                        </li>
+                        <li {% if not mostrar_todas or not permissao_distribuir %}class="active"{% endif %}>
+                            <a data-toggle="tab" data-target="#solicitacoes_distribuidas">Distribuídos
+                                <small class="muted">({{ solicitacoes_distribuidas_count }})</small>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" data-target="#solicitacoes_andamento">Em Andamento
+                                <small class="muted">({{ solicitacoes_andamento_count }})</small>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" data-target="#solicitacoes_finalizadas">Finalizados
+                                <small class="muted">({{ solicitacoes_finalizadas_count }})</small>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="box-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade in {% if mostrar_todas and permissao_distribuir %}active{% endif %}" id="solicitacoes_agendadas">
+                            <table class="table table-striped">
+                                <tbody>
+                                {% with agendadas=True %}
+                                {% for solicitacao in solicitacoes_agendadas %}
+                                    <tr>
+                                        <td>
+                                            {% include 'multidisciplinar/index_solicitacoes_item.html' %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td>
+                                            <div class="media">
+                                                <div class="alert alert-info text-center">
+                                                    <b>Nenhum atendimento para distribuir</b>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade in {% if not mostrar_todas or not permissao_distribuir %}active{% endif %}" id="solicitacoes_distribuidas">
+                            <table class="table table-striped">
+                                <tbody>
+                                {% for solicitacao in solicitacoes_distribuidas %}
+                                    <tr>
+                                        <td>
+                                            {% include 'multidisciplinar/index_solicitacoes_item.html' %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td>
+                                            <div class="media">
+                                                <div class="alert alert-info text-center">
+                                                    <b>Nenhum atendimento distribuído</b>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade in" id="solicitacoes_andamento">
+                            <table class="table table-striped">
+                                <tbody>
+                                {% for solicitacao in solicitacoes_andamento %}
+                                    <tr>
+                                        <td>
+                                            {% include 'multidisciplinar/index_solicitacoes_item.html' %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td>
+                                            <div class="media">
+                                                <div class="alert alert-info text-center">
+                                                    <b>Nenhum atendimento em andamento</b>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade in" id="solicitacoes_finalizadas">
+                            <table class="table table-striped">
+                                <tbody>
+                                {% with finalizadas=True %}
+                                {% for solicitacao in solicitacoes_finalizadas %}
+                                    <tr>
+                                        <td>
+                                            {% include 'multidisciplinar/index_solicitacoes_item.html' %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td>
+                                            <div class="media">
+                                                <div class="alert alert-info text-center">
+                                                    <b>Nenhum atendimento finalizado nos últimos 90 dias</b>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                {% endwith %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if pode_cadastrar_atividade_extraordinaria %}
+        <div class="span6" ng-controller="AtividadeExtraordinariaCtrl" ng-init="init({defensoria: {{ defensorias_id }}, mostrar_todas: {{ mostrar_todas|lower }}})">
+            {% include 'atividade_extraordinaria/box_ultimas.html' %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    {% if distribuir %}
+        {% include 'multidisciplinar/modal_multidisciplinar_distribuir.html' %}
+    {% endif %}
+
+    {% include 'relatorios/modal_imprimir_periodo.html' %}
+
+{% endblock %}
+
+{% block conteudo_pag %}
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+
+    {% if distribuir %}
+        $('#modal-distribuir-multidisciplinar').modal('show');
+    {% endif %}
+
+{% endblock %}

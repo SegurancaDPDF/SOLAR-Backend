@@ -1,0 +1,38 @@
+{% load contrib_tags %}
+<div id="modal-nova-baixa" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Nova Baixa</h3>
+    </div>
+    <div class="modal-body">
+        <form name="NovaBaixaForm" id="NovaBaixaForm" action="{% url 'indeferimento:baixar_solicitacao' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid tipo=indeferimento.BAIXA_NEGADO %}" method="POST" class="form-horizontal" onsubmit="return preventMultipleSubmit(this);">
+            {% csrf_token %}
+            <div class="control-group">
+                <label class="control-label">Histórico</label>
+                <div class="controls">
+                    <textarea class="span12" cols="40" id="id_historico" name="historico" rows="10" required></textarea>
+                </div>
+            </div>
+            {% if not indeferimento.possui_decisao %}
+                <div class="control-group text-error">
+                    <label class="control-label bold">Atenção!</label>
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox" name="atencao" ng-model="atividade.atencao" required>
+                            <small class="">Compreendo que essa ação é <b>irreversível</b> e que estou registrando a baixa de um <b>processo que não possui decisão</b>.</small>
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button id="btn-modal-nova-baixa-salvar" class="btn btn-success" type="submit" form="NovaBaixaForm">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>

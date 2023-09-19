@@ -1,0 +1,48 @@
+{% load contrib_tags %}
+<div class="row-fluid">
+    {% if adicionar %}
+    <div class="span2 text-center color-green file-container">
+            <a href="#modal-adicionar-documento" data-placement="left" data-toggle="modal" ng-click="documento={}">
+                <i class="fas fa-plus-circle helper-font-24"></i>
+                <div>
+                    Adicionar novo documento
+                </div>
+            </a>
+        </div>
+    {% endif %}
+{% for documento in lista_documentos %}
+    <div class="span2 text-center file-container {% if documento.documento_online and not documento.documento_online.esta_assinado %}file-container-error{% endif %}" title="{{ documento.nome|upper }}" rel="tooltip" data-placement="bottom">
+        {% if documento.documento_online %}
+            <a href="{% url 'documentos:validar-detail' slug=documento.documento_online.pk_uuid  %}" target="_blank"
+               onclick="recarregar={% if documento.documento_online.esta_assinado %}false{% else %}true{% endif %}">
+                <div class="file-icon file-yellow" data-type="ged"></div>
+                {% if documento.documento_online.esta_assinado %}
+                    <div>{{ documento.nome|truncatewords:5|upper }}</div>
+                {% else %}
+                    <div class="text-error">
+                        {{ documento.nome|truncatewords:5|upper }}
+                        <div>
+                            <small class="bold">Não Assinado</small>
+                        </div>
+                    </div>
+                {% endif %}
+            </a>
+        {% else %}
+            <a href="{{ documento.arquivo.url }}" target="_blank">
+                <div class="file-icon" data-type="{{ documento.arquivo.name|fileextension }}"></div>
+                <div>{{ documento.nome|truncatewords:5|upper }}</div>
+            </a>
+        {% endif %}
+    </div>
+    {% if forloop.counter|add:adicionar|divisibleby:6 %}
+</div>
+<div class="row-fluid">
+    {% endif %}
+{% empty %}
+{% if not adicionar %}
+    <div class="span12 muted">
+        Nenhum arquivo adicionado
+    </div>
+{% endif %}
+{% endfor %}
+</div>

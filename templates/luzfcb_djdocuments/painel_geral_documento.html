@@ -1,0 +1,50 @@
+{% load contrib_tags %}
+<tr style="cursor: pointer;" {% if ged_atual and ged_atual.pk == documento.pk %}class="warning"{% endif %}>
+    <td>
+        <a href="?{% param_replace doc=documento.pk_uuid q=q assinatura=assinatura.id page=page_obj.number atendimento_numero=atendimento_numero %}" class="row-fluid">
+            <div class="span1">
+                <i class="helper-font-24 fas fa-cloud"></i>
+            </div>
+            <div class="span10">
+                <div>
+                    <span class="label label-info" title="{{ documento.grupo_dono|default:'Modelo Global' }}" rel="tooltip">
+                        {{ documento.grupo_dono.codigo|default:"Modelo Global"|upper }}
+                    </span>
+                    {% if documento.eh_modelo %}
+                        {% if documento.modelo_pronto_para_utilizacao %}
+                            <span class="label label-success" title="Disponível para uso" rel="tooltip">D</span>
+                        {% else %}
+                            <span class="label label-important" title="Insdisponível para uso" rel="tooltip">D</span>
+                        {% endif %}
+                        {% if documento.modelo_publico %}
+                            <span class="label label-success" title="Público" rel="tooltip">P</span>
+                        {% else %}
+                            <span class="label label-important" title="Privado" rel="tooltip">P</span>
+                        {% endif %}
+                    {% endif %}
+                    <b>
+                    {% if documento.eh_modelo %}
+                        {{ documento.modelo_descricao|upper }}
+                    {% else %}
+                        {{ documento.assunto|upper }}
+                    {% endif %}
+                    </b>
+                </div>
+                <small class="muted">
+                    {{ documento.identificador_versao }} -
+                    {% if documento.esta_assinado %}
+                        <span title="Criado por {{ documento.criado_por_nome }} em {{ documento.criado_em|date:'d/m/Y H:i' }}. Finalizado por {{ documento.finalizado_por_nome }} em {{ documento.data_assinado|date:'d/m/Y H:i' }}." rel="tooltip">{{ documento.finalizado_por.username}}</span> em {{ documento.data_assinado|date:'d/m/Y H:i' }}
+                    {% else %}
+                        <span title="Criado por {{ documento.criado_por_nome }} em {{ documento.criado_em|date:'d/m/Y H:i' }}." rel="tooltip">{{ documento.criado_por.username}}</span> em {{ documento.criado_em|date:'d/m/Y H:i' }}
+                    {% endif %}
+                </small>
+            </div>
+            <div class="span1">
+                {% if ged_atual and ged_atual.pk == documento.pk %}
+                    <i class="fas fa-chevron-right pull-right" style="margin-top:40%;"></i>
+                {% endif %}
+            </div>
+        </a>
+    </td>
+</tr>
+

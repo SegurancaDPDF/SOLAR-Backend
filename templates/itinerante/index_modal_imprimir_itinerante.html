@@ -1,0 +1,110 @@
+{% load contrib_tags %}
+<!-- Modal Imprimir Itinerante -->
+<div id="modal-imprimir-itinerante" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="VerAgendaModal">
+            <i class="fas fa-print"></i> Imprimir
+        </h3>
+        <div class="muted">Cadastrado em [[ selecionado.data_cadastro | utc | date:"dd/MM/yyyy" ]] às [[ selecionado.data_cadastro | utc | date:"HH:mm" ]] por [[ selecionado.cadastrado_por ]]</div>
+        <div class="muted" ng-if="selecionado.autorizado_por">Autorizado em [[ selecionado.data_autorizacao | utc | date:"dd/MM/yyyy" ]] às [[ selecionado.data_autorizacao | utc | date:"HH:mm" ]] por [[ selecionado.autorizado_por ]]</div>
+        <div class="muted" ng-if="selecionado.excluido_por">Cancelado em [[ selecionado.data_exclusao | utc | date:"dd/MM/yyyy" ]] às [[ selecionado.data_exclusao | utc | date:"HH:mm" ]] por [[ selecionado.excluido_por ]]</div>
+    </div>
+    <div class="modal-body" style="overflow: visible;">
+        <h5>
+            <div>
+                <small class="muted">Localidade</small>
+            </div>
+            [[ selecionado.municipio.nome ]] <small class="muted">[[ selecionado.municipio.comarca.nome ]]/[[ selecionado.municipio.comarca.diretoria ]]</small>
+        </h5>
+        <h5>
+            <div>
+                <small class="muted">Período</small>
+            </div>
+            [[ selecionado.data_inicial | utc | date:"dd/MM/yy" ]] - [[ selecionado.data_final | utc | date:"dd/MM/yy" ]]
+        </h5>
+        <h5>
+            <div>
+                <small class="muted">Defensores</small>
+            </div>
+        </h5>
+        <table class="table" ng-controller="ImprimirCtrl" ng-init="init()">
+            <tr ng-repeat="participante in selecionado.participantes | filter:{eh_defensor:true}">
+                <td>
+                    <span>[[ participante.nome ]]</span>
+                </td>
+                <td style="text-align: right;">
+
+                    <div class="btn-group">
+                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" title="Imprimir relatório do(a) defensor(a)" rel="tooltip">
+                            <i class="fas fa-print"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for relatorio in relatorios %}
+                                <li>
+                                    <a href="#" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{data_inicial:selecionado.data_inicial, data_final:selecionado.data_final, defensor_id:participante.defensor, defensoria_id:selecionado.defensoria.id, itinerante_id:selecionado.id, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}', 'pdf')">{{ relatorio.titulo }} (PDF)</a>
+                                </li>
+                                <li>
+                                    {% if CHRONUS_PODE_GERAR_XLSX_SEM_PAGINACAO %}
+                                        <a href="#" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{data_inicial:selecionado.data_inicial, data_final:selecionado.data_final, defensor_id:participante.defensor, defensoria_id:selecionado.defensoria.id, itinerante_id:selecionado.id, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}', 'xlsx_unpaginated')">{{ relatorio.titulo }} (XLSX)</a>
+                                    {% else %}
+                                        <a href="#" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{data_inicial:selecionado.data_inicial, data_final:selecionado.data_final, defensor_id:participante.defensor, defensoria_id:selecionado.defensoria.id, itinerante_id:selecionado.id, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}', 'xlsx')">{{ relatorio.titulo }} (XLSX)</a>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <a href="#" role="button" class="btn btn-small btn-danger" bs-tooltip="relatorio.status.reason" disabled
+                        ng-if="relatorio.status.fail && relatorio.params.defensor_id==participante.defensor" bs-tooltip="relatorio.status.reason">
+                        <i class="fas fa-exclamation-circle"></i> Erro
+                    </a>
+                    <a ref="#" role="button" class="btn  btn-small btn-warning" ng-if="relatorio.status.pending && relatorio.params.defensor_id==participante.defensor" disabled>
+                        <i class="fas fa-cogs"></i> Gerando...
+                    </a>
+                    <a class="btn btn-small btn-success" title="Baixar Documento" bs-tooltip target='_blank' href="[[ relatorio.status.report ]]" ng-if="relatorio.status.success && relatorio.params.defensor_id==participante.defensor">
+                        <i class="fas fa-download"></i> Baixar
+                    </a>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer" ng-controller="ImprimirCtrl" ng-init="init()">
+        <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fas fa-print"></i> Imprimir
+            </a>
+            <ul class="dropdown-menu">
+                {% for relatorio in relatorios %}
+                    <li>
+                        <a href="#" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{data_inicial:selecionado.data_inicial, data_final:selecionado.data_final, defensoria_id:selecionado.defensoria.id, itinerante_id:selecionado.id, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}', 'pdf')">{{ relatorio.titulo }} (PDF)</a>
+                    </li>
+                    <li>
+                        {% if CHRONUS_PODE_GERAR_XLSX_SEM_PAGINACAO %}
+                            <a href="#" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{data_inicial:selecionado.data_inicial, data_final:selecionado.data_final, defensoria_id:selecionado.defensoria.id, itinerante_id:selecionado.id, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}', 'xlsx_unpaginated')">{{ relatorio.titulo }} (XLSX)</a>
+                        {% else %}
+                            <a href="#" role="button" data-toggle="modal" ng-click="imprimir({user:'{{ request.user.username }}', params:{data_inicial:selecionado.data_inicial, data_final:selecionado.data_final, defensoria_id:selecionado.defensoria.id, itinerante_id:selecionado.id, defaults:{{ relatorio.get_defaults | jsonify }}, aliases:{{ relatorio.get_aliases | jsonify }}}}, '{{ relatorio.name}}', '{{ relatorio.resource }}', 'xlsx')">{{ relatorio.titulo }} (XLSX)</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <a href="#" class="btn btn-danger" bs-tooltip="relatorio.status.reason" disabled
+            ng-if="relatorio.status.fail && relatorio.params.defensor_id==null" bs-tooltip="relatorio.status.reason">
+        <i class="fas fa-exclamation-circle"></i> Erro
+        </a>
+        <a ref="#" class="btn btn-warning" ng-if="relatorio.status.pending && relatorio.params.defensor_id==null" disabled>
+            <i class="fas fa-cogs"></i> Gerando...
+        </a>
+        <a class="btn btn-success" title="Baixar Documento" bs-tooltip target='_blank' href="[[ relatorio.status.report ]]" ng-if="relatorio.status.success && relatorio.params.defensor_id==null">
+            <i class="fas fa-download"></i> Baixar
+        </a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-times"></i> Fechar
+        </a>
+    </div>
+</div>
+<!-- Modal Imprimir Itinerante -->

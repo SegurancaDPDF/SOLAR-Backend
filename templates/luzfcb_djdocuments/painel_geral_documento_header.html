@@ -1,0 +1,126 @@
+{% if ged_atual %}
+    <div class="pull-left">
+        <span class="label label-info">{{ ged_atual.tipo_documento|upper }}</span>
+        <span class="label label-info" title="{{ ged_atual.grupo_dono|default:'Modelo Global' }}" rel="tooltip">
+            {{ ged_atual.grupo_dono.codigo|default:"Modelo Global"|upper }}
+        </span>
+        <h4 class="text-info" style="margin: 0;">
+            <i class="fas fa-cloud"></i>
+            {{ ged_atual.identificador_versao }} -
+            {% if ged_atual.eh_modelo %}
+                {{ ged_atual.modelo_descricao|default:"Não informado"|upper }}
+            {% else %}
+                {{ ged_atual.assunto|default:"Não informado"|upper }}
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <a href="{% url 'admin:djdocuments_documento_change' ged_atual.id %}" target="_blank" title="GED Admin" rel="tooltip">
+                    <i class="fas fa-link"></i>
+                </a>
+            {% endif %}
+        </h4>
+        <div>
+            <span class="muted">Criado por {{ ged_atual.criado_por.get_full_name|default:"Não informado" }} em {{ ged_atual.criado_em }}</span><br>
+            <span class="muted">Alterado por {{ ged_atual.modificado_por.get_full_name|default:"Não informado" }} em {{ ged_atual.modificado_em }}</span>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if ged_atual_pode_editar %}
+            <a href="{{ ged_atual.get_edit_url }}" class="btn djpopup djfullscreen reloadparentonclose">
+                <i class="fas fa-pencil-alt"></i>
+                <br>
+                <small>Editar</small>
+            </a>
+        {% endif %}
+        {% if assinatura_atual %}
+            <a href="{{ assinatura_atual_url }}" class="btn" data-ajaxmodal="true" data-ajaxmodal-prefetch="true">
+                <i class="fas fa-file-signature"></i>
+                <br>
+                <small>Assinar</small>
+            </a>
+        {% endif %}
+        {% if not ged_atual.esta_assinado and ged_atual.pronto_para_finalizar %}
+            <a href="{{ ged_atual.get_finalizar_url }}" class="btn" data-ajaxmodal="true" data-ajaxmodal-prefetch="true">
+                <i class="fas fa-pencil-alt"></i>
+                <br>
+                <small>Finalizar</small>
+            </a>
+        {% endif %}
+        {% if ged_atual_atendimentos|length == 1 %}
+            {% if not ged_atual_atendimentos.0.atividade %}
+                <a href="{{ ged_atual_atendimentos.0.url }}#/documento/{{ ged_atual_atendimentos.0.documento_id }}/modal-documento-agendar" id="btn-documento-agendar" type="button" class="btn" data-placement="top" title="Agendar resposta" rel="tooltip">
+                    <i class="fas fa-calendar-alt"></i>
+                    <br/>
+                    <small>Agendar</small>
+                </a>
+                {% if ged_atual.esta_assinado %}
+                    <a href="{{ ged_atual_atendimentos.0.url }}#/documento/{{ ged_atual_atendimentos.0.documento_id }}/modal-nucleo-diligencia" id="btn-documento-enviar-diligencia" type="button" class="btn" data-placement="top" title="Enviar para diligência" rel="tooltip">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        <br/>
+                        <small>Diligência</small>
+                    </a>
+                {% endif %}
+            {% endif %}
+            <a href="{{ ged_atual_atendimentos.0.url }}#/{% if ged_atual_atendimentos.0.atividade %}atividades{% else %}documento/{{ ged_atual_atendimentos.0.documento_id }}{% endif %}" class="btn" data-placement="top" title="Abrir Atendimento vinculado" rel="tooltip">
+                <i class="fas fa-comments"></i>
+                <br>
+                <small>Atendimento</small>
+            </a>
+        {% endif %}
+        {% if ged_atual_documento_propac %}
+            <a href="{% url 'procedimentos:procedimento_uuid' uuid=ged_atual_documento_propac.movimento.procedimento.uuid %}" class="btn" data-placement="top" title="Abrir PROPAC vinculado" rel="tooltip">
+                <i class="fas fa-folder-open color-yellow"></i>
+                <br>
+                <small>PROPAC</small>
+            </a>
+        {% endif %}
+        {% if ged_atual.esta_assinado or config.GED_PODE_BAIXAR_DOCUMENTO_NAO_ASSINADO %}
+            <a href="{{ ged_atual.get_pdf_url }}?download=true" class="btn">
+                <i class="fas fa-download"></i>
+                <br>
+                <small>Baixar</small>
+            </a>
+        {% endif %}
+        {% if ged_atual.esta_assinado %}
+            {% if ged_atual_pode_revogar_assinatura %}
+                <a href="{% url 'documentos:revogar' slug=ged_atual.pk_uuid %}" id="btn-documento-revogar" type="button" class="btn btn-warning" data-placement="top" title="Revogar assinatura e deixar documento editável" rel="tooltip">
+                    <i class="fas fa-undo-alt"></i>
+                    <br/>
+                    <small>Revogar</small>
+                </a>
+            {% else %}
+                <a href="#" id="btn-documento-revogar" type="button" class="btn btn-warning" data-placement="top" title="{{ ged_atual_pode_revogar_assinatura_msg }}" rel="tooltip"  disabled="true">
+                    <i class="fas fa-undo-alt"></i>
+                    <br/>
+                    <small>Revogar</small>
+                </a>
+            {% endif %}
+        {% endif %}
+        {% if ged_atual_pode_excluir %}
+            <a data-target="#modal-excluir-documento" class="btn btn-danger" title="Excluir" data-toggle="modal" rel="tooltip">
+                <i class="fas fa-trash"></i>
+                <br/>
+                <small>Excluir</small>
+            </a>
+        {% else %}
+            <a class="btn btn-danger" title="{{ ged_atual_pode_excluir_msg }}" rel="tooltip" disabled="true">
+                <i class="fas fa-trash"></i>
+                <br/>
+                <small>Excluir</small>
+            </a>
+        {% endif %}
+        <a href="{{ ged_atual.get_preview_url }}" class="btn djpopup djfullscreen">
+            <i class="fas fa-info-circle"></i>
+            <br>
+            <small>Detalhes</small>
+        </a>
+    </div>
+    {% include 'luzfcb_djdocuments/painel_geral_modal_excluir_documento.html' %}
+{% elif modelos %}
+    <div class="pull-right">
+        <a href="{% url 'documentos:criar_modelo' %}" class="btn btn-success djpopup djfullscreen reloadparentonclose">
+            <i class="fas fa-plus-circle"></i>
+            <br>
+            <small>Novo Modelo</small>
+        </a>
+    </div>
+{% endif %}

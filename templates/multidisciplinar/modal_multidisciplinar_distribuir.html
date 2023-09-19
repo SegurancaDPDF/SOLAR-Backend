@@ -1,0 +1,58 @@
+{% load contrib_tags %}
+<!-- Modal Cadastrar Visita -->
+<div id="modal-distribuir-multidisciplinar" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Distribuir - {{distribuir.numero}}</h3>
+    </div>
+    <!--  Corpo do Modal -->
+    <div class="modal-body">
+        <form name="DistribuirMultidisciplinarForm" id="DistribuirMultidisciplinarForm" class="form-horizontal" action="{% url 'multidisciplinar_distribuir_atendimento' distribuir.numero %}" method="POST" onsubmit="btnDistribuir.disabled=true; return true;">
+            {% csrf_token %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Participante</th>
+                    <th>Defensoira</th>
+                    <th>Última Distribuída</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for participante in participantes %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="participantes" value="{{ participante.defensor__servidor_id }}" {% if participante.defensor__servidor_id in distribuir_participantes %} checked {%endif%}>
+                        </td>
+                        <td>
+                            <div>
+                                {% if participante.defensor__servidor_id in distribuir_participantes %}
+                                    <span rel="tooltip" data-placement="top" data-original-title="Já é participante">
+                                        <i class="fas fa-check color-green"></i>
+                                        {{ participante.defensor__servidor__nome }}
+                                    </span>
+                                {% else %}
+                                    {{ participante.defensor__servidor__nome }}
+                                {% endif %}
+                            </div>
+                            {% if participante.cargo__nome %}
+                                <small class="muted">{{ participante.cargo__nome }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ participante.defensoria__nome }}
+                        </td>
+                        <td>{{ participante.ultimo_atendimento|date:'d/m/Y H:i' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <!-- Corpo do Modal -->
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" form="DistribuirMultidisciplinarForm" name="btnDistribuir" id="btnDistribuir">Salvar</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+    </div>
+</div>
+<!-- Modal Cadastrar Visita -->

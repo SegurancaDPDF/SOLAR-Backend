@@ -1,0 +1,274 @@
+{% extends "indeferimento/default.html" %}
+{% load humanize %}
+{% load contrib_tags %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block menu_app %}
+<div class="navbar navbar-mb0">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                <span class="fas fa-bars"></span>
+                <span class="fas fa-bars"></span>
+                <span class="fas fa-bars"></span>
+            </a>
+
+            <div class="nav-collapse collapse navbar-responsive-collapse">
+                <div class="row-fluid">
+                    <div class="span6">
+                        <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#">
+                            <h5>
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ setor }}
+                                <i class="fas fa-caret-down"></i>
+                            </h5>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            {% for atuacao in atuacoes %}
+                                <li>
+                                    <a href="{% url 'indeferimento:index_setor' nucleo_id=atuacao.defensoria.nucleo_id setor_id=atuacao.defensoria.id %}">
+                                        {{ atuacao.defensoria }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="span6">
+                        <form class="navbar-search span11" action="{% url 'indeferimento:buscar' %}" method="GET">
+                            <input type="hidden" name="nucleo" value="{{ setor.nucleo_id }}">
+                            <div class="input-append">
+                                <input type="text" id="filtro" name="filtro" class="span12"
+                                       placeholder="Buscar pelo nº do processo, nome ou CPF/CNPJ do assistido..."
+                                       value="{{ filtro }}">
+                                <button type="submit" class="btn actions-f12" rel="tooltip" data-placement="bottom"
+                                        data-original-title="Buscar">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- /.nav-collapse -->
+        </div>
+    </div>
+    <!-- /navbar-inner -->
+</div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+{% endblock %}
+
+{% block conteudo_pag %}
+
+<div class="row-fluid">
+    <!-- Calendario de Atividades -->
+    <div class="span6">
+        <div class="pull-right" style="margin-top: 10px;">
+            <span class="label">&nbsp;&nbsp;</span> Movimentações
+            <span class="label label-info">&nbsp;&nbsp;</span> Decisões
+        </div>
+        <h5><i class="fas fa-calendar-alt"></i> Atividades do mês ({{ data_ref | date:'M/Y' }})</h5>
+        <table class="table table-bordered calendario" ng-hide="carregando_resumo">
+            <thead>
+            <tr class="muted">
+                <th>Dom</th>
+                <th>Seg</th>
+                <th>Ter</th>
+                <th>Qua</th>
+                <th>Qui</th>
+                <th>Sex</th>
+                <th>Sab</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for semana in calendario %}
+                <tr>
+                    {% for dia in semana %}
+                        <td>
+                            <span>{{ dia | default:'&nbsp;' }}</span>
+                            {% if dia in calendario_eventos or dia in calendario_decisoes %}
+                                <div>
+                                    <b class="muted">{{ calendario_eventos | get_value_by_key:dia | default:0 }}</b> |
+                                    <b class="text-info">{{ calendario_decisoes | get_value_by_key:dia | default:0 }}</b>
+                                </div>
+                            {% else %}
+                                <div>
+                                    <a href="#">&nbsp;</a>
+                                </div>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Dados Gerais -->
+    <div class="span6">
+        <h5><i class="fas fa-chart-bar"></i> Atividades Gerais</h5>
+        <div class="well well-small" id="box-dados-gerais">
+            <h6 class="text-center">Avaliação de Solicitações</h6>
+            <div class="row-fluid">
+                <div class="span3 text-center">
+                    <h4>
+                        <i class="helper-font-24 fas fa-envelope"></i> {{ total_processos|intcomma }}
+                    </h4>
+                    <h5 class="color-black text-center">Solicitações</h5>
+                </div>
+                <div class="span3 text-center">
+                    <h4 class="text-info text-center">
+                        <i class="helper-font-24 fas fa-envelope"></i> {{ total_processos_avaliados|intcomma }}
+                    </h4>
+                    <h5 class="color-black text-center">Decisões</h5>
+                </div>
+
+                <div class="span3 text-center">
+                    <h4 class="text-success text-center">
+                        <a href="{% url 'indeferimento:buscar' %}?nucleo={{ setor.nucleo_id }}&resultado={{Indeferimento.RESULTADO_DEFERIDO}}" title="Clique para consultar" rel="tooltip">
+                            <i class="helper-font-24 far fa-thumbs-up"></i>
+                            {{ total_processos_deferidos|intcomma }}
+                        </a>
+                    </h4>
+                    <h5 class="color-black text-center">Deferidas</h5>
+                </div>
+                <div class="span3 text-center">
+                    <h4 class="text-error text-center">
+                        <a href="{% url 'indeferimento:buscar' %}?nucleo={{ setor.nucleo_id }}&resultado={{Indeferimento.RESULTADO_INDEFERIDO}}" title="Clique para consultar" rel="tooltip">
+                            <i class="helper-font-24 far fa-thumbs-down"></i>
+                            {{ total_processos_indeferidos|intcomma }}
+                        </a>
+                    </h4>
+
+                    <h5 class="color-black text-center">Indeferidas</h5>
+                </div>
+            </div>
+            <div class="divider-content"></div>
+            <h6 class="text-center">Principais Razões das Solicitações</h6>
+            <div class="row-fluid total_presos_prov">
+                {% for classe in top_classes %}
+                    <div class="span2 text-center">
+                        <a href="#">
+                            <h4 class="text-center">{{ classe.total }}</h4>
+                            <span class="bold" title="{{ classe.nome }}"
+                                    rel="tooltip">{{ classe.nome }}</span>
+                        </a>
+                    </div>
+                {% endfor %}
+                <div class="span2 text-center">
+                    <a href="#">
+                        <h4 class="text-center">{{ outras_classes }}</h4>
+                        <span class="bold">Outras</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row-fluid" ng-init="init({{setor.id}}, {{nucleo_id}})" ng-cloak>
+    <div class="span6" id="box-todas-atividades">
+        <h5><i class="fas fa-envelope"></i> Prateleira de Processos</h5>
+
+        <div class="alert alert-block alert-info" ng-hide="prateleiras.length">
+            <b>Nenhum processo encontrado</b>
+        </div>
+
+        <div class="box-tab corner-all" ng-show="prateleiras.length">
+            <div class="box-header corner-top">
+                <ul class="nav nav-tabs">
+                    <li ng-class="{'active':($index==0)}" ng-repeat="tab in prateleiras">
+                        <a data-toggle="tab" data-target="#tab-processos" ng-click="carregar_prateleira(tab);">[[ tab.nome ]]
+                            <small class="muted">([[ tab.total ]])</small>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="box-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="tab-processos">
+                        <div class="accordion" id="accordion_tarefas" ng-hide="prateleira.classes==null">
+                            <div class="accordion-group" ng-repeat="classe in prateleira.classes">
+                                <div class="accordion-heading">
+                                    <a class="accordion-toggle more collapsed bg-silver color-black" data-toggle="collapse" data-parent="#accordion_tarefas" href="#collapse_tarefas_[[ $index ]]" style="text-align: left;" ng-click="carregar_prateleira_classe(classe);">
+                                        <i class="fa fa-folder-open color-yellow"></i>
+                                        <i class="fa fa-folder color-yellow"></i>
+                                        <span>[[ classe.classe_nome ]]</span>
+                                        <span class="text-error">
+                                            ([[ classe.total ]])
+                                        </span>
+                                    </a>
+                                </div>
+                                <div id="collapse_tarefas_[[ $index ]]" class="accordion-body collapse">
+                                    <div class="accordion-inner">
+                                        <div class="tab-pane">
+                                            <table class="table table-striped">
+                                                <tbody>
+                                                    {% include 'indeferimento/index_solicitacoes_item.html'%}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-if="prateleira.classes==null" class="text-center" style="padding: 10px;">
+                            <img src="/static/img/loader_16.gif"> Carregando...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="span6" id="box-minhas-atividades">
+        <h5><i class="fas fa-check-square"></i> Atividades Recentes</h5>
+
+        <table class="table table-hover table-striped responsive">
+            <thead>
+            <tr>
+                <th class="">Solicitação</th>
+                <th class="">Data/Evento</th>
+                <th class="">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for evento in ultimos_eventos %}
+                {% with processo=evento.processo indeferimento=evento.processo.indeferimento %}
+                    <tr>
+                        <td>
+                            <div><b>{{ indeferimento.pessoa.nome }}</b></div>
+                            <div>{{ indeferimento.defensor.nome }}</div>
+                            <small>{{ processo.classe.nome }}</small>
+                        </td>
+                        <td>
+                            <b>{{ evento.tipo }}</b>
+                            <div>{{ evento.cadastrado_em | date:'d/m/Y H:i' }}</div>
+                        </td>
+                        <td>
+                            <div>
+                                <a href="{% url 'indeferimento:ver_solicitacao' setor_id=setor.id nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}"
+                                    class="btn btn-small" title="Visualizar" rel="tooltip">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% empty %}
+                <tr>
+                    <td colspan="3">Nenhuma atividade encontrada</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

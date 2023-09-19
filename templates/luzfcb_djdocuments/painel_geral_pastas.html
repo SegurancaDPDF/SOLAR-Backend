@@ -1,0 +1,22 @@
+{% for pasta in pastas %}
+<tr style="cursor: pointer;">
+    <td>
+        <a href="{{ pasta.url }}" class="row-fluid">
+            <div class="span1">
+                <i class="helper-font-24 fas fa-folder {% if pasta.total %}color-yellow{% else %}color-silver-dark{% endif %}"></i>
+            </div>
+            <div class="span10">
+                <div>
+                    {{ pasta.nome|upper }} <span class="badge">{{ pasta.total }}</span>
+                </div>
+                <small class="muted">
+                    {{ pasta.descricao}}
+                </small>
+            </div>
+            <div class="span1">
+                <i class="fas fa-chevron-right pull-right" style="margin-top:40%;"></i>
+            </div>
+        </a>
+    </td>
+</tr>
+{% endfor %}

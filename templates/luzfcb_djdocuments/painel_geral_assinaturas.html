@@ -1,0 +1,4 @@
+{% load static %}
+{% for assinatura in object_list %}
+    {% include 'luzfcb_djdocuments/painel_geral_documento.html' with documento=assinatura.documento %}
+{% endfor %}

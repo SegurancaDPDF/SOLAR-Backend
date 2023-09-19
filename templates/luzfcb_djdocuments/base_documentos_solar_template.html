@@ -1,0 +1,90 @@
+{% extends "default.html" %}
+{% load static %}
+{% load contrib_tags %}
+{% load humanize %}
+
+{% block titulo %}Gestor de Documentos{% endblock %}
+{% block default_css %}
+    <link type="text/css" href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    {#    <link type="text/css" href="{% static "css/DT_bootstrap.css" %}" rel="stylesheet">#}
+    <link type="text/css" href="{% static "css/bootstrap-responsive.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/stilearn.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/stilearn-responsive.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/stilearn-helper.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/font-awesome.5.15.1.all.min.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/datepicker.css" %}" rel="stylesheet">
+    {#    <link type="text/css" href="{% static "js/select2/3.5.2/select2.css" %}" rel="stylesheet">#}
+    {#    <link type="text/css" href="{% static "css/redactor.min.css" %}" rel="stylesheet">#}
+    {#    <link type="text/css" href="{% static "css/jquery.pnotify.default.css" %}" rel="stylesheet">#}
+    {#    <!--<link type="text/css" href="{% static "css/gantt.css" %}" rel="stylesheet">-->#}
+    <link type="text/css" href="{% static "css/sisat.css" %}" rel="stylesheet">
+    <link type="text/css" href="{% static "css/jquery.pnotify.default.css" %}" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    <link rel="stylesheet" href="{% static 'luzfcb_djdocuments/js/vendor/izimodal/1.5.0/css/iziModal.css' %}">
+{% endblock %}
+{% block default_js %}
+    <script src="{% static 'luzfcb_djdocuments/vendors/jquery/1.11.3/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-timeago/1.6.3/jquery.timeago.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-timeago/1.6.3/jquery.timeago.pt-br.js" %}"></script>
+    {#    <script>window.jQuery || document.write('<script src="{% static 'luzfcb_djdocuments/bootstrap/3.3.6/assets/js/vendor/jquery.min.js' %}"><\/script>')</script>#}
+    <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/pnotify/jquery.pnotify.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/pnotify/jquery.pnotify.extra.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/angular-strap/bootstrap-datepicker.js" %}"></script>
+
+    <script src="{% static 'luzfcb_djdocuments/js/vendor/izimodal/1.5.0/js/iziModal.js' %}"></script>
+    <script src="{% static 'luzfcb_djdocuments/js/luzfcb_djdocuments.js' %}"></script>
+
+    <script src="{% static 'luzfcb_djdocuments/js/prefetch_modal.js' %}"></script>
+    <script src="{% static 'luzfcb_djdocuments/js/eventListeners.js' %}"></script>
+
+{% endblock %}
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+    <h2>
+        <i class="helper-font-24 fas fa-file-signature"></i>
+        GED - Gestor de Documentos
+        <small></small>
+    </h2>
+{% endblock %}
+
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_app %}
+
+{% endblock %}
+
+{% block js_app %}
+
+
+{% endblock %}
+
+
+
+{% block js_ready_app %}
+    {% block js_ready_pag %}
+    {% endblock %}
+    $("a[rel=popover]").popover().click(function(e) {
+    e.preventDefault();
+    })
+    $("[rel='tooltip']").tooltip();
+    var mensagens = {{ messages|jsonmsg|safe }};
+
+    for (var i = 0; i < mensagens.length; i++) {
+        show_stack(mensagens[i].msg, false, mensagens[i].tag);
+    }
+{% endblock %}

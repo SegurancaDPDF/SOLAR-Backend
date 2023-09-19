@@ -1,0 +1,110 @@
+<!-- Modal Cadastrar Itinerante -->
+<div id="modal-cadastrar-itinerante" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="CadastrarEventoModal">
+            <i class="fas fa-truck"></i> Cadastrar Itinerante
+        </h3>
+    </div>
+    <div class="modal-body">
+        <form name="CadastrarItineranteForm" class="form-horizontal">
+            {% csrf_token %}
+            <div class="control-group">
+                <label class="control-label">Título</label>
+
+                <div class="controls">
+                    <input name="titulo" type="text" class="span10" ng-model="itinerante.titulo" required>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Data início/fim</label>
+
+                <div class="controls">
+                    <div class="input-append span5">
+                        <input name="data_inicio" placeholder="Data Início" type="text" class="span10" bs-datepicker data-date-format="dd/mm/yyyy" data-mask="99/99/9999" data-validate="{required:true,date:true}" name="data_inicial" ng-model="itinerante.data_inicial" required>
+                        <span data-toggle="datepicker" class="add-on">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                    </div>
+                    <div class="input-append span5">
+                        <input name="data_termino" placeholder="Data Término" type="text" class="span10" bs-datepicker data-date-format="dd/mm/yyyy" data-mask="99/99/9999" data-validate="{required:true,date:true}" name="data_final" ng-model="itinerante.data_final" required>
+                        <span data-toggle="datepicker" class="add-on">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Município</label>
+
+                <div class="controls">
+                    <select name="municipio" id="municipio" class="span10" required ng-model="itinerante.municipio" ng-options="m as m.nome for m in municipios | filter:{comarca:{diretoria:diretoria}}" ng-disabled="!municipios.length" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="control-group span12">
+                    <label class="control-label">Defensoria</label>
+
+                    <div class="controls">
+                        <select name = "defensoria" class="span10" ng-model="itinerante.defensoria"
+                                ng-options="defensoria.nome for defensoria in defensorias track by defensoria.id">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form name="CadastrarEventoForm" class="form-horizontal">
+            <fieldset>
+                <legend>Participantes</legend>
+            </fieldset>
+            <div class="control-group" ng-class="{true:'error'}[!itinerante.participante.id]">
+                <input type="text" class="span10" placeholder="Digite o nome do servidor que participará do evento"
+                       ng-model="itinerante.participante"
+                       typeahead="i as i.nome for i in defensores | filter:{uso_interno:false} | filter:{nome:$viewValue} | limitTo:8">
+                <button class="btn" ng-click="adicionar_participante(itinerante.participante)">
+                    <i class="fas fa-plus-circle"></i> Incluir
+                </button>
+                <label class="text-error helper-font-small" ng-show="itinerante.participante && !itinerante.participante.id">
+                    Este servidor não existe no banco de dados
+                </label>
+            </div>
+            <table class="table">
+                <thead>
+                <th class="span9">Servidor</th>
+                <th class="span3">Ações</th>
+                </thead>
+                <tbody>
+                <tr ng-repeat="participante in itinerante.participantes">
+                    <td>
+                        <span ng-class="{'bold':(participante.eh_defensor)}">[[ participante.nome ]]</span>
+                        <small class="muted" ng-if="!participante.defensor">Assistente</small>
+                        <small class="muted" ng-if="participante.defensor && !participante.eh_defensor">Analista</small>
+                        <small class="muted" ng-if="participante.defensor && participante.eh_defensor">Defensor</small>
+                    </td>
+                    <td>
+                        <a href="#" class="text-error" ng-click="remover_participante(participante)">
+                            Remover
+                        </a>
+                    </td>
+                </tr>
+                <tr ng-hide="itinerante.participantes.length">
+                    <td colspan="2">Nenhum participante adicionado</td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" id="btn-modal-cadastrar-itinerante" ng-click="salvar(itinerante)" ng-disabled="!CadastrarItineranteForm.$valid || !itinerante.participantes.length">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
+    </div>
+</div>
+<!-- Modal Cadastrar Evento -->

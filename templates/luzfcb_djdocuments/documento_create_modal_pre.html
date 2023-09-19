@@ -1,0 +1,69 @@
+<!-- Modal Processo -->
+<div id="modal-dados-processo-confirmar" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <form method="POST" action="{% url 'processo_salvar' %}" class="form form-horizontal">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 class="text-error">Atenção</h3>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-error">
+                <p>Você irá cadastrar um processo <b>sem vínculo a um atendimento existente.</b></p>
+
+                <p>Para vincular o processo a um atendimento que já existe, abra o atendimento desejado e clique no
+                    botão <b>'Novo'</b> na aba <b>'Processos'</b>.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a class="btn" data-dismiss="modal" aria-hidden="true" onclick="$('#modal-dados-processo').modal();">Ok,
+                Entendi e desejo continuar</a>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </form>
+</div>
+<!-- Modal Processo -->
+
+<!-- Modal Processo -->
+<div id="modal-dados-processo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <form method="POST" action="{% url 'processo_salvar' %}" class="form form-horizontal">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3>Processo</h3>
+        </div>
+        <div class="modal-body">
+            {% if atendimento %}
+                <input type="hidden" name="next"
+                       value="{% url 'atendimento_atender' atendimento.numero %}?tab=processo">
+                <input type="hidden" name="atendimento_numero" value="{{ atendimento.at_inicial.numero }}">
+            {% endif %}
+            {% csrf_token %}
+            <ul class="nav nav-tabs" id="tabProcesso">
+                <li class="active">
+                    <a data-toggle="tab" href="#processo_processo">
+                        Processo
+                    </a>
+                </li>
+                <li>
+                    <a data-toggle="tab" href="#processo_parte"
+                       onclick="$('#btn-modal-dados-processo').removeAttr('disabled')">
+                        Parte
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content" style="overflow:hidden;">
+                <div class="tab-pane active" id="processo_processo">
+                    {{ form_processo.as_bs }}
+                </div>
+                <div class="tab-pane" id="processo_parte">
+                    {{ form_processo_parte.as_bs }}
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" disabled="" class="btn btn-success" id="btn-modal-dados-processo">Salvar</button>
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</a>
+        </div>
+    </form>
+</div>
+<!-- Modal Processo -->

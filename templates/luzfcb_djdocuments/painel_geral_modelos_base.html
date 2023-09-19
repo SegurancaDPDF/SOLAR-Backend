@@ -1,0 +1,16 @@
+{% extends "luzfcb_djdocuments/base_documentos_solar_template.html" %}
+{% load static %}
+
+{% block css_app %}
+    {{ block.super }}
+    <link href="{% static "css/bootstrap2-toggle.min.css" %}" rel="stylesheet">
+{% endblock css_app %}
+{% block conteudo_app %}
+
+{% endblock %}
+
+{% block js_app %}
+    {{ block.super }}
+    <script src="{% static "js/bootstrap2-toggle.min.js" %}"></script>
+    <script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
+{% endblock js_app %}

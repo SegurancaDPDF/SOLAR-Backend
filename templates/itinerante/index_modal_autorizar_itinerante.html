@@ -1,0 +1,24 @@
+<!-- Modal Autorizar Itinerante -->
+<div id="modal-autorizar-itinerante" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="AutorizarItineranteModal">
+            <i class="fas fa-check"></i> Deseja realmente autorizar o evento?
+        </h3>
+    </div>
+    <div class="modal-body">
+        <h5>[[ selecionado.titulo ]]</h5>
+        <hr>
+        <p>Atenção! Essa ação é <b>irreversível</b>.</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-success" id="btn-modal-autorizar-itinerante" ng-click="autorizar()">
+            <i class="fas fa-check"></i> Autorizar
+        </a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Autorizar Itinerante -->

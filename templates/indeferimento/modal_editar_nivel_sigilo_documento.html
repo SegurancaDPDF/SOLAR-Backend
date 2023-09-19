@@ -1,0 +1,30 @@
+{% load contrib_tags spurl static %}
+<div id="modal-editar-nivel-sigilo-documento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-success" >
+            <i class="fas fa-paperclip"></i> Editar nível de sigilo
+        </h3>
+    </div>
+    <div class="modal-body">
+        Documento: [[ docSelecionado.nome ]]
+        <form enctype="multipart/form-data"
+              method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="">
+            <Label>Nível de sigilo</Label>
+            <div>
+                <select name="nivel_sigilo" id="nivel-sigilo-select" ng-model="docSelecionado.nivelSigilo">
+                    <option value="0" selected>Público</option>
+                    <option value="1">Segredo de Justiça</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="salvarNivelSigilo()">Salvar</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true" ng-click="limparDocumentoSelecionado()">Cancelar</button>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+{% load contrib_tags %}
+
+<tr ng-repeat="indeferimento in classe.indeferimentos">
+    <td>
+        <div class="media">
+            <!-- <a class="pull-left" href="#">
+                <img class="media-object img-polaroid" data-src="holder.js/64x64" alt="64x64" width="64" height="64">
+            </a> -->
+            <div class="media-body">
+                <div class="btn-group pull-right">
+                    <a href="[[ ver_solicitacao_url(indeferimento) ]]" class="btn btn-small">
+                        Abrir
+                    </a>
+                </div>
+                <h4 class="media-heading">
+                    <i class="fa fa-envelope"></i>
+                    [[ indeferimento.processo.numero ]] - [[ indeferimento.pessoa.nome ]]
+                </h4>
+                <span class="label label-info" title="Recebido de:" style="white-space: normal;" bs-tooltip ng-if="prateleira.prateleira==1">
+                    <i class="fas fa-share"></i> [[ indeferimento.processo.setor_atual.nome ]]</b>
+                </span>
+                <span class="label" title="No setor:" bs-tooltip ng-if="prateleira.prateleira==2 || prateleira.prateleira==4 || prateleira.prateleira==5">
+                    <i class="fas fa-home"></i> [[ indeferimento.processo.setor_atual.nome ]]</b>
+                </span>
+                <span class="label label-info" title="Encaminhado para:" bs-tooltip ng-if="prateleira.prateleira==3">
+                    <i class="fas fa-share"></i> [[ indeferimento.processo.setor_encaminhado.nome ]]</b>
+                </span>
+                <span class="label" title="Processo Baixado" rel="tooltip" ng-if="prateleira.prateleira==6">
+                    <i class="fas fa-archive"></i> Baixado: [[ indeferimento.tipo_baixa ]]</b>
+                </span>
+                <ul>
+                    <li>Defensor: <b>[[ indeferimento.defensor.nome ]]</b></li>
+                    <li>Tipo: <b>[[ indeferimento.processo.classe.tipo ]]</b></li>
+                    <li>Razão: <b>[[ indeferimento.processo.classe.nome]]</b></li>
+                    <li>Cadastrado em: <b>[[ indeferimento.processo.cadastrado_em | date:"d 'de' MMMM 'de' y 'às' HH:mm" ]]</b></li>
+                    <li ng-if="indeferimento.decisao">
+                        Avaliado por <b>[[ indeferimento.decisao.cadastrado_por.nome ]]</b> em <b>[[ indeferimento.decisao.cadastrado_em ]]</b>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </td>
+</tr>
+<tr ng-if="classe.indeferimentos==null">
+    <td>
+        <img src="/static/img/loader_16.gif"> Carregando...
+    </td>
+</tr>

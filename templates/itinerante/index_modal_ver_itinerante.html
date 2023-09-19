@@ -1,0 +1,51 @@
+<!-- Modal Ver Itinerante -->
+<div id="modal-ver-itinerante" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="VerAgendaModal">
+            [[ selecionado.titulo ]]
+            {% if request.user.is_superuser %}
+                <a href="/admin/itinerante/evento/[[ selecionado.id ]]/" target="_blank" class="text-info">
+                    <i class="fas fa-link"></i>
+                </a>
+            {% endif %}
+        </h3>
+        <div class="muted">Cadastrado em [[ selecionado.data_cadastro | utc | date:"dd/MM/yyyy" ]] às [[ selecionado.data_cadastro | utc | date:"HH:mm" ]] por [[ selecionado.cadastrado_por ]]</div>
+        <div class="muted" ng-if="selecionado.autorizado_por">Autorizado em [[ selecionado.data_autorizacao | utc | date:"dd/MM/yyyy" ]] às [[ selecionado.data_autorizacao | utc | date:"HH:mm" ]] por [[ selecionado.autorizado_por ]]</div>
+        <div class="muted" ng-if="selecionado.excluido_por">Cancelado em [[ selecionado.data_exclusao | utc | date:"dd/MM/yyyy" ]] às [[ selecionado.data_exclusao | utc | date:"HH:mm" ]] por [[ selecionado.excluido_por ]]</div>
+    </div>
+    <div class="modal-body">
+        <h5>
+            <div>
+                <small class="muted">Localidade</small>
+            </div>
+            [[ selecionado.municipio.nome ]] <small class="muted">[[ selecionado.municipio.comarca.nome ]]/[[ selecionado.municipio.comarca.diretoria ]]</small>
+        </h5>
+        <h5>
+            <div>
+                <small class="muted">Período</small>
+            </div>
+            [[ selecionado.data_inicial | utc | date:"dd/MM/yy" ]] - [[ selecionado.data_final | utc | date:"dd/MM/yy" ]]
+        </h5>
+        <h5>
+            <div>
+                <small class="muted">Participantes</small>
+            </div>
+        </h5>
+        <ul>
+            <li ng-repeat="participante in selecionado.participantes">
+                <span ng-class="{'bold':(participante.eh_defensor)}">[[ participante.nome ]]</span>
+                <small class="muted" ng-if="!participante.defensor">Assistente</small>
+                <small class="muted" ng-if="participante.defensor && !participante.eh_defensor">Analista</small>
+                <small class="muted" ng-if="participante.defensor && participante.eh_defensor">Defensor</small>
+            </li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-times"></i> Fechar
+        </a>
+    </div>
+</div>
+<!-- Modal Ver Itinerante -->

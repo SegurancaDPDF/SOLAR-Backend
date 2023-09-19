@@ -1,0 +1,402 @@
+{% load contrib_tags humanize static %}
+<div class="row-fluid" ng-init="init()">
+    <div class="span4">
+        <div id="dados_assistido_geral" class="well">
+            <div class="pull-left">
+                <img class="media-object img-polaroid" data-src="js/holder.js/64x64" src="{{ indeferimento.pessoa.get_foto }}" height="64" width="64" style="margin-right: 5px;">
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading" class="margin-top: 0;">
+                    {{ indeferimento.pessoa.nome }}
+                </h4>
+                <div>CPF: <b>{{ indeferimento.pessoa.cpf | default:"Não informado" }}</b></div>
+                <div>Data de Nascimento: <b>{{ indeferimento.pessoa.data_nascimento |date:"d/m/Y" |default:"Não informada" }}</b>
+                </div>
+                <div>
+                    {% for filiacao in indeferimento.pessoa.filiacoes.all %}
+                        {{ filiacao.get_tipo_display }}: <b>{{ filiacao.nome }}</b><br/>
+                    {% endfor %}
+                </div>
+                {% for telefone in indeferimento.pessoa.telefones.all %}
+                    <div>
+                        {{ telefone.get_tipo_display }}: <b><a href="tel:{{ config.PREFIXO_HIPERLINK_TEL }}{{ telefone.ddd }}{{ telefone.numero }}" class="btn-link">{{ telefone }}</a></b>
+                        {% if telefone.tipo == telefone.TIPO_WHATSAPP %}
+                            <i class="fab fa-whatsapp color-green"></i>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div>Telefone: <b>Não Informado</b></div>
+                {% endfor %}
+                <div>E-mail: <b>{{ indeferimento.pessoa.email|default:"Não Informado" }}</b></div>
+                <div class="btn-group">
+                    <a href="{% url 'atendimento_atender' indeferimento.atendimento.numero %}" class="btn btn-small btn-primary">
+                        <i class="fas fa-comment"></i> Atendimento
+                    </a>
+                    <a href="{% url 'assistido_editar' indeferimento.pessoa.id %}?next={% url 'indeferimento:ver_solicitacao' setor_id=processo.setor_atual.id nucleo_id=setor.nucleo_id processo_uuid=indeferimento.processo.uuid %}"
+                        class="btn btn-small">
+                        <i class="fas fa-user-edit"></i> Cadastro
+                    </a>
+                    <a href="{% url 'assistido_editar' indeferimento.pessoa.id %}?next={% url 'indeferimento:ver_solicitacao' setor_id=processo.setor_atual.id nucleo_id=setor.nucleo_id processo_uuid=indeferimento.processo.uuid %}&amp;tab=7"
+                        class="btn btn-small">
+                        <i class="fas fa-address-card"></i> Documentos
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div id="box-atividade-diretoria" class="well">
+            <h4>
+                <i class="helper-font-24"></i>Ação Tomada
+            </h4>
+            <span class="label">{{ indeferimento.get_tipo_baixa_display }}</span>
+            {% if indeferimento.baixado %}
+                {% with baixa=indeferimento.baixa %}
+                    <p class="muted">
+                        Baixado por
+                        <b title="{{ baixa.cadastrado_por.get_full_name }}" rel="tooltip">
+                            {{ baixa.cadastrado_por.username }}
+                        </b>
+                        em
+                        <b>
+                            {{  baixa.cadastrado_em|date:"d/m/Y H:i" }}
+                        </b>
+                    </p>
+                    <h5 target="_blank" style="margin-bottom: 0;">
+                        Anotações
+                    </h5>
+                    <p>{{ baixa.historico | default:"Não informado" }}</p>
+                {% endwith %}
+            {% endif %}
+        </div>
+
+        <div id="box-atividade-dpg" class="well">
+            <h4>
+                <i class="helper-font-24"></i>Decisão
+            </h4>
+            <span class="label label-{{ indeferimento.get_cor_resultado }}">{{ indeferimento.get_resultado_display }}</span>
+            {% if indeferimento.possui_decisao %}
+                {% with evento=indeferimento.decisao %}
+                <p class="muted">Avaliado por
+                    <b title="{{ evento.cadastrado_por.get_full_name }}" rel="tooltip">
+                        {{ evento.cadastrado_por.username }}
+                    </b>
+                    em
+                    <b>
+                        {{ evento.cadastrado_em|date:"d/m/Y H:i" }}
+                    </b>
+                </p>
+                <h5 target="_blank" style="margin-bottom: 0;">
+                    Anotações
+                </h5>
+                <p>{{ evento.historico | default:"Não informado" }}</p>
+                {% endwith %}
+            {% endif %}
+        </div>
+
+        <div class="well" id="box-solicitacoes-andamento">
+            <h4>
+                <i class="fas fa-envelope"></i> {{ indeferimento.processo.numero}}
+                {% if request.user.is_superuser %}
+                    <a href="/admin/core/processo/{{ indeferimento.processo.id}}/" target="_blank" class="text-info"
+                       title="Admin Core Processo" rel="tooltip">
+                        <i class="fas fa-link"></i>
+                    </a>
+                {% endif %}
+                <div>
+                    <small>{{ indeferimento.processo.classe.get_tipo_display }}: {{ indeferimento.processo.classe }}</small>
+                </div>
+            </h4>
+            <hr>
+            <h5 target="_blank" style="margin-bottom: 0;">
+                Dados do Atendimento
+            </h5>
+            <ul>
+                <li>
+                    Atendimento: <b>{{ indeferimento.atendimento.numero }}</b>
+                </li>
+                <li>
+                    Defensor: <b>{{ indeferimento.defensor }}</b>
+                </li>
+                <li>
+                    Defensoria: <b>{{ indeferimento.defensoria | default:"Não informada" }}</b>
+                </li>
+                <li>
+                    Área/Pedido: <b>{{ indeferimento.atendimento.qualificacao.area }}/{{ indeferimento.atendimento.qualificacao }}</b>
+                </li>
+                <li>
+                    Recorrido:
+                    <b>{% if indeferimento.pode_recorrer %}
+                            {% if indeferimento.possui_recurso %}Sim{% else %}Não{% endif %}
+                        {% else %} Assistido não pode recorrer
+                    {% endif %}
+                    </b>
+                </li>
+            </ul>
+            <h5 target="_blank" style="margin-bottom: 0;">
+                Medida Pretendida
+            </h5>
+            <p>{{ indeferimento.medida_pretendida | default:"Não informada" }}</p>
+            <h5 target="_blank" style="margin-bottom: 0;">
+                Justificativa
+            </h5>
+            <p>{{ indeferimento.justificativa | default:"Não informada" }}</p>
+        </div>
+    </div>
+
+    <div class="span8">
+
+        <ul class="nav nav-tabs">
+            <li class=""><a data-toggle="tab" href="#tab-movimentos">Documentos</a></li>
+            <li class="active"><a data-toggle="tab" href="#tab-documentos">Movimentos</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="tab-movimentos" class="tab-pane">
+                <h5>Documentos Pessoais</h5>
+                {% include 'indeferimento/ver_solicitacao_lista_documentos.html' with lista_documentos=indeferimento.pessoa.documentos.ativos adicionar=False %}
+                <hr>
+                <h5>Documentos do Atendimento</h5>
+                {% include 'indeferimento/ver_solicitacao_lista_documentos.html' with lista_documentos=documentos_atendimento adicionar=False %}
+            </div>
+            <div id="tab-documentos" class="tab-pane active">
+                {% if indeferimento.baixado %}
+                    <div class="alert alert-block">
+                        <h4>
+                            <i class="fas fa-exclamation-circle"></i> Atenção!
+                        </h4>
+                        <b>Não é possível movimentar: processo baixado.</b>
+                    </div>
+                {% elif setor.id == processo.setor_atual.id and not processo.setor_encaminhado_id %}
+                    <div class="pull-right">
+                    {% if processo.eventos.ativos.em_edicao.exists %}
+                        <a href="{% url "indeferimento:evento_editar" processo_uuid=processo.uuid pk=processo.eventos.ativos.em_edicao.first.pk %}?next={% url 'indeferimento:ver_solicitacao' setor_id=processo.setor_atual.id nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}" class="btn btn-small btn-warning">
+                            <i class="fas fa-pencil-alt"></i><br/>
+                            Continuar Editando
+                        </a>
+                    {% else %}
+                        <a href="{% url 'indeferimento:novo_evento_anotacao_form' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}" data-target="#modal-novo-evento-{{ CoreTipoEvento.TIPO_ANOTACAO }}" data-toggle="modal" class="btn btn-small btn-warning" title="Registra nova anotação" rel="tooltip">
+                            <i class="fas fa-pen-alt"></i><br/>
+                            Anotação
+                        </a>
+                        <a href="{% url 'indeferimento:novo_evento_encaminhamento_form' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}" data-target="#modal-novo-evento-{{ CoreTipoEvento.TIPO_ENCAMINHAMENTO }}" data-toggle="modal" class="btn btn-small" title="Encaminha processo para outro setor" rel="tooltip">
+                            <i class="fas fa-share"></i><br/>
+                            Registrar Despacho
+                        </a>
+                        {% if processo.documentos.ativos.tipo_ged_assinados.exists %}
+                            <a href="{% url 'indeferimento:nova_diligencia_form' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}" data-target="#modal-nucleo-diligencia" data-toggle="modal" class="btn btn-small">
+                                <i class="fas fa-mail-bulk"></i><br/>
+                                Enviar p/ Diligência
+                            </a>
+                        {% else %}
+                            <a href="#" class="btn btn-small" title="Adicione e assine um GED para enviar para diligências" disabled>
+                                <i class="fas fa-mail-bulk"></i><br/>
+                                Enviar p/ Diligência
+                            </a>
+                        {% endif %}
+                        {% if setor.nucleo.indeferimento_pode_registrar_baixa %}
+                            <a href="#modal-nova-baixa" data-toggle="modal" class="btn btn-small btn-info">
+                                <i class="fas fa-archive"></i><br/>
+                                Registrar Baixa
+                            </a>
+                            {% if processo.classe.eh_tipo_impedimento or indeferimento.possui_decisao %}
+                                <div class="btn-group">
+                                    <button class="btn btn-small btn-success" data-toggle="dropdown">
+                                        <i class="fas fa-calendar-alt"></i><br/>
+                                        Agendar Atendimento
+                                    </button>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li>
+                                            <a href="{% url 'agendamento_retorno' indeferimento.atendimento.numero %}?indeferimento_uuid={{ processo.uuid }}&indeferimento_nucleo_id={{ setor.nucleo_id }}&encaminhar=false">
+                                                Agendar Retorno
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'agendamento_retorno' indeferimento.atendimento.numero %}?indeferimento_uuid={{ processo.uuid }}&indeferimento_nucleo_id={{ setor.nucleo_id }}&encaminhar=true">
+                                                Agendar Encaminhamento
+                                            </a>
+                                        </li>
+                                        {% if setor.distribuir_ao_encaminhar %}
+                                        <li>
+                                            <a href="{% url 'agendamento_retorno' indeferimento.atendimento.numero %}?distribuir=true&next={% url 'atendimento_atender' indeferimento.atendimento.numero %}"
+                                               bs-tooltip data-placement="left" title="Marcar retorno para <br> outra defensoria/núcleo Automaticamente">
+                                                Agendar Sorteio
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                        {% if setor.nucleo.indeferimento_pode_registrar_decisao %}
+                            <a href="{% url 'indeferimento:novo_evento_decisao_form' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}" data-target="#modal-novo-evento-{{ CoreTipoEvento.TIPO_DECISAO }}" data-toggle="modal" class="btn btn-small btn-primary">
+                                <i class="fas fa-gavel"></i><br/>
+                                {% if indeferimento.possui_decisao %}
+                                    Reavaliar Decisão
+                                {% else %}
+                                    Registrar Decisão
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                        {% if setor.nucleo.indeferimento_pode_registrar_decisao %}
+                            <a href="{% url 'core:processo_excluir' slug=indeferimento.processo.uuid %}?next={% url 'indeferimento:index' nucleo_id=setor.nucleo_id %}" class="btn btn-small btn-danger" title="Excluir Indeferimento" rel="tooltip">
+                                <i class="fas fa-trash"></i><br/>
+                                Excluir
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                    </div>
+                    <div class="clearfix"></div>
+                {% else %}
+                    <div class="alert alert-block">
+                        <h4>
+                            <i class="fas fa-exclamation-circle"></i> Atenção!
+                        </h4>
+                        Não é possível movimentar:
+                        {% if processo.setor_encaminhado_id %}
+                        <b>processo encaminhado para outro setor ({{ processo.setor_encaminhado }}).</b>
+                        {% else %}
+                        <b>processo encontra-se em outro setor ({{ processo.setor_atual }}).</b>
+                        {% endif %}
+                    </div>
+                    {% if not processo.baixado %}
+                    <div class="pull-right alert-block">
+                        <a href="{% url 'indeferimento:novo_evento_anotacao_form' nucleo_id=setor.nucleo_id processo_uuid=processo.uuid %}?setor_id={{ setor.id }}" data-target="#modal-novo-evento-{{ CoreTipoEvento.TIPO_ANOTACAO }}" data-toggle="modal" class="btn btn-small btn-warning" title="Registra nova anotação" rel="tooltip">
+                            <i class="fas fa-pen-alt"></i><br/>
+                            Anotação
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <div>&nbsp;</div>
+
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="span1">Evento</th>
+                            <th class="span1">Data/Hora</th>
+                            <th class="span2">Tipo</th>
+                            <th class="span1">Setor</th>
+                            <th class="span1">Usuário</th>
+                            <th class="span3">Histórico</th>
+                            <th class="span2">Documentos</th>
+                            <th class="span1">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evento in eventos %}
+                        <tr class="{% if evento.em_edicao %}warning{% endif %}">
+                            <td>
+                                {{ evento.numero }}
+                                {% if request.user.is_superuser %}
+                                    <a href="/admin/core/evento/?q={{ indeferimento.processo.uuid }}" target="_blank" class="text-info"
+                                       title="Admin Core Evento" rel="tooltip">
+                                        <i class="fas fa-link"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if evento.em_edicao %}
+                                    <span class="label label-warning">Em Edição</span>
+                                {% else %}
+                                    {{ evento.data_referencia|date:'d/m/Y' }}<br/>
+                                    {{ evento.data_referencia|date:'H:i' }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ evento.tipo }}
+                            </td>
+                            <td>
+                                <span title="{{ evento.setor_criacao }}" rel="tooltip">
+                                    {{ evento.setor_criacao.codigo }}
+                                </span>
+                            </td>
+                            <td>
+                                <span title="{{ evento.cadastrado_por.get_full_name }}" rel="tooltip">
+                                    {{ evento.cadastrado_por.username }}
+                                </span>
+                            </td>
+                            <td>
+                                <small>{{ evento.historico|default:"NÃO INFORMADO" }}</small>
+                                {% if evento.setor_encaminhado %}
+                                    <div>
+                                        <small class="muted">
+                                            <i class="fas fa-share"></i>
+                                            Encaminhado para:
+                                            <span title="{{ evento.setor_encaminhado }}" rel="tooltip">
+                                                {{ evento.setor_encaminhado.codigo }}
+                                            </span>
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% comment %} sempre use documentos.all no prefetch_related (o filtro fica na view) {% endcomment %}
+                                {% for documento in evento.documentos.all %}
+                                    <div>
+                                        {% permissao_visualizar_documento_indeferimento_tag documento request.user.servidor as nao_tem_sigilo_ou_pode_visualizar %}
+                                        {% if documento.nivel_sigilo %}
+                                            <span title='{{documento.get_nivel_sigilo_display}}'><i class="fas fa-eye-slash"></i></span>
+                                        {% else %}
+                                            <span title='{{documento.get_nivel_sigilo_display}}'><i class="fas fa-eye"></i></span>
+                                        {% endif %}
+                                        {% if nao_tem_sigilo_ou_pode_visualizar %}
+                                            {% if documento.documento %}
+                                            <a href="{% url 'documentos:validar-detail' slug=documento.documento.pk_uuid  %}" target="_blank" class="text-info">
+                                                <i class="{% if documento.documento %}fas fa-cloud{% else %}fas fa-paperclip{% endif %}"></i>
+                                                <small>{{ documento|upper }}</small>
+                                            </a>
+                                            {% else %}
+                                            <a href="{{ documento.arquivo.url }}" target="_blank" class="text-success">
+                                                <i class="{% if documento.documento %}fas fa-cloud{% else %}fas fa-paperclip{% endif %}"></i>
+                                                <small>{{ documento|upper }}</small>
+                                            </a>
+                                            {% endif %}
+                                            {% if request.user.is_superuser %}
+                                                <a href="/admin/core/documento/{{ documento.id}}/" target="_blank" class="text-info"
+                                                title="Admin Core Documento" rel="tooltip">
+                                                    <i class="fas fa-link"></i>
+                                                </a>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if documento.documento %}
+                                            <a href="#" target="_blank" class="text-info" disabled>
+                                                <i class="{% if documento.documento %}fas fa-cloud{% else %}fas fa-paperclip{% endif %} muted"></i>
+                                                <small class="muted">{{ documento|upper }}</small>
+                                            </a>
+                                            {% else %}
+                                            <a href="#" target="_blank" class="text-success" disabled>
+                                                <i class="{% if documento.documento %}fas fa-cloud{% else %}fas fa-paperclip{% endif %} muted"></i>
+                                                <small class="muted">{{ documento|upper }}</small>
+                                            </a>
+                                            {% endif %}
+                                            {% if request.user.is_superuser %}
+                                                <a href="#" target="_blank" class="text-info"
+                                                title="Admin Core Documento" rel="tooltip" disabled>
+                                                    <i class="fas fa-link"></i>
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% empty %}
+                                    <small>Nenhum documento adicionado</small>
+                                {% endfor %}
+                            </td>
+                            <td class="text-center">
+                                {% if forloop.last and not indeferimento.baixado and setor.id == evento.setor_criacao_id and evento.tipo.tipo == CoreTipoEvento.TIPO_ENCAMINHAMENTO or evento.tipo.tipo == CoreTipoEvento.TIPO_ANOTACAO or evento.tipo.tipo == CoreTipoEvento.TIPO_DECISAO %}
+                                <a href="{% url 'core:evento_excluir' pk=evento.pk %}?next={{ request.get_full_path }}" class="btn btn-small btn-danger" title="Excluir Evento" rel="tooltip">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">Nenhum registro encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

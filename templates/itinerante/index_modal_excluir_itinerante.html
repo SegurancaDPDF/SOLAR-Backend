@@ -1,0 +1,24 @@
+<!-- Modal Excluir Itinerante -->
+<div id="modal-excluir-itinerante" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="ExcluirItineranteModal">
+            <i class="fas fa-trash"></i> Excluir Itinerante
+        </h3>
+    </div>
+    <div class="modal-body">
+        <h5>[[ selecionado.titulo ]]</h5>
+        <hr>
+        <p>Atenção! Essa exclusão é <b>irreversível</b>.</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-danger" id="btn-modal-excluir-itinerante" ng-click="excluir()">
+            <i class="fas fa-trash"></i> Excluir
+        </a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Excluir Itinerante -->

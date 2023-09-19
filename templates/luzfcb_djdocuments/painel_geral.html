@@ -1,0 +1,208 @@
+{% extends "luzfcb_djdocuments/base_documentos_solar_template.html" %}
+{% load static humanize luzfcb_djdocuments_tags spurl %}
+
+{% block css_app %}
+{{ block.super }}
+<link href="{% static "css/bootstrap2-toggle.min.css" %}" rel="stylesheet">
+{% endblock css_app %}
+
+{% block menu_app %}
+<!-- barra de navegação -->
+<div class="content-breadcrumb">
+    <ul class="breadcrumb" style="font-size: 14px;">
+        <li>
+            <a href="{% url "ged:painel_geral" %}">
+                <i class="fas fa-folder-open color-yellow"></i> Painel GED
+            </a>
+            <span class="divider">›</span>
+        </li>
+        {% for item in caminho %}
+        <li>
+            <a href="{{ item.url }}">
+                <i class="fas fa-folder-open color-yellow"></i> {{ item.nome }}
+            </a>
+            {% if not forloop.last %}
+                <span class="divider">›</span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="navbar navbar-mb0">
+    <div class="navbar-inner">
+        <div class="container">
+            <div class="navbar-form">
+                <div class="row-fluid no-space">
+                {% if documentos or assinaturas %}
+                    <form action="{{ search_url }}" method="get" id="search_field" class="navbar-form">
+                        <input name="atendimento_numero" type="hidden" value="{{ atendimento_numero|default:'' }}">
+                        <div class="span1">
+                            <input class="span12 datepicker" autocomplete="off" title="Data Inicial" rel="tooltip" data-date-format="dd/mm/yyyy" id="data_inicial" name="data_inicial" placeholder="Data Inicial" type="text" value="{{filtros.data_inicial}}">
+                        </div>
+                        <div class="span1">
+                            <input class="span12 datepicker" autocomplete="off" title="Data Final" rel="tooltip" data-date-format="dd/mm/yyyy" id="data_final" name="data_final" placeholder="Data Final" type="text" value="{{filtros.data_final}}">
+                        </div>
+                        <div class="span3">
+                            <select name="defensoria" id="defensoria" class="span12" title="Defensoria" rel="tooltip" {% if desabilitar_consulta_defensoria %}disabled{% endif %}>
+                                <option value="">Selecione uma defensoria</option>
+                                {% for defensoria in lista_defensorias %}
+                                    <option value="{{defensoria.id}}" {% if defensoria.id == filtros.defensoria|add:"0" %} selected {% endif %}>{{defensoria.nome}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="span2">
+                            <input type="text" id="titulo_documento" name="titulo_documento" class="span12" placeholder="Título do Documento" title="Título do Documento" rel="tooltip" value="{{filtros.titulo_documento}}" upper-text>
+                        </div>
+                        <div class="span2">
+                            <input type="text" id="numero_documento" name="numero_documento" class="span12" placeholder="Número do Documento" title="Número do Documento" rel="tooltip" value="{{filtros.numero_documento}}" upper-text>
+                        </div>
+                        <div class="span2">
+                            <input type="text" id="numero_atendimento" name="numero_atendimento" class="span12" placeholder="Número do Atendimento" title="Número do Atendimento" rel="tooltip" value="{{filtros.numero_atendimento}}" upper-text>
+                        </div>
+                        <button title="Buscar" rel="tooltip" class="btn actions-f12" type="submit">
+                            <i class="icon-search"></i>
+                        </button>
+                    </form>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<h5></h5>
+<!-- /barra de navegação -->
+{% endblock %}
+
+{% block conteudo_app %}
+{% block conteudo_pag %}
+<div class="row-fluid">
+    <!-- lista de pastas ou documentos -->
+    <div class="span4">
+        <table class="table table-hover responsive">
+            <tbody>
+                {% if pastas %}
+                    {% include 'luzfcb_djdocuments/painel_geral_pastas.html' %}
+                {% elif defensorias %}
+                    {% include 'luzfcb_djdocuments/painel_geral_defensorias.html' %}
+                {% elif comarcas %}
+                    {% include 'luzfcb_djdocuments/painel_geral_comarcas.html' %}
+                {% elif documentos %}
+                    {% include 'luzfcb_djdocuments/painel_geral_documentos.html' %}
+                {% elif assinaturas %}
+                    {% include 'luzfcb_djdocuments/painel_geral_assinaturas.html' %}
+                {% endif %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            {% include 'luzfcb_djdocuments/_pagination2.html' %}
+        </div>
+    </div>
+    <!-- /lista de pastas ou documentos -->
+    <!-- pre-visualizacao do documento -->
+    <div class="span8">
+        {% include 'luzfcb_djdocuments/painel_geral_documento_header.html' %}
+        {% if ged_atual %}
+            <hr>
+            {% if ged_atual.eh_modelo %}
+                {% if ged_atual.grupo_dono or request.user.is_superuser %}
+                <div class="clearfix">
+                    {% if atendimento_numero %}
+                    <a class="btn" href="{% url 'atendimento_atender' atendimento_numero %}#/documentos">
+                        <i class="fa fa-reply"></i>
+                        Voltar para atendimento
+                    </a>
+                    <a class="djpopup djfullscreen reloadparentonclose btn btn-primary" href="{% url 'atendimento_ged_criar_via_modelo_publico' atendimento_numero=atendimento_numero %}?modelo_documento={{ ged_atual.pk_uuid }}">
+                        <i class="fa fa-files-o"></i>
+                        Usar modelo
+                    </a>
+                    {% endif %}
+                    <div class="pull-right">
+                        <b title="Marque 'Sim' para que usuários do setor possam usar este modelo em novos documentos" rel="tooltip">
+                            Disponível para uso?
+                        </b>
+                        <input name="modelo_pronto_para_utilizacao" class="modelo_pronto_para_utilizacao" type="checkbox"
+                            {% if ged_atual.modelo_pronto_para_utilizacao %}checked="true" {% endif %}
+                            {% if not ged_atual_pode_editar %}disabled="true" {% endif %}
+                            data-url="{% url 'documentos:modelo_ativardesativar_utilizacao' slug=ged_atual.pk_uuid %}"
+                            data-toggle="toggle" data-on="Sim" data-off="Não" data-offstyle="danger" data-onstyle="success"
+                            data-size="small">
+                        <span>&nbsp;</span>
+                        <b title="Marque 'Sim' para que usuários de qualquer setor possam usar este modelo em novos documentos" rel="tooltip">
+                            Modelo Público?
+                        </b>
+                        <input name="modelo_publico" class="modelo_pronto_para_utilizacao" type="checkbox"
+                            {% if ged_atual.modelo_publico %}checked="true" {% endif %}
+                            {% if not ged_atual.grupo_dono or not ged_atual_pode_editar %}disabled="true" {% endif %}
+                            data-url="{% url 'documentos:modelo_ativardesativar_publicidade' slug=ged_atual.pk_uuid %}"
+                            data-toggle="toggle" data-on="Sim" data-off="Não" data-offstyle="danger" data-onstyle="success"
+                            data-size="small">
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+            {% endif %}
+            <object id="pre-visualizacao" data="{{ ged_atual.get_preview_url }}?no_nav=1&status=1" type="text/html"
+                width="100%" height="700px">
+                Visualização Indisponível
+            </object>
+        {% endif %}
+    </div>
+    <!-- /pre-visualizacao do documento -->
+</div>
+{% endblock %}
+{% endblock %}
+
+{% block js_app %}
+
+{{ block.super }}
+<script src="{% static "js/bootstrap2-toggle.min.js" %}"></script>
+<script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
+
+<script type="application/javascript">
+    $(function () {
+
+        $('.datepicker').datepicker();
+
+        var requestRunning = false;
+
+        $('.modelo_pronto_para_utilizacao').change(function () {
+            var self = $(this);
+            if (requestRunning) { // don't do anything if an AJAX request is pending
+                return;
+            }
+            self.attr('disabled', true);
+
+            var post_url = self.attr('data-url').replace(/\s/g, "");
+            var is_checked = self.prop("checked");
+            var data = {};
+            if (is_checked === true) {
+                data[self.attr('name')] = true;
+            }
+
+            requestRunning = true;
+            var posting = $.post(post_url, data, 'JSON');
+
+            posting.fail(function (jqXHR, textStatus, errorThrown) {
+
+                var errors = jqXHR.responseJSON;
+
+                var msg = "Erro ao salvar documento" + errors.object_instance.pk_uuid + "\n";
+                console.log(msg);
+
+            });
+            posting.done(function (data, textStatus, jqXHR) {
+
+                var mensagem = "Documento N° " + data.object_instance.pk_uuid + " salvo com sucesso!";
+                console.log(mensagem);
+            });
+
+            posting.always(function (data, textStatus, errorThrown) {
+                self.attr('disabled', false);
+                requestRunning = false;
+            });
+        });
+
+    });
+
+</script>
+{% endblock %}

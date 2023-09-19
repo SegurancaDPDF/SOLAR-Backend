@@ -1,0 +1,154 @@
+{% extends "indeferimento/default.html" %}
+{% load contrib_tags humanize static %}
+
+{% block css_pag %}
+    <style>
+        #popover_pessoa .popover{width: 500px;}
+    </style>
+{% endblock %}
+
+{% block menu_app %}
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+            <div class="container">
+                <form class="navbar-form" action="{% url 'indeferimento:buscar' %}" method="GET">
+                    <input type="hidden" name="nucleo" value="{{ nucleo_id }}">
+                    {{ form.resultado }}
+                    {{ form.tipo_baixa }}
+                    {{ form.filtro }}
+                    <button type="submit" class="btn" rel="tooltip" data-placement="bottom" data-original-title="Buscar atendimento">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar Indeferimentos ({{ paginator.count }})
+        </h3>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+    <table class="table table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th>Número</th>
+            <th>Data</th>
+            <th>Assistido</th>
+            <th>Tipo/Razão</th>
+            <th>Defensor</th>
+            <th>Setor Atual</th>
+            <th>Resultado</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for registro in object_list %}
+                <tr {% if registro.processo.esta_peticionando %}class="warning"{% endif%}>
+                    <td>
+                        <b>{{ registro.processo.numero }}</b>
+                    </td>
+                    <td>{{ registro.processo.cadastrado_em|date:'d/m/Y' }}</td>
+                    <td>
+                        <a href="?nucleo={{ nucleo_id }}&filtro={{ registro.pessoa.nome }}" class="btn-link">
+                            {% if registro.pessoa.tipo == 1 %}
+                                <span class="label label-info" title="Nome Fantasia" rel="tooltip">NF</span>
+                                {{ registro.pessoa.apelido }}
+                            {% elif registro.pessoa.nome_social %}
+                                <span class="label label-important" title="Nome Social" rel="tooltip">NS</span>
+                                {{ registro.pessoa.nome_social }}
+                            {% else %}
+                                {{ registro.pessoa.nome }}
+                            {% endif %}
+                        </a>
+                        <a href="javascript:void(0)"
+                            data-tooltip="Ver Detalhes"
+                            data-container="#popover_pessoa"
+                            data-placement="bottom"
+                            data-title="{{ registro.pessoa.nome }}"
+                            data-trigger="focus"
+                            bs-popover="'/static/template/atendimento/popover_pessoa.html'"
+                            ng-mouseover="get_pessoa({{ registro.pessoa.id }}, '{{ config.PREFIXO_HIPERLINK_TEL }}')">
+                            <i class="fas fa-info-circle"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <small class="muted">
+                            {{ registro.processo.classe.get_tipo_display }}
+                        </small>
+                        <div>
+                            {{ registro.processo.classe.nome }}
+                            {% if registro.processo.esta_peticionando %}
+                                <span class="text-warning">(Peticionando)</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span title="{{ registro.defensor.servidor.nome }}" rel="tooltip">
+                            {{ registro.defensor.servidor.usuario.username }}
+                        </span>
+                    </td>
+                    <td>
+                        <span title="{{ registro.processo.setor_atual.nome }}" rel="tooltip">
+                            {{ registro.processo.setor_atual.codigo }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="label label-{{ registro.get_cor_resultado }}">
+                            {{ registro.get_resultado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            {% if registro.processo.esta_peticionando %}
+                                <a href="{% url 'atendimento_atender' registro.atendimento.numero %}" class="btn btn-small" title="Abrir Atendimento" rel="tooltip">
+                                    <i class="fas fa-comment" aria-hidden="true"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'indeferimento:ver_solicitacao' setor_id=registro.processo.setor_atual.id nucleo_id=nucleo_id processo_uuid=registro.processo.uuid %}" class="btn btn-small" title="Abrir Indeferimento" rel="tooltip">
+                                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10">Nenhum registro encontrado</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>Número</th>
+            <th>Data</th>
+            <th>Assistido</th>
+            <th>Tipo/Razão</th>
+            <th>Defensor</th>
+            <th>Setor Atual</th>
+            <th>Resultado</th>
+            <th>Ações</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    {% include 'components/pagination.html' with page_obj=page_obj %}
+
+    <div id="popover_pessoa" style="width: 500px; min-height: 300px;"></div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+    $('.datepicker').datepicker();
+{% endblock %}
