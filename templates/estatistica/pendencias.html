@@ -1,0 +1,475 @@
+{% extends "estatistica/default.html" %}
+{% load humanize %}
+{% load static %}
+
+
+{% block css_pag %}
+    <style>
+
+        .teste {
+            color: red;
+        }
+
+        .box-tab > .box-body .media {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+    </style>
+
+{% endblock %}
+
+
+
+
+{% block cabecalho_pag %}
+    <h3>
+        Pendências de alterações
+    </h3>
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div>
+        <div class="corner-all"> <!-- box-tab-->
+            <div class="box-header corner-top">
+                <!--tab action
+                <div class="header-control pull-right">
+                    <a data-box="collapse"><i class="icofont-caret-up"></i></a>
+                    <a data-box="close" data-hide="rotateOutDownLeft">×</a>
+                </div> -->
+                <ul class="nav nav-tabs">
+                    <!--tab menus-->
+                    <li class="active"><a data-toggle="tab" href="#recent-orders"><b>Pendências </b> <span
+                            class="badge badge-important">4</span> </a></li>
+                    <li class=""><a data-toggle="tab" href="#recent-posts"><b> Autorizadas</b> </a></li>
+                    <li class=""><a data-toggle="tab" href="#recent-comments"><b>Bloqueadas</b> </a></li>
+                    <!--/tab menus-->
+                </ul>
+            </div>
+            <div class="box-body">
+                <!-- widgets-tab-body -->
+                <div class="tab-content">
+                    <div class="tab-pane fade active in" id="recent-orders">
+
+                        <div class="media">
+                            <a class="pull-left" href="#">
+                                <img class="corner-all" data-src="holder.js/64x64" alt="64x64"
+                                     style="width: 64px; height: 64px;" src="http://lorempixel.com/64/64/people">
+                            </a>
+
+                            <div class="media-body">
+                                <a class="pull-right" href="#">
+                                    <h5> Código:<b>102</b></h5>
+                                </a>
+                                <h4 class="media-heading"><a href="#">John Doe Lorem ipsum </a>
+                                    <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às 14:54
+                                    </small>
+                                </h4>
+                                <p>O que alterar, e porque alterar :Raw denim you probably haven' heard of them jean
+                                    shorts Austin. Raw denim you probably haven' heard of them jean shorts Austin. Raw
+                                    denim you probably haven' heard of them jean shorts Austin. Raw denim you probably
+                                    haven' heard of them jean shorts Austin.</p>
+
+
+                                <div class="pull-left">
+                                    <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                                </div>
+
+                                <div class="btn-group pull-right">
+                                    <a href="#" class="btn btn-mini btn-success">Autorizar</a>
+                                    <a href="#" class="btn btn-mini btn-danger">Bloquear</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="media">
+                            <a class="pull-left" href="#">
+                                <img class="corner-all" data-src="holder.js/64x64" alt="64x64"
+                                     style="width: 64px; height: 64px;" src="http://lorempixel.com/64/64/abstract">
+                            </a>
+
+                            <div class="media-body">
+                                <a class="pull-right" href="#">
+                                    <h5> Código:<b>101</b></h5>
+                                </a>
+                                <h4 class="media-heading"><a href="#">John Doe Lorem ipsum </a>
+                                    <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às 14:54
+                                    </small>
+                                </h4>
+                                <p>O que alterar, e porque alterar :Raw denim you probably haven' heard of them jean
+                                    shorts Austin. Raw denim you probably haven' heard of them jean shorts Austin. Raw
+                                    denim you probably haven' heard of them jean shorts Austin. Raw denim you probably
+                                    haven' heard of them jean shorts Austin.</p>
+
+
+                                <div class="pull-left">
+                                    <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                                </div>
+
+                                <div class="btn-group pull-right">
+                                    <a href="#" class="btn btn-mini btn-success">Autorizar</a>
+                                    <a href="#" class="btn btn-mini btn-danger">Bloquear</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="media">
+                            <a class="pull-left" href="#">
+                                <img class="corner-all" data-src="holder.js/64x64" alt="64x64"
+                                     style="width: 64px; height: 64px;" src="http://lorempixel.com/64/64/food">
+                            </a>
+
+                            <div class="media-body">
+                                <a class="pull-right" href="#">
+                                    <h5> Código:<b>100</b></h5>
+                                </a>
+                                <h4 class="media-heading"><a href="#">John Doe Lorem ipsum </a>
+                                    <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às 14:54
+                                    </small>
+                                </h4>
+                                <p>O que alterar, e porque alterar :Raw denim you probably haven' heard of them jean
+                                    shorts Austin. Raw denim you probably haven' heard of them jean shorts Austin. Raw
+                                    denim you probably haven' heard of them jean shorts Austin. Raw denim you probably
+                                    haven' heard of them jean shorts Austin.</p>
+
+
+                                <div class="pull-left">
+                                    <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                                </div>
+
+                                <div class="btn-group pull-right">
+                                    <a href="#" class="btn btn-mini btn-success">Autorizar</a>
+                                    <a href="#" class="btn btn-mini btn-danger">Bloquear</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="media">
+                            <a class="pull-left" href="#">
+                                <img class="corner-all" data-src="holder.js/64x64" alt="64x64"
+                                     style="width: 64px; height: 64px;" src="http://lorempixel.com/64/64/sports">
+                            </a>
+
+                            <div class="media-body">
+                                <a class="pull-right" href="#">
+                                    <h5> Código:99 </h5>
+                                </a>
+                                <h4 class="media-heading"><a href="#">John Doe Lorem ipsum </a>
+                                    <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às 14:54
+                                    </small>
+                                </h4>
+                                <p>O que alterar, e porque alterar :Raw denim you probably haven' heard of them jean
+                                    shorts Austin. Raw denim you probably haven' heard of them jean shorts Austin. Raw
+                                    denim you probably haven' heard of them jean shorts Austin. Raw denim you probably
+                                    haven' heard of them jean shorts Austin.</p>
+
+
+                                <div class="pull-left">
+                                    <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                                </div>
+
+                                <div class="btn-group pull-right">
+                                    <a href="#" class="btn btn-mini btn-success">Autorizar</a>
+                                    <a href="#" class="btn btn-mini btn-danger">Bloquear</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="#" class="btn btn-small btn-link pull-right">View all →</a>
+                    </div>
+
+
+                    <div class="tab-pane fade" id="recent-posts">
+
+                        <table class="table table-striped responsive">
+                            <thead>
+                            <tr>
+                                <th class="span1">Código</th>
+                                <th class="span7">Usuário - Data de envio</th>
+                                <th class="span1">Link</th>
+                                <th class="span2">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><h5>98</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>97</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>96</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>95</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>94</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>93</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                        <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                    </div>
+
+                    <div class="tab-pane fade" id="recent-comments">
+
+                        <table class="table table-striped responsive">
+                            <thead>
+                            <tr>
+                                <th class="span1">Código</th>
+                                <th class="span7">Usuário - Data de envio</th>
+                                <th class="span1">Link</th>
+                                <th class="span2">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><h5>92</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>91</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>90</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>89</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>88</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>87</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                        <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                    </div>
+                </div>
+                <!--/widgets-tab-body-->
+            </div>
+            <!--/box-body-->
+        </div>
+        <!--/box-tab-->
+    </div>
+
+
+{% endblock %}
+
+
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

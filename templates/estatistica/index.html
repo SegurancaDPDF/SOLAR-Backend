@@ -1,0 +1,669 @@
+{% extends "estatistica/default.html" %}
+{% load humanize %}
+{% load static %}
+
+
+{% block css_pag %}
+    <style>
+
+        .teste {
+            color: red;
+        }
+
+    </style>
+{% endblock %}
+
+
+
+
+{% block cabecalho_pag %}
+    <h3>
+        Visão geral
+    </h3>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <h4>
+        Relatórios:
+    </h4>
+
+    <div>
+        <div class="corner-all"> <!-- box-tab-->
+            <div class="box-header corner-top">
+                <!--tab action
+               <div class="header-control pull-right">
+                   <a data-box="collapse"><i class="icofont-caret-up"></i></a>
+                   <a data-box="close" data-hide="rotateOutDownLeft">×</a>
+               </div> -->
+                <ul class="nav nav-tabs">
+                    <!--tab menus-->
+                    <li class="active"><a data-toggle="tab" href="#recent-orders"><b>Atendimento </b></a></li>
+                    <li class=""><a data-toggle="tab" href="#recent-posts"><b>Defensores</b> </a></li>
+                    <li class=""><a data-toggle="tab" href="#recent-comments"><b>Outros</b> </a></li>
+                    <!--/tab menus-->
+                </ul>
+            </div>
+            <div class="box-body">
+                <!-- widgets-tab-body -->
+                <div class="tab-content">
+                    <div class="tab-pane fade active in" id="recent-orders">
+
+                        <div class="tab-pane fade active in" id="system-stat">
+                            <div class="row-fluid">
+                                <div class="span4">
+                                    <div class="dashboard-stat">
+                                        <div id="visitor-stat" class="chart"
+                                             style="height: 120px; padding: 0px; position: relative;">
+                                            <canvas class="flot-base" width="282" height="120"
+                                                    style="width: 282px; height: 120px;"></canvas>
+                                            <canvas class="flot-overlay"
+                                                    style="position: absolute; left: 0px; top: 0px; width: 282px; height: 120px;"
+                                                    width="282" height="120"></canvas>
+                                        </div>
+                                        <div class="stat-label grd-green color-white">Visitor</div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="dashboard-stat">
+                                        <div id="order-stat" class="chart"
+                                             style="height: 120px; padding: 0px; position: relative;">
+                                            <canvas class="flot-base" width="282" height="120"
+                                                    style="width: 282px; height: 120px;"></canvas>
+                                            <canvas class="flot-overlay"
+                                                    style="position: absolute; left: 0px; top: 0px; width: 282px; height: 120px;"
+                                                    width="282" height="120"></canvas>
+                                        </div>
+                                        <div class="stat-label grd-teal color-white">Users</div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="dashboard-stat">
+                                        <div id="user-stat" class="chart"
+                                             style="height: 120px; padding: 0px; position: relative;">
+                                            <canvas class="flot-base" width="282" height="120"
+                                                    style="width: 282px; height: 120px;"></canvas>
+                                            <canvas class="flot-overlay"
+                                                    style="position: absolute; left: 0px; top: 0px; width: 282px; height: 120px;"
+                                                    width="282" height="120"></canvas>
+                                        </div>
+                                        <div class="stat-label grd-red color-white">Orders</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="divider-content"><span></span></div>
+                    </div>
+
+
+                    <div class="tab-pane fade" id="recent-posts">
+
+                        <table class="table table-striped responsive">
+                            <thead>
+                            <tr>
+                                <th class="span1">Código</th>
+                                <th class="span7">Usuário - Data de envio</th>
+                                <th class="span1">Link</th>
+                                <th class="span2">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><h5>98</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>97</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>96</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>95</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>94</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>93</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-repeat"></i> Reverter/Bloquear</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                        <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                    </div>
+
+                    <div class="tab-pane fade" id="recent-comments">
+
+                        <table class="table table-striped responsive">
+                            <thead>
+                            <tr>
+                                <th class="span1">Código</th>
+                                <th class="span7">Usuário - Data de envio</th>
+                                <th class="span1">Link</th>
+                                <th class="span2">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><h5>92</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>91</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>90</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>89</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>88</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><h5>87</h5></td>
+                                <td>
+                                    <h5 class="media-heading"><a href="#"><img class="corner-all"
+                                                                               style="width: 30px; height: 30px;"
+                                                                               src="http://lorempixel.com/30/30/people">
+                                        John Doe Lorem ipsum </a>
+                                        <small class="helper-font-small">Comarca: Palmas, dia 22 de Abril de 2012 às
+                                            14:54
+                                        </small>
+                                    </h5>
+                                </td>
+                                <td><a href="#" class="btn-link">Ver mais →</a></td>
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="#" class="btn btn-mini"> <i class="icon-ok"></i> Reverter/Autorizar</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                        <a href="#" class="btn btn-small btn-link pull-right">Ver mais →</a>
+                    </div>
+                </div>
+                <!--/widgets-tab-body-->
+            </div>
+            <!--/box-body-->
+        </div>
+        <!--/box-tab-->
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <!---
+            <div id="invoice-container" class="invoice-container">
+                <div class="page-header">
+                    <div class="pull-right">
+                        <img data-src="holder.js/120x120" class="img-circle" alt="120x120" style="width: 120px; height: 120px;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAEp0lEQVR4Xu2dZ0sjYRSFb6wRu/GDWEBQbAiCRlBQ0f8u2As2sCcW0GDv3d17YUTX1ciaPYyXE/CDmTEn93nmzPvOJyNHR0fPwpdbAhEKduvWBqNg334p2LlfCqZg7wScz8c1mIKdE3A+HhtMwc4JOB+PDaZg5wScj8cGU7BzAs7HY4Mp2DkB5+OxwRTsnIDz8dhgCnZOwPl4bDAFOyfgfDw2mIKdE3A+HhtMwc4JOB+PDaZg5wScj8cGU7BzAs7HY4Mp2DkB5+OxwRTsnIDz8dhgCnZOwPl4bDAFOyfgfDw2mIKdE3A+HhtMwc4JOB+PDaZg5wScj8cGU7BzAs7HY4Mp2DkB5+OxwRTsnIDz8dhgCnZOwPl4bDAFOyfgfDw2mILxBG5ubmRxcVGOj4+lra1NqqurX77Ezs6OJJNJub+/l+LiYmlpaZHCwkI7vr+/L+vr63J3dyelpaXS3t4uubm5aQdA56X9Qhk8IXQNVthjY2OSl5cnl5eXbwSfnp7KxMSElJeXS0VFhSQSCZMcj8dN+PDwsBQVFUllZaVsbGxITU2NXQCfvdB5GXT3pY8KnWCVenJyYq2cnJx8I/j3/3iSVCol9fX1Eo1GZXZ21s4dHByUvb09WVhYkK6uLrsA9Nj5+bn09/ebbP3RC6GsrEzm5ubk8PBQent75fHxMeN5XyIPOil0goO5Vdyfgl8zub29lZGRESkpKZHOzk7Z3Ny023NfX5/JX1lZka2tLZOflZUl4+PjEolEpLGxUWZmZqS1tdUa/j/ycnJyQPrSx/xIwSpXJV1fX1tjVfLa2prdsrWx+fn5srq6amv1wMCA3e6D27vCDy6K13g+u6D+JS89eswZP06wrpnT09Oi0Ds6Omwt1tdHDR4aGpLs7Gw7R1t8dnZmm6+qqqo3hD8S/J08jMLPU36U4KenJ9tkKXS9LesGK3jpDnp+ft7eV+na8IuLC2t0sMPW47q26+f09PS8iNfjfxP8nbwwyNXvEDrB+oijj0dXV1e2puo6qcJ046QSl5eX7feguTpEbW2t8dRdtAqMxWLWaH2/ublZHh4ebL3WR6eGhgYZHR2Vuro6aWpqskeqTOeFRW4oBSvsqampd4x0rdWd8u7u7rtjwcbq4ODA1l5tuErWZ2hdc5eWluxvdddcUFBgG7Dt7W3p7u62XXSm8yg4TAScf5fQ3aKd84aPR8Fw5NhACsbyhqdRMBw5NpCCsbzhaRQMR44NpGAsb3gaBcORYwMpGMsbnkbBcOTYQArG8oanUTAcOTaQgrG84WkUDEeODaRgLG94GgXDkWMDKRjLG55GwXDk2EAKxvKGp1EwHDk2kIKxvOFpFAxHjg2kYCxveBoFw5FjAykYyxueRsFw5NhACsbyhqdRMBw5NpCCsbzhaRQMR44NpGAsb3gaBcORYwMpGMsbnkbBcOTYQArG8oanUTAcOTaQgrG84WkUDEeODaRgLG94GgXDkWMDKRjLG55GwXDk2EAKxvKGp1EwHDk2kIKxvOFpFAxHjg2kYCxveBoFw5FjAykYyxueRsFw5NhACsbyhqdRMBw5NpCCsbzhaRQMR44NpGAsb3jaL2iN3N6moKamAAAAAElFTkSuQmCC">
+                    </div>
+                    <h3>Relatório de teste <small>Brand new website</small></h3>
+                </div>
+                <div class="row-fluid">
+                    <div class="span4">
+                        <p class="muted">From</p>
+                        <p>Example Company</p>
+                        <p>47 Address</p>
+                        <p>Example, NY.80091</p>
+                        <p>invoice@mail.com</p>
+                    </div>
+                    <div class="span4">
+                        <p class="muted">To</p>
+                        <p>XYZ Corp</p>
+                        <p>432 Main Street</p>
+                        <p>San Francisco, CA 91234</p>
+                    </div>
+                    <div class="span4">
+                        <p>Invoice No. 247</p>
+                        <p>Invoice Date. December 21, 2012</p>
+                        <p>Payment Due. January 17, 2012</p>
+                    </div>
+                </div>
+                <div class="invoice-table">
+                    <table class="table table-bordered invoice responsive">
+                        <thead>
+                        <tr>
+                            <th>ITEM DESCRIPTIONS</th>
+                            <th>QTY</th>
+                            <th>PRICE</th>
+                            <th>TOTAL PRICE</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Lorem Ipsum</td>
+                            <td class="right">5.0</td>
+                            <td class="right">$4.00</td>
+                            <td class="right">$20.00</td>
+                        </tr>
+                        <tr>
+                            <td>Nulla pellentesque</td>
+                            <td class="right">3.0</td>
+                            <td class="right">$5.00</td>
+                            <td class="right">$15.00</td>
+                        </tr>
+                        <tr>
+                            <td>Leo ornare lacinia</td>
+                            <td class="right">13.0</td>
+                            <td class="right">$2.00</td>
+                            <td class="right">$26.00</td>
+                        </tr>
+                        <tr>
+                            <td>Est arcu integer consectetuer</td>
+                            <td class="right">5.0</td>
+                            <td class="right">$5.00</td>
+                            <td class="right">$25.00</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="4">Invoice Totals</th>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Invoice Subtotal</td>
+                            <td class="right">$66.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Invoice Discount</td>
+                            <td class="right">($4.00)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Sales Tax  (8.5%)</td>
+                            <td class="right">$5.61</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Total Due</td>
+                            <td class="right">USD $67.61</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+    -->
+{% endblock %}
+
+
+
+{% block js_pag %}
+    <script src="{% static "js/uniform/jquery.uniform.js" %}"></script>
+    <script src="{% static "js/peity/jquery.peity.js" %}"></script>
+    <script src="{% static "js/select2/3.5.2/select2.js" %}"></script>
+    <script src="{% static "js/knob/jquery.knob.js" %}"></script>
+{% endblock %}
+
+<script type="text/javascript ">
+    {% block js_ready_pag %}
+
+        // try your js
+
+        // normalize event tab-stat, we hack something here couse the flot re-draw event is any some bugs for this case
+        $('#tab-stat > a[data-toggle="tab"]').on('shown', function () {
+            if (sessionStorage.mode == 4) { // this hack only for mode side-only
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 'slow');
+            }
+        });
+
+        // peity chart
+        $("span[data-chart=peity-bar]").peity("bar");
+
+        // Input tags with select2
+        $('input[name=reseiver]').select2({
+            tags: []
+        });
+
+
+
+        // system stat flot
+        d1 = [['jan', 231], ['feb', 243], ['mar', 323], ['apr', 352], ['maj', 354], ['jun', 467], ['jul', 429]];
+        d2 = [['jan', 87], ['feb', 67], ['mar', 96], ['apr', 105], ['maj', 98], ['jun', 53], ['jul', 87]];
+        d3 = [['jan', 34], ['feb', 27], ['mar', 46], ['apr', 65], ['maj', 47], ['jun', 79], ['jul', 95]];
+
+        var visitor = $("#visitor-stat"),
+                order = $("#order-stat"),
+                user = $("#user-stat"),
+
+                data_visitor = [{
+                    data: d1,
+                    color: '#00A600'
+                }],
+                data_order = [{
+                    data: d2,
+                    color: '#2E8DEF'
+                }],
+                data_user = [{
+                    data: d3,
+                    color: '#DC572E'
+                }],
+
+
+                options_lines = {
+                    series: {
+                        lines: {
+                            show: true,
+                            fill: true
+                        },
+                        points: {
+                            show: true
+                        },
+                        hoverable: true
+                    },
+                    grid: {
+                        backgroundColor: '#FFFFFF',
+                        borderWidth: 1,
+                        borderColor: '#CDCDCD',
+                        hoverable: true
+                    },
+                    legend: {
+                        show: false
+                    },
+                    xaxis: {
+                        mode: "categories",
+                        tickLength: 0
+                    },
+                    yaxis: {
+                        autoscaleMargin: 2
+                    }
+
+                };
+
+        // render stat flot
+        $.plot(visitor, data_visitor, options_lines);
+        $.plot(order, data_order, options_lines);
+        $.plot(user, data_user, options_lines);
+
+        // tootips chart
+        function showTooltip(x, y, contents) {
+            $('<div id="tooltip" class="bg-black corner-all color-white">' + contents + '</div>').css({
+                position: 'absolute',
+                display: 'none',
+                top: y + 5,
+                left: x + 5,
+                border: '0px',
+                padding: '2px 10px 2px 10px',
+                opacity: 0.9,
+                'font-size': '11px'
+            }).appendTo("body").fadeIn(200);
+        }
+
+        var previousPoint = null;
+        $('#visitor-stat, #order-stat, #user-stat').bind("plothover", function (event, pos, item) {
+
+            if (item) {
+                if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+
+                    $("#tooltip").remove();
+                    var x = item.datapoint[0].toFixed(2),
+                            y = item.datapoint[1].toFixed(2);
+                    label = item.series.xaxis.ticks[item.datapoint[0]].label;
+
+                    showTooltip(item.pageX, item.pageY,
+                            label + " = " + y);
+                }
+            }
+            else {
+                $("#tooltip").remove();
+                previousPoint = null;
+            }
+
+        });
+        // end tootips chart
+
+
+        // Schedule Calendar
+        var date = new Date();
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+
+        var calendar = $('#schedule').fullCalendar({
+            header: {
+                left: 'title',
+                center: '',
+                right: 'prev,next today,month,basicWeek,basicDay'
+            },
+            events: [
+                {
+                    title: 'Start a project',
+                    start: new Date(y, m, 1)
+                },
+                {
+                    title: 'interview and data collection',
+                    start: new Date(y, m, 3),
+                    end: new Date(y, m, 7)
+                },
+                {
+                    title: 'Creating design interface',
+                    start: new Date(y, m, 9),
+                    end: new Date(y, m, 12)
+                },
+                {
+                    title: 'Meeting',
+                    start: new Date(y, m, 19, 10, 30),
+                    allDay: false
+                },
+                {
+                    title: 'Meeting',
+                    start: new Date(y, m, 28, 10, 30),
+                    allDay: false
+                },
+                {
+                    title: 'Date',
+                    start: new Date(y, m, d, 12, 0),
+                    end: new Date(y, m, d, 14, 0),
+                    allDay: false
+                },
+                {
+                    title: 'Birthday Party',
+                    start: new Date(y, m, d + 1, 19, 0),
+                    end: new Date(y, m, d + 1, 22, 30),
+                    allDay: false
+                }
+            ]
+        });
+        // end Schedule Calendar
+
+
+
+    {% endblock %}
+</script>

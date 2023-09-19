@@ -1,0 +1,182 @@
+{% extends "default.html" %}
+{% load humanize %}
+
+{% block titulo %} Estatística Defensoria {% endblock %}
+
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+
+{% block cabecalho_app %}
+
+    <!-- notificacoes de presos -->
+    <ul class="content-header-action pull-right">
+        <li class="divider"></li>
+        <li>
+            <a href="#" rel="tooltip" data-placement="left"
+               data-original-title="46 Pendências de aleteração de dados">
+                <div class="action-text color-red" style="text-align: center">
+                    (+46)
+                    <span class="helper-font-small color-silver-dark">Pendências</span>
+                </div>
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href="#" rel="tooltip" data-placement="left"
+               data-original-title="34 Relatórios disponíveis no sistema">
+                <div class="action-text color-orange" style="text-align: center">
+                    34
+                    <span class="helper-font-small color-silver-dark">Relatórios</span>
+                </div>
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href="#" rel="tooltip" data-placement="left"
+               data-original-title="200.437 Assistidos atendidos">
+                <div class="action-text color-orange" style="text-align: center">
+                    200.437
+                    <span class="helper-font-small color-silver-dark">Assistidos atendidos</span>
+                </div>
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href="#" rel="tooltip" data-placement="left"
+               data-original-title="1437 Usuários cadastrados no sistema">
+                <div class="action-text color-orange" style="text-align: center">
+                    1437
+                    <span class="helper-font-small color-silver-dark">Usuários</span>
+                </div>
+            </a>
+        </li>
+
+    </ul>
+    <!-- /notificacoes de presos -->
+
+    <h2>
+        <i class="fas fa-chart-bar"></i> Estatística
+        <small> Módulo de estatística SOLAR</small>
+    </h2>
+
+{% endblock %}
+
+
+{% block menu_app %}
+
+    <div class="navbar navbar-mb0">
+        <div class="navbar-inner">
+
+
+            <div class="container">
+
+
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                    <span class="fas fa-bars"></span>
+                </a>
+
+                <div class="nav-collapse collapse navbar-responsive-collapse">
+
+
+                    <ul class="nav pull-left">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <i class="fas fa-signal"></i>
+                                Principal
+
+                            </a>
+                        </li>
+                    </ul>
+
+
+                    <div class="input-append input-icon-prepend">
+                        <div class="add-on">
+                            <a title="search" style="" class="icon"><i class="fas fa-search"></i></a>
+                            <input class="input-xlarge animated grd-white" type="text"
+                                   placeholder="Busca rápida de Relatórios">
+                        </div>
+                        <input type="submit" class="btn" value="Pesquisar">
+                    </div>
+
+                    <!--
+
+                    <ul class="nav pull-left span5">
+                        <form class="navbar-search span12" action="#">
+                            <div class="input-append">
+                                <input class="span12" id="appendedInputButtons" type="text">
+                                <a href="buscar-processo.html" id="buscar-processo" class="btn actions-f12 last-btn"
+                                   rel="tooltip" data-placement="bottom" data-original-title="Buscar Relatório">
+                                    <i class="fas fa-list"></i>
+                                </a>
+                        </form>
+                    </ul>   -->
+
+                    <ul class="nav pull-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fas fa-folder-open"></i>
+                                Relatórios disponíveis
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Número de assistidos</a></li>
+                                <li><a href="#">Número de ações penais</a></li>
+                                <li><a href="#">Número de presos provisórios</a></li>
+                                <!-- inclui o penúltimo relatório da lista -->
+                                <li><a href="#">Número de presos condenados</a></li>
+                                <!-- inclui o último relatório da lista -->
+                                <li><a href="#">Número de presos em regime fechado</a></li>
+                                <li><a href="#">Número de presos em regime semiaberto</a></li>
+                                <li><a href="#">Número de presos em regime aberto</a></li>
+                                <li><a href="#">Número de presos em livramento condicional</a></li>
+                                <li><a href="#">Perfil etário dos assistidos</a></li>
+                                <li><a href="#">Número de presos por unidade prisional</a></li>
+                                <li><a href="#">Geral</a></li>
+                                <!-- engloba os dados de todos os outros relatórios -->
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.nav-collapse -->
+            </div>
+        </div>
+        <!-- /navbar-inner -->
+    </div>
+
+{% endblock %}
+
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+
+{% endblock %}
+
+
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

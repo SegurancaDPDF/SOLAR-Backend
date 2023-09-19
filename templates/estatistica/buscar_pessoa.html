@@ -1,0 +1,93 @@
+{% extends "nadep/default.html" %}
+{% load humanize %}
+
+{% block css_pag %}
+{% endblock %}
+
+
+{% block cabecalho_pag %}
+
+    <div class="page-title">
+        <h3 class="pull-left">
+            Buscar pessoa
+        </h3>
+
+        <div class="pull-right actions-m18">
+            <a href="#" rel="tooltip" data-placement="left" data-original-title="Cadastar pessoa" role="button"
+               class="btn actions-f12" data-toggle="modal">
+                <i class="icon-plus-sign"> </i>
+            </a>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block conteudo_pag %}
+
+    <table id="assitidos" class="table table-bordered table-striped table-hover responsive display-data">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th class="span2">CPF</th>
+            <th>Nome da mãe</th>
+            <th class="span1">Nascimento</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                João da Silva Nascimento Bonaparte Júnior
+            </td>
+            <td>
+                123.456.789-10
+            </td>
+            <td>
+                Joana D'arc
+            </td>
+            <td>
+                11/11/1963
+            </td>
+            <td>
+                <a href="pessoa.html" class="btn actions-f12" rel="tooltip" data-placement="left"
+                   data-original-title="Visualizar pessoa">
+                    <i class="icon-zoom-in"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>Nome</th>
+            <th class="span2">CPF</th>
+            <th>Nome da mãe</th>
+            <th class="span1">Nascimento</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <div class="pagination">
+        <div class="pull-left">
+            Mostrando 1 a 10 de 100 registros
+        </div>
+        <div class="pagination-right">
+            <ul>
+                <li><a href="#" rel="tooltip" data-placement="left" data-original-title="Página anterior"><</a></li>
+                <li><a href="#">1</a></li>
+                <li class="active"><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#" rel="tooltip" data-placement="left" data-original-title="Próxima página">></i></a></li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}
