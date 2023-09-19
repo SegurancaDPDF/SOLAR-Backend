@@ -1,0 +1,94 @@
+{% load static %}
+<!-- EVENTOS -->
+<div id="eventos" class="tab-pane active">
+    <div class="text-center" ng-show="carregando">
+        <img src="{% static "img/loader_16.gif" %}">
+        <b>Carregando...</b>
+    </div>
+    <table class="table table-striped table-hover" ng-hide="carregando">
+        <thead>
+        <tr>
+            <th class="span5">Título</th>
+            <th class="span3">Período</th>
+            <th class="span3">Abrangência</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="e in eventos_defensor">
+            <td>
+                <div><b>[[ e.titulo ]]</b></div>
+                {% if request.user.is_superuser %}
+                <a href="/admin/evento/evento/[[ e.id ]]/" target="_blank" class="text-info">
+                    <i class="fas fa-link"></i>
+                </a>
+                {% endif %}
+                <small class="muted">Cadastrado por <b bs-tooltip="e.cadastrado_por.nome">[[ e.cadastrado_por.username ]]</b> em <b>[[ e.data_cadastro | date:"dd/MM/yyyy HH:mm" ]]</b></small>
+            </td>
+            <td>[[ e.data_ini | utc | date ]] <span ng-show="e.data_ini!=e.data_fim">a [[ e.data_fim | utc | date ]]</span></td>
+            <td>
+                <ul ng-if="!e.comarca.id && !e.defensoria.id && !e.defensor ">
+                    <li>Todas as comarcas e defensorias</li>
+                </ul>
+                <ul ng-if="!e.comarca.id && !e.defensoria.id && e.defensor ">
+                    <li>[[ evento.defensor.nome ]]</li>
+                </ul>
+                {% if request.user.is_superuser %}
+                <ul ng-if="e.comarca.id && !e.defensoria.id">
+                    <li>
+                        <a href="/admin/evento/evento/[[ e.id ]]/" target="_blank" class="text-info">
+                            <i class="fas fa-link"></i> [[ e.comarca.nome ]]
+                        </a>
+                    </li>
+                    <li ng-repeat="filho in e.eventos">
+                        <a href="/admin/evento/evento/[[ filho.id ]]/" target="_blank" class="text-info" >
+                            <i class="fas fa-link"></i> [[ filho.comarca.nome ]]
+                        </a>
+                    </li>
+                </ul>
+                <ul ng-if="e.defensoria.id">
+                    <li>
+                        <a href="/admin/evento/evento/[[ e.id ]]/" target="_blank" class="text-info" bs-tooltip="e.defensoria.nome">
+                            <i class="fas fa-link"></i> [[ e.defensoria.codigo ]]
+                            <small>([[ e.categoria_de_agenda.nome | default:"Todas as categorias"  ]])</small>
+                        </a>
+                    </li>
+                    <li ng-repeat="filho in e.eventos">
+                        <a href="/admin/evento/evento/[[ filho.id ]]/" target="_blank" class="text-info" bs-tooltip="filho.defensoria.nome">
+                            <i class="fas fa-link"></i> [[ filho.defensoria.codigo ]]
+                            <small>([[ filho.categoria_de_agenda.nome | default:"Todas as categorias"  ]])</small>
+                        </a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul ng-if="e.comarca.id && !e.defensoria.id">
+                    <li>[[ e.comarca.nome ]]</li>
+                    <li ng-repeat="filho in e.eventos">[[ filho.comarca.nome ]]</li>
+                </ul>
+                <ul ng-if="e.defensoria.id">
+                    <li>
+                        <span bs-tooltip="e.defensoria.nome">[[ e.defensoria.codigo ]]</span>
+                        <small class="muted">([[ e.categoria_de_agenda.nome | default:"Todas as categorias" ]])</small>
+                    </li>
+                    <li ng-repeat="filho in e.eventos">
+                        <span bs-tooltip="filho.defensoria.nome">[[ filho.defensoria.codigo ]]</span>
+                        <small class="muted">([[ filho.categoria_de_agenda.nome | default:"Todas as categorias"]])</small>
+                    </li>
+                </ul>
+                {% endif %}
+            </td>
+            <td class="text-center">
+                {% if perms.evento.delete_evento %}
+                    <a href="#modal-excluir-evento" class="btn btn-small btn-danger" data-toggle="modal" title="Excluir" bs-tooltip ng-click="excluir(e)">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr ng-hide="eventos_defensor.length">
+            <td colspan="4">Nenhum registro adicionado</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!-- /EVENTOS -->

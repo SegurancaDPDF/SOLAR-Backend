@@ -1,0 +1,48 @@
+{% load static %}
+<!-- AGENDAS -->
+<div id="agendas" class="tab-pane">
+    <div class="text-center" ng-show="carregando">
+        <img src="{% static "img/loader_16.gif" %}">
+        <b>Carregando...</b>
+    </div>
+    <table class="table table-striped table-hover" ng-hide="carregando">
+        <thead>
+        <tr>
+            <th class="span6">Título</th>
+            <th class="span2">Período</th>
+            <th class="span3">Atuações(s)</th>
+            <th class="span1">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="agenda in agendas">
+            <td>
+                <div>[[ agenda.titulo ]]</div>
+                <small class="muted">Cadastrado por <b bs-tooltip="agenda.cadastrado_por.nome">[[ agenda.cadastrado_por.username ]]</b> em <b>[[ agenda.data_cadastro | utc | date:"dd/MM/yyyy HH:mm" ]]</b></small>
+            </td>
+            <td>[[ agenda.data_ini | utc | date ]] a [[ agenda.data_fim | utc | date ]]</td>
+            <td>
+                <div>[[ agenda.defensoria.nome ]]</div>
+                <div ng-repeat="filho in agenda.agendas">[[ filho.defensoria.nome ]]</div>
+            </td>
+            <td class="text-center">
+                <div class="btn-group">
+                    <button class="btn btn-small" data-target="#modal-ver-agenda" data-toggle="modal" title="Visualizar" bs-tooltip ng-click="ver_agenda(agenda)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-small btn-danger" data-target="#modal-excluir-evento" data-toggle="modal" title="Excluir" bs-tooltip ng-click="excluir(agenda)" ng-if="agenda.pode_excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="btn btn-small btn-danger" title="Excluir" bs-tooltip disabled ng-if="!agenda.pode_excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+        <tr ng-hide="agendas.length">
+            <td colspan="4">Nenhum registro adicionado</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!-- /AGENDAS -->

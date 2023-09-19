@@ -1,0 +1,55 @@
+<!-- Modal Excluir Evento -->
+<div id="modal-excluir-evento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="ExcluirEventoModal">
+            <i class="fas fa-trash"></i> Excluir Evento "[[ selecionado.titulo ]]"
+        </h3>
+    </div>
+    <div class="modal-body">
+        <p class="alert alert-error" ng-if="!selecionado.eventos.length">
+            <b>Atenção!</b> Essa operação é irreversível.
+        </p>
+        <p class="alert alert-info"  ng-if="selecionado.eventos.length">
+            Se desejar apenas remover algumas comarcas ou defensorias do evento, marque-as e clique em <b>"Excluir Selecionados"</b>
+        </p>
+        <div ng-if="selecionado.eventos.length && selecionado.defensoria.id">
+            <label class="checkbox">
+                <input type="checkbox" ng-model="selecionado.selecionado">
+                <span>[[ selecionado.defensoria.nome ]]</span>
+                <small>([[ selecionado.categoria_de_agenda.nome | default:"Todas as categorias"  ]])</small>
+            </label>
+            <label class="checkbox" ng-repeat="filho in selecionado.eventos">
+                <input type="checkbox" ng-model="filho.selecionado">
+                <span>[[ filho.defensoria.nome ]]</span>
+                <small>([[ filho.categoria_de_agenda.nome | default:"Todas as categorias"  ]])</small>
+            </label>
+        </div>
+        <div ng-if="selecionado.eventos.length && selecionado.comarca.id && !selecionado.defensoria.id">
+            <label class="checkbox">
+                <input type="checkbox" ng-model="selecionado.selecionado">
+                <span>[[ selecionado.comarca.nome ]]</span>
+            </label>
+            <label class="checkbox" ng-repeat="filho in selecionado.eventos">
+                <input type="checkbox" ng-model="filho.selecionado">
+                <span>[[ filho.comarca.nome ]]</span>
+            </label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-warning" id="btn-modal-excluir-evento" ng-click="remover()" ng-if="selecionado.eventos.length">
+            <i class="fas fa-trash"></i> Excluir Selecionados
+        </a>
+        <a href="#" class="btn btn-danger" id="btn-modal-excluir-evento" ng-click="excluir()" ng-if="selecionado.eventos.length">
+        <i class="fas fa-trash"></i> Excluir Todos
+        </a>
+        <a href="#" class="btn btn-danger" id="btn-modal-excluir-evento" ng-click="excluir()" ng-if="!selecionado.eventos.length">
+            <i class="fas fa-trash"></i> Excluir
+        </a>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Excluir Evento -->

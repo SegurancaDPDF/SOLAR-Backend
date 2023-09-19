@@ -1,0 +1,62 @@
+<!-- Modal Ver Atuacao -->
+<div id="modal-ver-atuacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="VerAgendaModal">[[ evento.defensor.nome ]]</h3>
+        <span class="muted">[[ evento.data_ini | utc | date:"dd/MM/yyyy" ]] - [[ evento.data_fim | utc | date:"dd/MM/yyyy" ]]</span>
+    </div>
+    <div class="modal-body">
+        <h6>Atuações que serão afetadas:</h6>
+        <table class="table">
+            <thead>
+            <th>#</th>
+            <th>Defensoria/Núcleo</th>
+            <th>Vigência</th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="atuacao in evento.defensor.atuacoes | filter:{errors:0}"
+                ng-class="{'text-error':atuacao.errors, 'text-success':!atuacao.errors}">
+                <td><input type="checkbox" ng-model="atuacao.agendamento" ng-change="sel_primeira_aba();">
+                </td>
+                <td><span class="label" bs-tooltip="atuacoes[atuacao.atuacao]">[[ atuacoes[atuacao.atuacao][0] ]]</span> [[ atuacao.defensoria.nome ]]</td>
+                <td>[[ atuacao.data_ini | utc | date:"dd/MM/yy" ]]<span ng-show="atuacao.data_fim"> - [[ atuacao.data_fim | utc | date:"dd/MM/yy" ]]</span>
+                </td>
+            </tr>
+            <tr ng-hide="(evento.defensor.atuacoes | filter:{errors:0}).length">
+                <td colspan="3">Nenhuma atuação vinculada</td>
+            </tr>
+            </tbody>
+        </table>
+        <h6>Atuações que não serão afetadas</h6>
+        <table class="table">
+            <thead>
+            <th>#</th>
+            <th>Defensoria/Núcleo</th>
+            <th>Vigência</th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="atuacao in evento.defensor.atuacoes | filter:{errors:'!0'}"
+                ng-class="{'text-error':atuacao.errors>=2,'text-warning':atuacao.errors==1,'text-success':atuacao.errors==0}">
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    <span class="label" bs-tooltip="atuacoes[atuacao.atuacao]">[[ atuacoes[atuacao.atuacao][0] ]]</span>
+                    [[ atuacao.defensoria.nome ]]
+                    <i class="fas fa-question-circle" bs-tooltip="atuacao.error_description"></i>
+                </td>
+                <td>[[ atuacao.data_ini | utc | date:"dd/MM/yy" ]]<span ng-show="atuacao.data_fim"> - [[ atuacao.data_fim | utc | date:"dd/MM/yy" ]]</span>
+                </td>
+            </tr>
+            <tr ng-hide="(evento.defensor.atuacoes | filter:{errors:'!0'}).length">
+                <td colspan="3">Nenhuma atuação vinculada</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <a class="btn" data-dismiss="modal" aria-hidden="true">Fechar</a>
+    </div>
+</div>
+<!-- Modal Ver Atuacao -->

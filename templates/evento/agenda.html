@@ -1,0 +1,341 @@
+{% extends "evento/default.html" %}
+{% load static %}
+
+{% block cabecalho_pag %}
+    <div class="page-title clearfix">
+        <h3 class="pull-left">Cadastrar Agendas</h3>
+
+        <h3 class="pull-right" ng-init="carregar_defensor({id:{{ defensor.id }},nome:'{{ defensor }}'});">
+            [[ evento.defensor.nome ]]
+        </h3>
+    </div>
+{% endblock %}
+
+{% block conteudo_pag %}
+    <div class="row-fluid">
+        <div class="span6">
+            <div class="row-fluid">
+                <div class="control-group span6">
+                    <label class="control-label">Título</label>
+
+                    <div class="controls">
+                        <input type="text" class="span12" ng-model="evento.titulo">
+                    </div>
+                </div>
+                <div class="control-group span3">
+                    <label class="control-label">Data Inicial</label>
+
+                    <div class="controls">
+                        <div class="input-append span12">
+                            <input placeholder="Data Inicial" type="text" class="span10" bs-datepicker
+                                   data-date-format="dd/mm/yyyy" data-mask="99/99/9999"
+                                   data-validate="{required:false,date:true}" name="data_ini" ng-model="evento.data_ini"
+                                   ng-change="validar_datas()">
+                    <span data-toggle="datepicker" class="add-on">
+                        <i class="fas fa-calendar-alt"></i>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group span3">
+                    <label class="control-label">Data Final</label>
+
+                    <div class="controls">
+                        <div class="input-append span12">
+                            <input placeholder="Data Final" type="text" class="span10" bs-datepicker
+                                   data-date-format="dd/mm/yyyy" data-mask="99/99/9999"
+                                   data-validate="{required:false,date:true}" name="data_fim" ng-model="evento.data_fim"
+                                   ng-change="validar_datas()">
+                    <span data-toggle="datepicker" class="add-on">
+                        <i class="fas fa-calendar-alt"></i>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box corner-all">
+                <div class="box-header corner-top grd-white">
+                    Configuração
+                    <div class="header-control pull-right">
+                        <a href="#modal-ver-atuacao" data-toggle="modal" role="button">
+                            <i class="fas fa-tasks"></i> Atuações
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="row" style="margin: 100px 0;" ng-show="evento.defensor.atuacoes==null">
+                        <div class="span6 offset3">
+                            <h4 class="text-center">Carregando...</h4>
+                            <div class="bar-st bar-stripe">
+                                <span class="active" style="width: 100%;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center"
+                         ng-hide="evento.defensor.atuacoes==null || (evento.defensor.atuacoes | filter:{agendamento:true, errors:0}).length">
+                        <h1><i class="fas fa-exclamation-triangle"></i></h1>
+                        <h3>Nenhuma atuação válida para o período</h3>
+                    </div>
+                    <form class="form-horizontal" ng-hide="evento.defensor.atuacoes==null || !(evento.defensor.atuacoes | filter:{agendamento:true, errors:0}).length"
+                        ng-init="hora_ini_default='{{ hora_inicial }}'; simultaneos_default={{ simultaneos }}">
+                        {% csrf_token %}
+                        <ul class="nav nav-tabs">
+                            <li ng-repeat="obj in evento.defensor.atuacoes | filter:{agendamento:true, errors:0}"
+                                ng-class="{'active':(evento.agenda == obj)}" bs-tooltip="obj.defensoria.nome">
+                                <a href="#agenda-evento" data-toggle="tab"
+                                   ng-click="set_agenda(obj);">[[
+                                    obj.defensoria.codigo ]]</a>
+                            </li>
+                        </ul>
+                        <div id="agenda-evento" class="tab-pane fade in active">
+                            <div class="control-group">
+                                <label class="control-label">Defensoria</label>
+
+                                <div class="controls">
+                                    <select id="defensoria" name="defensoria" class="span12"
+                                            data-validate="{required:true}" ng-model="evento.agenda"
+                                            ng-options="obj as obj.defensoria.nome for obj in evento.defensor.atuacoes | filter:{agendamento:true, errors:0}"
+                                            ng-change="carregar_defensoria()" disabled></select>
+                                </div>
+                            </div>
+
+                            <ul class="nav nav-tabs">
+                                <li ng-repeat="categoria in evento.agenda.defensoria.categorias_de_agendas"
+                                    ng-class="{'active':(evento.agenda.categoria_de_agenda == categoria)}">
+                                    <a href="#agenda-categoria" data-toggle="tab" ng-click="carregar_categoria_de_agenda(categoria);" bs-tooltip="categoria.nome">
+                                        [[ categoria.sigla || categoria.nome ]]
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="control-group">
+                                <label class="control-label">Hora inicial/final </label>
+
+                                <div class="controls">
+                                    <div class="input-append span5">
+                                        <input type="text" class="span10" placeholder="Início"
+                                               data-show-meridian="false" data-mask="99:99"
+                                               ng-model="evento.agenda.hora_ini" ng-change="recalcular()"
+                                               bs-tooltip="'Início'" bs-timepicker ng-disabled="!evento.agenda.id">
+                                    <span data-toggle="timepicker" class="add-on">
+                                        <i class="fas fa-clock"></i>
+                                    </span>
+                                    </div>
+                                    <div class="input-append span5">
+                                        <input type="text" class="span10" placeholder="Término"
+                                               data-show-meridian="false" ng-model="evento.agenda.hora_fim"
+                                               bs-tooltip="'Término'" bs-timepicker disabled>
+                                    <span data-toggle="timepicker" class="add-on">
+                                        <i class="fas fa-clock"></i>
+                                    </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Vagas</label>
+
+                                <div class="controls">
+                                    <input type="number" min="0" class="span5" ng-model="evento.agenda.vagas"
+                                           ng-change="recalcular()" ng-disabled="!evento.agenda.id">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Duração (Min)</label>
+
+                                <div class="controls">
+                                    <input type="number" min="0" class="span5" ng-model="evento.agenda.duracao"
+                                           ng-change="recalcular()" ng-disabled="!evento.agenda.id">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Simultâneos</label>
+
+                                <div class="controls">
+                                    <input type="number" min="0" class="span5" ng-model="evento.agenda.simultaneos"
+                                           ng-disabled="!evento.agenda.id">
+                                    <span class="help-inline">nº vagas por horário</span>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Dias Pauta</label>
+
+                                <div class="controls">
+                                    <label class="checkbox inline" ng-repeat="dia in dias_semana">
+                                        <input type="checkbox" ng-model="evento.agenda.dias[$index]"
+                                               ng-disabled="!evento.agenda.id"
+                                               ng-change="marcar_extra($index); recalcular(); validar_horarios();"> [[ dia | limitTo:3 ]]
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Dias Extra-Pauta</label>
+
+                                <div class="controls">
+                                    <label class="checkbox inline" ng-repeat="dia in dias_semana">
+                                        <input type="checkbox" ng-model="evento.agenda.extra[$index]"
+                                               ng-disabled="!evento.agenda.id || evento.agenda.dias[$index]"
+                                               ng-change="recalcular(); validar_horarios();"> [[ dia | limitTo:3 ]]
+                                    </label>
+                                </div>
+                            </div>
+                            {% if config.EXIBIR_PRESENCIAL_REMOTO_AGENDAMENTO %}
+                                <div class="control-group">
+                                    <label class="control-label">Dias Presencial</label>
+
+                                    <div class="controls">
+                                        <label class="checkbox inline" ng-repeat="dia in dias_semana">
+                                            <input type="checkbox" ng-model="evento.agenda.presencial[$index]"
+                                                ng-disabled="!evento.agenda.dias[$index] && !evento.agenda.extra[$index]"
+                                                ng-change="evento.agenda.remoto[$index] = !evento.agenda.presencial[$index]">
+                                                [[ dia | limitTo:3 ]]
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Dias Remoto</label>
+
+                                    <div class="controls">
+                                        <label class="checkbox inline" ng-repeat="dia in dias_semana">
+                                            <input type="checkbox" ng-model="evento.agenda.remoto[$index]"
+                                                ng-disabled="!evento.agenda.dias[$index] && !evento.agenda.extra[$index]">
+                                                [[ dia | limitTo:3 ]]
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <fielset>
+                                <legend>Personalizar
+                                    <small>Inclua ou exclua horários em cada dia da semana</small>
+                                </legend>
+                            </fielset>
+                            <ul class="nav nav-tabs">
+                                <li ng-repeat="d in evento.agenda.horarios"
+                                    ng-class="{'active':(d == evento.agenda.dia)}">
+                                    <a href="#agenda-dia" data-toggle="tab" ng-click="evento.agenda.dia = d;">[[ d.dia ]]</a>
+                                </li>
+                            </ul>
+                            <div id="agenda-dia" class="tab-pane fade in active">
+                                <div class="control-group" ng-repeat="categoria in evento.agenda.defensoria.categorias_de_agendas">
+                                    <label class="control-label">[[ categoria.nome ]]</label>
+
+                                    <div class="controls">
+                                        <div class="row-fluid">
+                                            <div class="input-append span5">
+                                                <input type="text" class="span10" placeholder="Horário"
+                                                       data-show-meridian="false" data-mask="99:99"
+                                                       ng-model="evento.agenda.dia.horario_conciliacao"
+                                                       ng-disabled="!evento.agenda.dia.ativo" bs-tooltip="'Horário'"
+                                                       bs-timepicker>
+                                                <button class="btn" ng-disabled="!evento.agenda.dia.ativo"
+                                                        ng-click="adicionar_horario(evento.agenda.dia.conciliacao[categoria.id], evento.agenda.dia.horario_conciliacao)">
+                                                    <i class="fas fa-plus-circle"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid">
+                                            <div class="span12"
+                                                 style="border: 1px solid #cccccc; box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);  transition: border linear 0.2s, box-shadow linear 0.2s; padding: 4px 6px 1px 6px; border-radius: 4px; margin: 5px 0;">
+                                                <span ng-show="evento.agenda.dia.ativo"
+                                                      ng-repeat="horario in evento.agenda.dia.conciliacao[categoria.id] track by $index"
+                                                      ng-click="remover_horario(evento.agenda.dia.conciliacao[categoria.id], $index)"
+                                                      class="btn btn-mini" style="margin: 0 3px 3px 0;">[[ horario ]] <a><b>x</b></a></span>
+                                                <span class="btn btn-mini disabled"
+                                                      ng-hide="evento.agenda.dia.conciliacao[categoria.id].length && evento.agenda.dia.ativo"
+                                                      style="margin: 0 3px 3px 0;">Nenhum horário configurado para este dia!</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="span6">
+            <div class="box corner-all" ng-hide="validar()">
+                <div class="box-header grd-orange color-white corner-top">
+                    <span>Inconsistências</span>
+                </div>
+                <div class="box-body">
+                    <div class="tab-content ng-hide" style="margin: 100px 0;" ng-show="evento.defensor.atuacoes==null">
+                        <div class="span6 offset3">
+                            <h4 class="text-center">Carregando...</h4>
+                            <div class="bar-st bar-stripe">
+                                <span class="active" style="width: 100%;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul>
+                        <li ng-repeat="atuacao in evento.defensor.atuacoes | filter:{agendamento:true, errors:0, hora_fim:null}">
+                            [[atuacao.defensoria.nome]] - <b>Não Configurada</b></li>
+                        <li ng-repeat="atuacao in evento.defensor.atuacoes | filter:{conflito:true}">
+                            [[atuacao.defensoria.nome]] - <b>Conflitos de Horários</b>
+                            <ul>
+                                <li ng-repeat="conflito in atuacao.conflitos">
+                                    <b>[[ dias_semana[conflito.dia] ]], [[conflito.hora_ini ]] - [[ conflito.hora_fim]]</b> - [[ conflito.defensoria ]]
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box corner-all">
+                <div class="box-header grd-teal color-white corner-top">Resultado</div>
+                <div class="box-body">
+                    <div class="tab-content ng-hide" style="margin: 100px 0;" ng-show="evento.defensor.atuacoes==null">
+                        <div class="span6 offset3">
+                            <h4 class="text-center">Carregando...</h4>
+                            <div class="bar-st bar-stripe">
+                                <span class="active" style="width: 100%;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-repeat="agenda in evento.defensor.atuacoes | filter:{agendamento:true, errors:0}">
+                        <h5>[[ agenda.defensoria.nome ]]
+                            <small>([[ agenda.defensoria.codigo ]])</small>
+                        </h5>
+                        <div ng-repeat="categoria in agenda.defensoria.categorias_de_agendas">
+                            <h6>[[ categoria.nome ]]</h6>
+                            <ul>
+                                <li ng-repeat="dia in agenda.horarios">
+                                    <div ng-show="dia.conciliacao[categoria.id].length">
+                                        {% if config.EXIBIR_PRESENCIAL_REMOTO_AGENDAMENTO %}
+                                            <span class="label label-success" title="Presencial" bs-tooltip ng-if="categoria.presencial[$index] && !categoria.remoto[$index]">P</span>
+                                            <span class="label label-info" title="Remoto" bs-tooltip ng-if="categoria.remoto[$index] && !categoria.presencial[$index]">R</span>
+                                        {% endif %}
+                                        <b>[[ dia.dia ]]:</b>
+                                        <span ng-repeat="horario in dia.conciliacao[categoria.id] | filter:'!00:00' track by $index">
+                                            [[ horario ]],
+                                        </span>
+                                        <span class="text-warning">extra-pauta</span>
+                                    </div>
+                                    <div ng-hide="dia.conciliacao[categoria.id].length">
+                                        <b>[[ dia.dia ]]:</b> <span class="text-error">indisponível</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid" ng-show="errors.length">
+        <div class="alert alert-error">
+            <p ng-repeat="error in errors">
+                <b>[[ error.field ]]:</b> [[ error.message ]]
+            </p>
+        </div>
+    </div>
+    <div class="form-actions">
+        <div class="pull-right">
+            <a href="/evento/" class="btn">Cancelar</a>
+            <button class="btn btn-success" id="btn-salvar-agenda" ng-disabled="!validar()" ng-click="salvar_agenda()">
+                Salvar
+            </button>
+        </div>
+    </div>
+
+    {% include "evento/index_modal_ver_atuacao.html" %}
+
+{% endblock %}

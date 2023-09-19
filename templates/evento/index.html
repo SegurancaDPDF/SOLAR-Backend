@@ -1,0 +1,109 @@
+{% extends "evento/default.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block titulo %}Gerenciar Agendas e Eventos{% endblock %}
+
+{% block css_pag %}
+{% endblock %}
+
+{% block cabecalho_pag %}
+    <div class="page-title clearfix" ng-init="init('{{ request.GET.defensor }}', {diretoria:'{{ request.user.servidor.comarca.diretoria.id }}', superuser: {{ request.user.is_superuser|lower }}, usuario_id:{{request.user.servidor.defensor.id}}})">
+        <h3 class="pull-left">Gerenciar Agendas e Eventos</h3>
+        {% csrf_token %}
+        {% if perms.evento.view_evento %}
+            <div class="pull-right actions-m18">
+                {% if perms.evento.manage_evento_nucleo and not request.user.is_superuser %}
+                    <select id="id_defensor" ng-hide="defensores==null" class="input-xxlarge" ng-model="evento.defensor"
+                            ng-options="obj as obj.nome for obj in defensores | filter: filtra_defensores_by_nucleo({{ request.user.servidor.defensor.nucleos_id }})"
+                            ng-change="carregar_defensor(evento.defensor)">
+                        <option value="">Selecione um Defensor...</option>
+                    </select>
+                {% else %}
+                    <select id="id_defensor" ng-hide="defensores==null" class="input-xxlarge" ng-model="evento.defensor"
+                            ng-options="obj as obj.nome for obj in defensores"
+                            ng-change="carregar_defensor(evento.defensor)">
+                        <option value="">Selecione um Defensor...</option>
+                    </select>
+                {% endif %}
+        <span ng-show="defensores==null">
+            <img src="{% static "img/loader_16.gif" %}">
+            <small>Carregando Defensores...</small>
+        </span>
+            </div>
+        {% elif user.servidor.defensor.eh_defensor %}
+            <h4 class="pull-right"
+                ng-init="carregar_defensor({id:{{ user.servidor.defensor.id }},nome:'{{ user.servidor.defensor }}'});">
+                [[ evento.defensor.nome ]]</h4>
+        {% else %}
+            <h4 class="pull-right" ng-init="evento.diretoria={id:
+                    {% if user.servidor.comarca.diretoria %}{{ user.servidor.comarca.diretoria.id }}{% else %}{{ user.servidor.comarca.id }}{% endif %}}">
+                [[ evento.diretoria.nome ]]</h4>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#eventos" data-toggle="tab">Bloqueios</a>
+        </li>
+        {% if perms.evento.add_desbloqueio %}
+        <li>
+            <a href="#desbloqueios" data-toggle="tab">
+                Desbloqueios
+                <span class="badge badge-warning" ng-if="desbloqueios_pendentes">[[ desbloqueios_pendentes ]]</span>
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            <a href="#agendas" data-toggle="tab" ng-show="evento.defensor">Agendas</a>
+        </li>
+        {% if perms.evento.view_evento %}
+            <div class="pull-right actions-m3">
+                <a href="/evento/agenda/?defensor=[[ evento.defensor.id ]]" class="btn actions-f12" rel="tooltip" title="Nova agenda de atendimentos"
+                   ng-disabled="carregando" ng-show="evento.defensor">
+                   <i class="fas fa-calendar-plus" aria-hidden="true"></i> Nova Agenda
+                </a>
+                {% if perms.evento.add_desbloqueio %}
+                <button type="submit" form="NovoDesbloqueioForm" role="button" class="btn actions-f12" title="Novo desbloqueio de agendamento" rel="tooltip" ng-disabled="carregando" ng-show="!evento.defensor">
+                   <i class="fas fa-unlock" aria-hidden="true"></i> Novo Desbloqueio
+                </button>
+                {% endif %}
+                <button data-target="#modal-cadastrar-evento" data-toggle="modal" role="button" class="btn actions-f12" title="Novo bloqueio de agendamento" rel="tooltip"
+                   ng-disabled="carregando" ng-click="show(1)">
+                   <i class="fas fa-lock" aria-hidden="true"></i> Novo Bloqueio
+                </a>
+            </div>
+        {% endif %}
+    </ul>
+
+    <div class="tab-content">
+        {% include 'evento/index_tab_bloqueios.html' %}
+        {% if perms.evento.add_desbloqueio %}
+        {% include 'evento/index_tab_desbloqueios.html' %}
+        {% endif %}
+        {% include 'evento/index_tab_agendas.html' %}
+    </div>
+
+    {% include "evento/index_modal_cadastrar_evento.html" %}
+    {% include "evento/index_modal_excluir_evento.html" %}
+    {% include "evento/index_modal_ver_agenda.html" %}
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script type="text/javascript" src="{% static "js/angular-strap/bootstrap-timepicker.js" %}"></script>
+    <script>
+        $("#id_defensor").select2();
+    </script>
+
+{% endblock %}
+
+{% block js_ready_pag %}
+
+
+
+{% endblock %}
