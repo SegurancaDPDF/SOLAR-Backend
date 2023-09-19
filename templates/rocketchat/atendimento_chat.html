@@ -1,0 +1,126 @@
+{% load contrib_tags %}
+<html>
+
+<head>
+    <title>Atendimento Virtual via Chat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/rocket.css">
+
+    <style>
+        .message {
+            color: #ffffff;
+            font-size: 1.8rem;
+            position: relative;
+            z-index: 200;
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        .btn-go-home {
+            width: 200px;
+            font-size: 1.2rem;
+        }
+
+        .central-body .image-404 {
+            width: 20% !important;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .central-body .image-404 {
+                width: 40% !important;
+            }
+            .central-body {
+                padding-top: 8%;
+            }
+            .message {
+                font-size: 1.2rem;
+            }
+        }
+
+        .bg-purple {
+            background-repeat: inherit;
+            overflow: inherit;
+        }
+    </style>
+
+</head>
+
+<body class="bg-purple">
+
+    <div class="stars">
+        <div class="central-body">
+            <img class="image-404" src="/static/img/luna_mascot_o.svg">
+            <div id="message" class="message">
+                <p>Oi, tudo bem?</p>
+            </div>
+        </div>
+    </div>
+
+	{% if pode_abrir_link %}
+        {% if esta_na_hora_marcada %}
+            <!-- Start of Rocket.Chat Livechat Script -->
+            <script type="text/javascript">
+                var element = document.querySelector("#message");
+                var text = document.createTextNode("Diga um Oi na tela de Chat para que a equipe da Defensoria Pública possa atendê-lo.");
+                element.appendChild(text);
+
+                (function(w, d, s, u) {
+                    w.RocketChat = function(c) { w.RocketChat._.push(c) }; w.RocketChat._ = []; w.RocketChat.url = u;
+                    var h = d.getElementsByTagName(s)[0], j = d.createElement(s);
+                    j.async = true; j.src = '{{ config.ROCKET_URL }}/livechat/rocketchat-livechat.min.js?_=201903270000';
+                    h.parentNode.insertBefore(j, h);
+                })
+                (window, document, 'script', '{{ config.ROCKET_URL }}/livechat');
+
+                RocketChat(function() {
+                    url_assistido = window.location.protocol + "//" + window.location.host + "/assistido/editar/{{ pessoa.pessoa.id }}/"; 
+                    url_atendimento = window.location.protocol + "//" + window.location.host + "/atendimento/{{ atendimento.numero }}/";
+                    email = "{{ pessoa.pessoa.email }}";
+                    if (email == "None") {
+                        email = "nao@informado.com"
+                    }
+
+                    this.registerGuest({
+                        token: "{{ pessoa.pessoa.id }}",
+                        name: "{{ pessoa.nome }}",
+                        email: email,
+                        department: "{{ atendimento.defensor.defensoria.departamento_rocket }}",
+                        customFields: [
+                                {key:  'link_assistido_solar', value: url_assistido, overwrite: true},
+                                {key:  'link_atendimento_solar', value: url_atendimento, overwrite: true}
+                            ]
+                    });
+                    this.setGuestToken("{{ pessoa.pessoa.id }}");
+                    this.maximizeWidget();
+                    this.showWidget();
+                    this.setTheme({
+                        color: '#0B6121',
+                        fontColor: '#FFFFFF',
+                        iconColor: '#1d74f5',
+                        title: "Bem vindo a seu atendimento",
+                        offlineTitle: "No momento ainda não há atendentes",
+                    });
+
+                });
+            </script>
+        {% else %}
+            <script>
+                var element = document.querySelector("#message");
+                var text = document.createTextNode("O link somente poderá ser aberto 15 minutos antes ou depois do horário marcado. O atendimento está marcado para " +
+                    "{{atendimento.data_agendamento}}. Caso não tenha como comparecer no horário ou ele já passou, é preciso solicitar um novo agendamento.");
+                element.appendChild(text);
+            </script>
+        {% endif %}
+    {% else %}
+        <script>
+            var element = document.querySelector("#message");
+            var text = document.createTextNode("Link incorreto. Por favor verifique o link ou solicite um agendamento de atendimento virtual via chat");
+            element.appendChild(text);
+        </script>
+    {% endif %}
+
+
+</body>
+
+</html>
