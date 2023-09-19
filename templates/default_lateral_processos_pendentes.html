@@ -1,0 +1,105 @@
+{% load static %}
+<!-- Barra notificaoes Processos pendentes-->
+<div id="ProcessoSide" class="span2" style="display: none;" ng-controller="ProcessoPendenteCtrl" ng-init="init({{ request.user.servidor.defensor.id }}, '{{ request.GET.processo }}')">
+    <!-- side-right -->
+    <aside class="side-right">
+        <!-- sidebar-right -->
+        <div class="sidebar-right">
+            <!--sidebar-right-header-->
+            <div class="sidebar-right-header">
+                <div class="text-center">
+                    <span class="bold color-red"><i class="fas fa-warning"></i> [[ processos.length ]] PROCESSO(S)<br> PENDENTE(S)</span>
+                </div>
+            </div>
+            <div class="sidebar-right-content">
+                <div class="tab-content">
+                    <!--alternative 1-->
+                    <div class="tab-pane active" id="alt1">
+                        <!--divider-->
+
+                        <!-- side-task -->
+                        <div class="color-red text-center">Devem ser cadastrados no sistema</div>
+                        <div class="side-task" ng-show="selecionado">
+                            <a class="btn-link" ng-click="selecionado=null">
+                                <i class="fas fa-arrow-circle-left color-blue"></i> Voltar
+                            </a>
+                            <div class="task fade in text-center">
+                                <strong>Processo selecionado</strong>
+                                <h5 class="bold" style="overflow: hidden;text-overflow: ellipsis;"><i class="fas fa-user"></i> [[selecionado.parte_nome]]</h5>
+                                <span class="task">
+                                    <h4>
+                                        <a class="btn-link" title="[[selecionado.acao]]">
+                                            <i class="fas fa-bolt color-red"></i> [[selecionado.numero]]
+                                        </a>
+                                    </h4>
+                                </span>
+                                {% if request.session.nucleo.plantao %}
+                                    <div class="text-center text-error " style="white-space: normal;">
+                                        <div class="bold">Você está no módulo 'PLANTÃO'</div>
+                                        <div>Utilize o botão <b>Processo de Plantão</b> para cadastrar esse processo</div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center"><strong>Escolha uma opção:</strong></div>
+                                    <div class="text-center">
+                                        <a href="{% url 'atendimento_buscar' %}?processo=[[selecionado.numero]]&pendente=true&&filtro=[[selecionado.parte_nome]]"
+                                            class="btn btn-info" rel="tooltip"
+                                            data-original-title="Buscar atendimento (Indicado)">
+                                            <i class="fas fa-comment color-white"></i> Buscar
+                                        </a>
+                                    </div>
+                                    <div class="text-center">Ou</div>
+                                    <div class="text-center">
+                                        <a href="{% url 'processo_listar' %}?processo=[[selecionado.numero]]&pendente=true" class="btn" rel="tooltip" data-original-title="Criar atendimento para processo">&nbsp;&nbsp;&nbsp;<i class="fas fa-comment-medical color-black"></i> Criar&nbsp;&nbsp;&nbsp;
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- /side-task -->
+
+                        <!-- side-task -->
+                        <div ng-hide="processos"><img src="{% static "img/loader_16.gif" %}"> Carregando...</div>
+                        <input name="filtro_processos" id="filtro_processos" ng-model="filtro_processos"  ng-hide="selecionado || !processos" class="grd-white ng-pristine ng-valid span12" type="text" placeholder="Procurar processo...">
+                        <div class="side-task" ng-hide="selecionado || !processos">
+                        <div class="accordion" id="accordion_atendimentos">
+                            <!-- INI Prateleria Processos por Mes -->
+                            <div class="accordion-group" ng-repeat="mes in meses | orderBy:'-key'" ng-if="(processos | filter:{mes_referencia:mes.key} | filter:filtro_processos).length">
+                                <div class="accordion-heading">
+                                    <a class="accordion-toggle bg-silver color-black collapsed" data-toggle="collapse" data-parent="#accordion_processos_pendentes" data-target="#collapse_processos_pendentes[[$index]]">
+                                        <i class="fas fa-calendar-alt muted"></i>
+                                        <b title="Último movimento no mês [[ mes.value ]]">[[ mes.value ]]</b>
+                                        <span>([[ (processos | filter:{mes_referencia:mes.key} | filter:filtro_processos).length ]])</span>
+                                    </a>
+                                </div>
+                                <div id="collapse_processos_pendentes[[$index]]" class="accordion-body collapse" style="height: 0px;">
+                                    <div class="accordion-inner">
+                                        <div ng-repeat="vara in varas" ng-if="(processos | filter:{mes_referencia:mes.key} | filter:{vara:vara.id} | filter:filtro_processos).length">
+                                            <span><i class="fas fa-chevron-right"></i> [[ vara.nome ]]</span> ([[ (processos | filter:{mes_referencia:mes.key} | filter:{vara:vara.id}).length ]])
+                                            <div class="task fade in" ng-repeat="processo in processos | filter:{mes_referencia:mes.key} | filter:{vara:vara.id} | filter:filtro_processos">
+                                                <i class="fas fa-ban color-silver-dark" title="cancel"></i>
+                                                <span class="task-desc">
+                                                    <a class="btn-link" bs-popover="popover('<b>[[processo.parte_nome]]</b>', '<small><dl><dt>Classe</dt><dd>[[processo.acao]]</dd><dt>Comarca</dt><dd>[[processo.comarca]]</dd></dl></small><b class=\'text-info\' ng-if=\'!processo.penal\'><i class=\'fas fa-folder\'></i> Processo Comum</b><b class=\'text-error\' ng-if=\'processo.penal\'><i class=\'fas fa-lock\'></i> Processo Penal</b>', 'left')"
+                                                        data-trigger="hover" data-container="#popover_processo" ng-click="selecionar(processo)">
+                                                        <span ng-class="{'text-error':processo.penal}">[[processo.numero]]</span>
+                                                        <a href="[[ get_url_processo_tj('{{ config.URL_PROCESSO_TJ }}', processo.numero, processo.grau, processo.chave) ]]" target="_blank" title="Abrir no {{ config.NOME_PROCESSO_TJ }}" bs-tooltip><i class="fas fa-external-link-alt"></i></a>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- FIM Prateleria Processos por Mes -->
+                        <div class="divider-content"><span></span></div>
+                        <!--divider-->
+                    </div>
+                    <!--/alternative 1-->
+                </div>
+            </div>
+            <!-- /sidebar-right-content -->
+        </div>
+        <!-- /sidebar-right -->
+    </aside>
+    <!-- /side-right -->
+</div>
+<!-- Fim Barra notificaoes Processos pendentes-->

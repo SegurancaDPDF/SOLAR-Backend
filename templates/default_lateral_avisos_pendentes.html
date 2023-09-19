@@ -1,0 +1,66 @@
+{% load static %}
+<!-- Barra notificaoes Processos pendentes-->
+<div id="ProcessoSide" class="span2" style="display: none;" ng-controller="AvisoPendenteCtrl" ng-init="init({{ request.user.servidor.defensor.id }}, '{{ request.GET.processo }}')">
+    <!-- side-right -->
+    <aside class="side-right">
+        <!-- sidebar-right -->
+        <div class="sidebar-right">
+            <!--sidebar-right-header-->
+            <div class="sidebar-right-header">
+                <div class="text-center">
+                    <span class="bold color-red"><i class="fas fa-warning"></i> [[ total|number ]] PRAZO(S)<br> PENDENTE(S)</span>
+                </div>
+            </div>
+            <div class="sidebar-right-content">
+                <div class="tab-content">
+                    <!--alternative 1-->
+                    <div class="tab-pane active" id="alt1">
+                        <!--divider-->
+                        <!-- side-task -->
+                        <div class="color-red text-center">Avisos com prazos próximos de expirar</div>
+                        <!-- /side-task -->
+                        <div class="accordion" id="accordion_atendimentos">
+                            <!-- INI Prateleria Processos por Mes -->
+                            <div class="accordion-group" ng-repeat="dia in dias">
+                                <div class="accordion-heading">
+                                    <a class="accordion-toggle bg-silver color-black collapsed" data-toggle="collapse" data-parent="#accordion_processos_pendentes" data-target="#collapse_processos_pendentes[[$index]]" ng-click="carregar_dia(dia)">
+                                        <i class="fas fa-calendar-alt muted" ng-class="dia.class"></i>
+                                        <b title="Expirando em [[ dia._id ]]" ng-show="dia._id" ng-class="dia.class">[[ dia._id | date:"dd/MM/yyyy" ]]</b>
+                                        <b title="Sem prazo informado" ng-hide="dia._id">SEM PRAZO</b>
+                                        <span>([[ dia.count|number ]])</span>
+                                    </a>
+                                </div>
+                                <div id="collapse_processos_pendentes[[$index]]" class="accordion-body collapse" style="height: 0px;">
+                                    <div class="accordion-inner">
+                                        <div ng-show="dia.avisos==undefined">
+                                            <img src="/static/img/loading.gif">
+                                            <i>Carregando...</i>
+                                        </div>
+                                        <div class="task fade in" ng-repeat="aviso in dia.avisos">
+                                            <span class="task-desc">
+                                                <a class="btn-link"
+                                                    href="/processo/identificar/?grau=[[aviso.grau]]&numero=[[aviso.processo.numero]]&cpf=[[aviso.destinatario.pessoa.numeroDocumentoPrincipal]]"
+                                                    bs-popover="popover('<b>[[aviso.destinatario.pessoa.nome]]</b>', '<small><dl><dt>Classe</dt><dd>[[aviso.processo.classe.nome]]</dd><dt>Vara</dt><dd>[[aviso.processo.orgaoJulgador.nomeOrgao]]</dd></dl></small><b class=\'text-error\'><i class=\'fas fa-balance-scale\'></i> [[aviso.sistema_webservice]]</b>', 'left')"
+                                                    data-trigger="hover"
+                                                    data-container="#popover_processo">
+                                                    <span>[[aviso.processo.numero|processo]]</span>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- FIM Prateleria Processos por Mes -->
+                        <div class="divider-content"><span></span></div>
+                        <!--divider-->
+                    </div>
+                    <!--/alternative 1-->
+                </div>
+            </div>
+            <!-- /sidebar-right-content -->
+        </div>
+        <!-- /sidebar-right -->
+    </aside>
+    <!-- /side-right -->
+</div>
+<!-- Fim Barra notificaoes Processos pendentes-->
