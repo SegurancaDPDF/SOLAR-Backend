@@ -1,0 +1,258 @@
+{% extends "perfil/default.html" %}
+{% load contrib_tags %}
+{% load humanize %}
+
+{% block css_pag %}
+    <style type="text/css">
+        .password_strength {
+
+            display: inline-block;
+            padding: 2px 4px;
+            font-size: 11.844px;
+            font-weight: bold;
+            line-height: 14px;
+            color: #ffffff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+            white-space: nowrap;
+            vertical-align: baseline;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+
+        .password_strength_1 {
+            background-color: #b94a48;
+        }
+
+        .password_strength_2 {
+            background-color: #f89406;
+        }
+
+        .password_strength_3 {
+            background-color: #3a87ad;
+        }
+
+        .password_strength_4 {
+            background-color: rgb(38, 201, 41);
+        }
+
+        .password_strength_5 {
+            background-color: #468847;
+        }
+    </style>
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+
+        <div class="page-title">
+            <h3>
+                <i class="fas fa-user-cog"></i> Seu perfil de usuário
+            </h3>
+        </div>
+
+    {% endblock %}
+
+    {% block conteudo_pag %}
+        <div class="row-fluid" ng-init="perfil.email='{{user.email}}'">
+        <div class="box-tab corner-all span6 offset3">
+            <div class="modal-header">
+                <h4 id="myModalLabel" class="text-center"><i class="fas fa-user-edit"></i> Dados do usuário {{ user.username }}
+                </h4>
+                    <div class="row-fluid">
+                        <div class="span3 text-center">
+                            <div class="row-fluid">
+                                <div class="span12">
+                                 <img class="img-circle" src="{{ user|get_foto_servidor }}" height="140" width="140"/>
+                                </div>
+                                <div class="span12">
+                                <form id="fotoForm" enctype="multipart/form-data" action="{% url 'editar_foto' %}" method="POST"> {% csrf_token %}
+                                <input data-form="upload-helper" type="file" name="foto" style="display: none;" accept="image/*">
+                                <button class="btn btn-mini" data-form="upload-helper" data-target="foto" onchange="alert('your progres uploading file...')"><i class="fas fa-camera"></i> Alterar</button>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="span9">
+                            <div class="well bg_white">
+                                <div class="row-fluid">
+                                    <div class="span12">
+                                        <div>
+                                            <span><b>Login: </b>{{ user.username }}</span>
+                                        </div>
+                                        <div>
+                                            <span><b>Nome: </b>{{ user.get_full_name }}</span>
+                                        </div>
+                                        <div>
+                                            <span><b>Matrícula: </b>{{ user.servidor.matricula|default:"Não informado" }}</span>
+                                        </div>
+                                        <div>
+                                            <span><b>CPF: </b>{{ user.servidor.cpf|default:"Não informado" }}</span>
+                                        </div>
+                                        <div>
+                                            <span><b>Sexo: </b>{{ user.servidor.get_sexo_display|default:"Não informado" }}</span>
+                                        </div>
+                                        <div>
+                                            <span><b>E-mail: </b>[[ perfil.email ]]</span> <a href="#modal-alterar-email" class="btn-link" data-toggle="modal">(Alterar)</a>
+                                        </div>
+                                        <div>
+                                            <span><b>Habilitado a usar chat?: </b>{{ tem_atuacoes|yesno:"Sim,Não,Houve um erro" }}</span>{% if tem_atuacoes %}, há {{atuacoes|length}} atuaç{{atuacoes|pluralize:"ão,ões"}} em que está habilitado <a href="#modal-visualizar-chat-por-atuacao" class="btn-link" data-toggle="modal">(Configurar)</a> {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Alterar Senha -->
+                    <div class="row-fluid">
+                        <div class="span12 well bg_white">
+                            <h3>
+                                {% if config.USAR_API_EGIDE_AUTH %}
+                                    <i class="fas fa-key"></i> Alterar Senha <a href="{{ config.EGIDE_URL_ALTERAR_SENHA }}" class="btn-link" target="_blank">(Alterar)</a>
+                                {% else %}
+                                    <i class="fas fa-key"></i> Alterar Senha <a href="#modal-alterar-senha" class="btn-link" data-toggle="modal">(Alterar)</a>
+                                {% endif %}
+                            </h3>
+                            <!-- Dados perfil defensor -->
+                            {% if defensor.eh_defensor and config.ATIVAR_PROCAPI and not config.PROCAPI_ATIVAR_INFORMAR_PERFIL_PROJUDI %}
+                                <hr/>
+                                <h3>
+                                    <i class="fas fa-gavel"></i> Dados de Acesso {{ config.NOME_PROCESSO_TJ }}
+                                </h3>
+                                <br>
+                                <table class="table table-bordered" ng-init="credenciais={{credenciais|jsonify}}">
+                                    <thead>
+                                        <tr>
+                                            <th>Sistema</th>
+                                            <th>Usuário</th>
+                                            <th>Situação</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="credencial in credenciais">
+                                            <td>
+                                                <b>[[ credencial.sistema ]]</b>
+                                            </td>
+                                            <td>
+                                                <b>[[ credencial.usuario|default:"Não informado" ]]</b>
+                                            </td>
+                                            <td>
+                                                <span class="color-green" ng-if="credencial.ativo">
+                                                    <i class="fas fa-check-circle color-green"></i> Credenciais atualizadas
+                                                </span>
+                                                <span class="color-red" ng-if="!credencial.ativo && credencial.usuario">
+                                                    <i class="fas fa-minus-circle color-red"></i>  Credenciais desatualizadas
+                                                </span>
+                                                <span class="color-red" ng-if="!credencial.ativo && !credencial.usuario">
+                                                    <i class="fas fa-minus-circle color-red"></i> Credenciais não cadastradas
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="#modal-alterar-dados-eproc" class="btn-link" data-toggle="modal" ng-click="set_credencial(credencial)">
+                                                    Alterar credenciais
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                            <!-- Dados perfil defensor -->
+                            {% if config.PROCAPI_ATIVAR_INFORMAR_PERFIL_PROJUDI %}
+                                <hr/>
+                                    <h3>
+                                        <i class="fas fa-gavel"></i> Dados de Acesso Projudi
+                                    </h3>
+                                    <br>
+                                    <table class="table table-bordered" ng-init="perfil.projudi='{{user.servidor.defensor.usuario_eproc}}'">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuário</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <td>
+                                                <b class="noupper">[[ perfil.projudi ]]</b>
+                                            </td>
+                                            <td>
+                                                {% if user.servidor.defensor.usuario_eproc %}
+                                                    <span class="color-green">
+                                                        <i class="fas fa-check-circle color-green"></i> Credencial cadastrada
+                                                    </span>
+                                                {% else %}
+                                                    <span class="color-red">
+                                                        <i class="fas fa-minus-circle color-red"></i> Credencial não cadastrada
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="#modal-alterar-dados-projudi" class="btn-link" data-toggle="modal">
+                                                    Alterar credencial
+                                                </a>
+                                            </td>
+                                        </tbody>
+                                    </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Alterar Senha -->
+            </div>
+        </div>
+    {% include 'perfil/modal_alterar_email.html' %}
+    {% include 'perfil/modal_alterar_senha.html' %}
+    {% include 'perfil/modal_alterar_senha_eproc.html' %}
+    {% include 'perfil/modal_alterar_credencial_projudi.html' %}
+    {% include 'perfil/modal_visualizar_chat_por_atuacao.html' %}
+    </div>
+
+    {% endblock %}
+
+{% endblock %}
+
+
+{% block js_ready_app %}
+
+    // Javascript to enable link to tab
+    var url = document.location.toString();
+    if (url.match('#')) {
+    $('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show') ;
+    }
+
+    // Change hash for page-reload
+    $('.nav-tabs a').on('shown.bs.tab', function (e) {
+    window.location.hash = e.target.hash;
+    })
+
+    $('#senha_nova').password_strength();
+
+    $('#MyForm').validate({
+    errorPlacement: function(error, element){
+    if($(element).next().hasClass('add-on'))
+    error.insertAfter($(element).next());
+    else
+    error.insertAfter(element);
+    },
+    highlight: function(e){
+    $(e).closest('.control-group').removeClass('sucess').addClass('error');
+    },
+    success: function(e){
+    $(e).closest('.control-group').removeClass('error').addClass('sucess');
+    }
+    });
+
+    // helper upload (input=file) style
+    $('[data-form=upload-helper][type=file]').hide();
+    $('.btn[data-form=upload-helper]').click(function(){
+        $this = $(this);
+        targetFile = $this.attr('data-target');
+
+        $('[name='+targetFile+']').click().change(function(){
+            $("#fotoForm").submit();
+
+        });
+        return false;
+    });
+
+{% endblock %}

@@ -1,0 +1,37 @@
+<!-- Modal Alterar Dados Eproc -->
+<div id="modal-alterar-dados-eproc" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-center color-red"><i class="fas fa-gavel"></i> Alterar credenciais</h3>
+    </div>
+    <div class="modal-body">
+        <h4>Sistema: [[ perfil.sistema ]]</h4>
+        <h4>Usuário: [[ perfil.usuario  ]]</h4>
+        <form method="POST">
+            {% csrf_token %}
+            <label>Usuário [[ perfil.sistema ]]:</label>
+            <input class="span12" type="text" name="usuario_eproc" ng-model='perfil.usuario'>
+            <label>Senha [[ perfil.sistema ]]:</label>
+            <input class="span12" type="password" name="senha_eproc" ng-model='perfil.senha_eproc'>
+            <label>Confirmar Senha [[ perfil.sistema ]]:</label>
+            <input class="span12" type="password" name="senha_eproc_confirma" ng-model='perfil.senha_eproc_confirma'>
+            <label for="senha_confirma" generated="true" class="text-error helper-font-small" ng-show="perfil.senha_eproc && perfil.senha_eproc_confirma && perfil.senha_eproc_confirma != perfil.senha_eproc">As senhas digitadas não são iguais!</label>
+        </form>
+            <div class="alert alert-success" ng-class="{'alert-error':(!dados_resposta.sucesso)}"  ng-show="dados_resposta">[[dados_resposta.mensagem]]</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-hide="salvando || perfil.senha_eproc && perfil.senha_eproc_confirma && perfil.senha_eproc_confirma == perfil.senha_eproc" disabled>
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <button class="btn btn-success" ng-show="salvando" disabled>
+            <i class="fas fa-save"></i> Salvando...
+        </button>
+        <button class="btn btn-success" ng-show="!salvando && perfil.senha_eproc && perfil.senha_eproc_confirma && perfil.senha_eproc_confirma == perfil.senha_eproc" ng-click="alterar_senha_eproc()" >
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Alterar Dados Eproc -->

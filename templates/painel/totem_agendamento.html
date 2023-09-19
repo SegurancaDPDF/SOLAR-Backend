@@ -1,0 +1,124 @@
+{% extends "painel/default_no_header.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block conteudo_pag %}
+{% include 'painel/totem_header.html' %}
+{% csrf_token %}
+
+<div class="menuContainer">
+    <div class="infoContainer">
+        <div style="display: block;">
+            {% if atendimento.data_atendimento %}
+                <!-- ATENDIMENTO JÁ REALIZADO -->
+                <div id="conteudo"></div>
+            {% endif %}
+            
+            {% if atendimento.data_exclusao %}
+                <!-- AGENDAMENTO EXCLUIDO -->
+                {% if atendimento.motivo_exclusao %}
+                    <div id="conteudo"></div>
+                {% else %}
+                    <div id="conteudo"></div>
+                {% endif %}
+            {% endif %}
+        
+            {% if status == TIPO_AGENDADO_HOJE %}
+                <!-- INFORMAR SOBRE O AGENDAMENTO A SER REALIZADO NO LOCAL HOJE -->
+                <div id="conteudo"></div>
+            {% endif %}
+        
+            {% if status == TIPO_AGENDADO_FUTURO %}
+                <!-- AGENDAMENTO PARA DATA FUTURA -->
+                <div id="conteudo"></div>
+            {% endif %}
+        
+            {% if status == TIPO_NAO_AGENDADO %}
+                <!-- NÃO AGENDADO -->
+                <div id="conteudo"></div>
+            {% endif %}
+        
+            {% if status == TIPO_NAO_ENCONTRADO %}
+                <!-- AGENDAMENTO NÃO ENCONTRADO -->
+                <div id="conteudo"></div>
+            {% endif %}
+        
+            {% if status == TIPO_AGENDADO_ATRASADO %}
+                <!-- AGENDADO PORÉM ATRASADO -->
+                <div id="conteudo"></div>
+            {% endif %}
+        
+            {% if status == TIPO_AGENDADO_LUGAR_ERRADO and not atendimento.data_atendimento %}
+                <!-- AGENDADO NO LUGAR ERRADO -->
+                <div id="conteudo"></div>
+            {% endif %}
+           
+            {% if status == TIPO_SEM_GUICHE %}
+                <!-- NÃO HÁ SERVIDOR LOTADO EM SALA OU GUICHE PARA ATENDER -->
+                <div id="conteudo"></div>
+            {% endif %}
+            
+            {% if status == TIPO_AGENDADO_TRIAGEM %}
+                <!-- AGENDAMENTO PARA TRIAGEM -->
+                <div id="conteudo"></div>
+            {% endif %}
+
+            {% if nao_compareceu and not atendimento.data_atendimento %}
+                <!-- AGENDADO NÃO COMPARECEU -->
+                <div id="naoCompareceu">
+                    {{ nao_compareceu }}
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            {% if status == TIPO_AGENDADO_HOJE or status == TIPO_AGENDADO_ATRASADO or status == TIPO_AGENDADO_TRIAGEM %}
+
+                <button class="buttonImprimir" onclick="(async () => { await printPage('imprimir'); setTimeout(() => {window.location.href = `{% url 'painel_totem_set' predio.id %}`;}, 2000) })()">
+                    <span>CONFIRMAR E IMPRIMIR</span>
+                    <i class="fas fa-print" style="color: #ffffff;"></i>
+                
+            {% else %}
+                <a href="{% url 'painel_totem_set' predio.id %}" style="text-decoration:none!important ; color: #ffffff">
+                    <button class="buttonVoltar3">
+                        <span>Voltar</span>
+                        <i class="fas fa-arrow-circle-left" style="color: #ffffff; text-decoration: none;"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var conteudoHTML = `{{ mensagem | safe }}`;
+    document.getElementById('conteudo').innerHTML = conteudoHTML;
+
+    // FONTE: https://developer.mozilla.org/pt-BR/docs/Web/Guide/Printing#imprimir_uma_p%C3%A1gina_externa_sem_abri-la
+    async function closePrint () {
+        await document.body.removeChild(this.__container__);
+    }
+
+    async function setPrint () {
+        this.contentWindow.__container__ = this;
+        this.contentWindow.onbeforeunload = await closePrint;
+        this.contentWindow.onafterprint = await closePrint;
+        this.contentWindow.focus(); // Required for IE
+        await this.contentWindow.print();
+    }
+
+    async function printPage (sURL) {
+        var oHiddFrame = await document.createElement("iframe");
+        oHiddFrame.onload = await setPrint;
+        oHiddFrame.style.position = "fixed";
+        oHiddFrame.style.right = "0";
+        oHiddFrame.style.bottom = "0";
+        oHiddFrame.style.width = "0";
+        oHiddFrame.style.height = "0";
+        oHiddFrame.style.border = "0";
+        oHiddFrame.src = sURL;
+        await document.body.appendChild(oHiddFrame);
+    }
+    // Final da fonte
+
+</script>
+{% endblock %}

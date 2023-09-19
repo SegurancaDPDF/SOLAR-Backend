@@ -1,0 +1,33 @@
+<!-- Modal Alterar Senha -->
+<div id="modal-alterar-senha" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-center"><i class="fas fa-key"></i> Alterar Senha</h3>
+    </div>
+    <div class="modal-body">
+        <form method="POST">
+            {% csrf_token %}
+            <label>Senha Atual:</label>
+            <input  class="span8" type="password" ng-model='perfil.senha_antiga' id="senha_antiga" name="senha_antiga" placeholder="Senha atual">
+            <label>Nova Senha:</label>
+            <input  class="span8" type="password" ng-model='perfil.senha_nova' id="senha_nova" name="senha_nova" placeholder="Nova Senha">
+            <label>Confirma Nova Senha:</label>
+            <input  class="span8" type="password" ng-model='perfil.senha_confirma' id="senha_confirma" name="senha_confirma" placeholder="Confirmação de Nova Senha">
+            <label for="senha_confirma" generated="true" class="text-error helper-font-small" 
+            ng-show="perfil.senha_nova && perfil.senha_confirma && perfil.senha_confirma != perfil.senha_nova">A Confirmação de Nova Senha não corresponde à nova senha!</label>
+        </form>
+        <div class="alert alert-success" ng-class="{'alert-error':(dados_resposta.erro)}"  ng-show="dados_resposta">[[dados_resposta.mensagem]]</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success disabled" ng-show="!perfil.senha_antiga || !perfil.senha_nova || !perfil.senha_confirma || perfil.senha_confirma != perfil.senha_nova">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <button class="btn btn-success" ng-show="perfil.senha_antiga && perfil.senha_nova && perfil.senha_confirma && perfil.senha_confirma == perfil.senha_nova" ng-click='alterar_senha_user()'>
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Alterar Senha -->

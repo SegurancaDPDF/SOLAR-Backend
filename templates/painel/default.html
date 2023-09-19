@@ -1,0 +1,57 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Recepção{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <div class="content-header-action pull-right">
+        <a href="{% url 'atendimento_buscar' %}" class="btn btn-large" title="Procurar atendimentos" rel="tooltip"
+           data-placement="left">
+            <i class="icofont-search"></i>
+        </a>
+    </div>
+
+    <h2><i class="icofont-television"></i> Painel
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_recepcao.js" %}?v={{ config.JSVERSION }}"></script>
+
+{% endblock %}
+
+{% block js_ready_app %}
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+{% endblock %}

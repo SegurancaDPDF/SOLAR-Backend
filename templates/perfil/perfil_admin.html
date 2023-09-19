@@ -1,0 +1,251 @@
+{% extends "perfil/default.html" %}
+{% load contrib_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Perfil{% endblock %}
+
+{% block css_pag %}
+
+    <style>
+        .jumbotron {
+            margin: 80px 0;
+            text-align: center;
+        }
+        #perfil-config .box-header span {
+            font-weight: bold;
+        }
+        #perfil-config .span4 .box-body {
+            padding: 0;
+        }
+        #perfil-config .span4 h5 {
+            padding-left: 10px;
+        }
+        #perfil-config .span4 h5 span{
+            font-weight: normal;
+            display: block;
+        }
+        #perfil-config .span4 tr {
+            cursor: pointer;
+        }
+    </style>
+
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    <div class="page-title clearfix">
+        <h3 class="pull-left">Configurações Avançadas</h3>
+        <div class="pull-right actions-m18">
+            <button type="button" class="btn" ng-click="recuperar()" title="Recuperar configurações gravadas no disco" rel="tooltip">
+                <i class="fas fa-history"></i> Recuperar
+            </button>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div id="perfil-config" class="row-fluid" ng-init="init({{ services|jsonify }});" ng-cloak>
+        <div class="span4">
+            <div class="box corner-all">
+                <div class="box-header bg-black color-white corner-top">
+                    <div class="header-control">
+                        <a data-box="collapse"><i class="icofont-caret-up"></i></a>
+                    </div>
+                    <span>Serviços & Tarefas</span>
+                </div>
+                <div class="box-body corner-bottom">
+                    <table class="table table-hover">
+                        <tr ng-repeat="item in services" ng-click="set_service(item)" ng-class="{'warning':(service.name==item.name)}">
+                            <td>
+                                <h5>
+                                    <i ng-class="item.internal ? 'fas fa-puzzle-piece': 'fas fa-plug'"></i>
+                                    [[ item.name ]]
+                                    <div class="label label-success pull-right" ng-if="!item.internal && item.active">Ativo</div>
+                                    <div class="label label-important pull-right" ng-if="!item.internal && !item.active">Inativo</div>
+                                    <span class="muted">[[ item.description || item.task ]]</span>
+                                    <div class="label label-info" ng-if="item.tasks.length">
+                                        [[ item.tasks.length ]] task(s)
+                                    </div>
+                                    <div class="label label-warning" ng-if="(item.tasks | filter:{enabled:false}).length">
+                                        [[ (item.tasks | filter:{enabled:false}).length ]] task(s) não ativada(s)
+                                    </div>
+                                </h5>
+                            </td>
+                            <td>
+                                <i class="fas fa-chevron-right ng-scope" style="vertical-align: middle;" ng-if="service.name==item.name"></i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="span8">
+            <div class="box corner-all">
+                <div class="box-header bg-black color-white corner-top">
+                    <div class="header-control">
+                        <a data-box="collapse"><i class="icofont-caret-up"></i></a>
+                    </div>
+                    <span>
+                        <i ng-class="service.internal ? 'fas fa-puzzle-piece': 'fas fa-plug'"></i>
+                        [[ service.name ]]
+                    </span>
+                </div>
+                <div class="box-body corner-bottom">
+                    <h6>[[ service.description ]]</h6>
+                    <hr/>
+                    <form>
+                        {% csrf_token %}
+                        <div class="control-group" ng-repeat="arg in service.arguments">
+                            <label class="control-label" ng-if="arg.type!='bool'">
+                                [[ arg.help_text || arg.label ]]
+                                <small class="muted">[[ arg.name]]</small>
+                                <span class="label" ng-if="!arg.constance" title="Essa configuração só pode ser alterada no arquivo .env" bs-tooltip>.env</span>
+                            </label>
+                            <div class="controls">
+                                <input type="text" class="span12" ng-model="arg.value" ng-disabled="!arg.constance" ng-if="arg.type=='text'" />
+                                <textarea rows="5" class="span12" ng-model="arg.value" ng-disabled="!arg.constance" ng-if="arg.type=='textarea'"></textarea>
+                                <div class="input-append" ng-if="arg.type=='number'">
+                                    <input type="number" ng-model="arg.value" ng-disabled="!arg.constance"/>
+                                    <span class="add-on"><i class="fas fa-calculator"></i></span>
+                                </div>
+                                <div class="input-append" ng-if="arg.type=='time'">
+                                    <input type="time" ng-model="arg.value" ng-disabled="!arg.constance"/>
+                                    <span class="add-on"><i class="fas fa-clock"></i></span>
+                                </div>
+                                <div class="input-append color" data-form="colorpicker" data-color="[[ arg.value ]]" data-color-format="hex" ng-if="arg.type=='color'">
+                                    <input type="text" ng-model="arg.value" ng-disabled="!arg.constance" />
+                                    <span class="add-on"><i class="fas fa-fill-drip" ng-style="{'color': arg.value}"></i></span>
+                                </div>
+                                <select ng-model="arg.value" ng-options="key as value for (key, value) in arg.options" ng-if="arg.type=='select'">
+                                </select>
+                                <label class="checkbox" ng-if="arg.type=='bool'">
+                                    <input type="checkbox" ng-model="arg.value" ng-disabled="!arg.constance"> [[ arg.help_text || arg.label ]]
+                                    <span class="label" ng-if="!arg.constance" title="Essa configuração só pode ser alterada no arquivo .env" bs-tooltip>.env</span><br/>
+                                    <small class="muted">[[ arg.name]]</small>
+                                </label>
+                                <!--<small class="help-block" style="margin-top: -10px;">[[ arg.name ]]</small>-->
+                            </div>
+                        </div>
+                    </form>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" ng-click="salvar()">
+                            <i class="fas fa-save"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="box corner-all" ng-repeat="task in service.tasks">
+                <div class="box-header bg-black color-white corner-top">
+                    <div class="header-control">
+                        <span class="label label-success" ng-if="task.enabled">Ativo</span>
+                        <span class="label label-important" ng-if="!task.enabled">Inativo</span>
+                    </div>
+                    <span>
+                        <i class="fas fa-cogs"></i>
+                        [[ task.name ]]
+                    </span>
+                </div>
+                <!-- Se uma ou nenhuma periodic task, permite usar a ferramenta -->
+                <div class="box-body corner-bottom" ng-if="task.periodic_tasks.length<=1">
+                    <h6>
+                        [[ task.description ]]
+                        <a href="[[ gerar_link('admin:django_celery_beat_periodictask_change', task.id) ]]" target="_blank" class="text-info" title="Alterar no Django Admin" bs-tooltip>
+                            <i class="fas fa-link"></i>
+                        </a>
+                        <br/>
+                        <small>[[ task.task ]]</small>
+                    </h6>
+                    <hr/>
+                    <form class="form-horizontal">
+                        <div class="control-group">
+                            <label class="control-label">Ativa</label>
+                            <div class="controls">
+                                <label class="checkbox inline">
+                                    <input type="checkbox" ng-model="task.enabled"> Ativada?
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Dias da semana</label>
+                            <div class="controls">
+                                <label class="checkbox inline" ng-repeat="week_day in week_days">
+                                    <input type="checkbox" ng-model="task.crontab.days_of_week[$index]"> [[ week_day ]]
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Horas</label>
+                            <div class="controls">
+                                <label class="checkbox inline" ng-repeat="hour in hours">
+                                    <input type="checkbox" ng-model="task.crontab.hours[$index]"> [[ hour ]]
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Frequência</label>
+                            <div class="controls">
+                                <label class="radio inline" ng-repeat="interval in intervals">
+                                    <input type="radio" name="interval" ng-model="task.crontab.minute" ng-value="interval.value"> [[ interval.name ]]
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control-group" ng-repeat="arg in task.arguments">
+                            <label class="control-label">[[ arg.label ]]</label>
+                            <div class="controls">
+                                <input type="text" ng-model="arg.value" />
+                            </div>
+                        </div>
+                    </form>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" ng-click="salvar_periodic_task(task)">
+                            <i class="fas fa-save"></i> Salvar Tarefa
+                        </button>
+                    </div>
+                </div>
+                <!-- Se mais de uma periodic task, exibe lista para edição no django admin -->
+                <div class="box-body corner-bottom" ng-if="task.periodic_tasks.length>1">
+                    <h6>[[ task.task ]]</h6>
+                    <hr/>
+                    <div class="alert alert-error">
+                        <b>Atenção!</b> Existe mais de uma periodic task ativa para esta task, utilize o <b>Django Admin</b> para configurá-las.
+                    </div>
+                    <table class="table table-hover">
+                        <tr ng-repeat="perioric in task.periodic_tasks">
+                            <td>
+                                <b>[[ perioric.name ]]</b>
+                                <ul>
+                                    <li>Crontab: [[ perioric.crontab.name ]]</li>
+                                    <li>Parâmetros: [[ perioric.kwargs ]]</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="btn-group pull-right">
+                                    <a href="[[ gerar_link('admin:django_celery_beat_periodictask_change', perioric.id) ]]" target="_blank" class="btn btn-small" title="Alterar no Django Admin" >
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_perfil_admin.js" %}?v={{ config.JSVERSION }}"></script>
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+</script>

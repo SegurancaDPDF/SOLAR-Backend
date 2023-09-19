@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+{% load humanize %}
+{% load static %}
+
+<html>
+    <head>
+        {% comment %} configurações de impressão {% endcomment %}
+        <style>
+            body {
+                font-size: {{ configuracao_impressao.tamanho_fonte }};
+                margin-left: {{ configuracao_impressao.margem_esquerda }}
+            }
+
+            span {
+                padding-top: 0.5mm;
+                text-align: center;
+                max-width: {{ configuracao_impressao.largura_papel }};
+            }
+
+            .containerImpressao {
+                display: grid;
+                max-width: {{ configuracao_impressao.largura_papel }};
+            }
+
+            .conteudo {
+                text-align: justify;
+                position: relative;
+                left: 2mm;
+                max-width: {{ configuracao_impressao.largura_papel_conteudo }};
+                padding-top: 5mm;
+                overflow: hidden;
+                border: hidden;
+                font-size: {{ configuracao_impressao.tamanho_fonte }};
+                resize: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="containerImpressao">
+            {% comment %} Nome da instituição {% endcomment %}
+            <span>{{ NOME_INSTITUICAO | upper }}</span>
+            {% comment %} O prédio que atribuido ao atendimento {% endcomment %}
+            <span>{{ predio.nome | upper }}</span>
+            {% comment %} A Defensoria que será atribuida ao atendimento {% endcomment %}
+            <span>{{ atendimento.defensoria | upper }}</span>
+            {% comment %} Data no formato dd/mm/aaaa {% endcomment %}
+            <span class="data" id="data"></span>
+            {% comment %} Hora em que foi impresso {% endcomment %}
+            <span class="hora" id="hora">00:00:00</span>
+            {% comment %} Dia da semana {% endcomment %}
+            <span class="diaDaSemana" id="diaDaSemana">-</span>
+            {% comment %} Se atendimento inicial (que gera senha numérica) {% endcomment %}
+            {% if senha %}
+                {% comment %} Se prioridade do tipo normal {% endcomment %}
+                {% if prioridade == 0 %}
+                    <span style="padding-top: 5mm;"><strong>Senha N{{ senha }}</strong></span>
+                    <span><strong>Atendimento nº: {{ atendimento_numero }}</strong></span>
+                {% comment %} Se atendimento prioritário {% endcomment %}
+                {% elif prioridade == 10 %}
+                    <span style="padding-top: 5mm;"><strong>Senha P{{ senha }}</strong></span>
+                    <span><strong>Atendimento nº: {{ atendimento_numero }}</strong></span>
+                {% endif %}
+            {% endif %}
+            {% comment %} Mensagem que acompanha o papel impresso, editável em TOTEM_IMPRESSAO_NOVO_ATENDIMENTO e TOTEM_IMPRESSAO_AGENDADO {% endcomment %}
+
+            <textarea id="textoImpresso" class="conteudo">
+                texto de config
+            </textarea>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+
+        var conteudoHTML = `{{ mensagem | safe }}`;
+        
+        const textarea = document.getElementById('textoImpresso');
+        textarea.innerHTML = conteudoHTML;
+        const tamanhoTexto = textarea.scrollHeight;
+        textarea.style.height = tamanhoTexto + 'px';
+
+
+        let data = new Date();
+
+        function relogio() {
+            let date = new Date();
+            const hora = String(date.getHours()).padStart(2, '0');
+            const minuto = String(date.getMinutes()).padStart(2, '0');
+            const segundo = String(date.getSeconds()).padStart(2, '0');
+
+            const time = `${hora}:${minuto}:${segundo}`
+            document.getElementById("hora").innerText = time;
+            setTimeout(relogio, 1000);
+        }
+        relogio();
+
+        const listaDiasDaSemana = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+        document.getElementById('diaDaSemana').innerText = listaDiasDaSemana[data.getDay()];
+
+        const dia = String(data.getDate()).padStart(2, '0');
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const ano = String(data.getFullYear());
+        const dataFormatada = `${dia}/${mes}/${ano}`;
+
+        document.getElementById('data').innerText = dataFormatada
+
+
+    </script>
+</html>

@@ -1,0 +1,27 @@
+{% extends "painel/default_no_header.html" %}
+
+{% load humanize %}
+{% load static %}
+
+
+{% block conteudo_pag %}
+{% csrf_token %}
+{% include 'painel/totem_header.html' %}
+
+
+
+<!-- CONTAINER DO MENU -->
+<!DOCTYPE html>
+
+
+<div class="menuContainer">
+    <div class="buttonsIndexContainer">
+        <a href="{% url 'painel_totem_agendado' predio.id %}">
+            <button class="buttonOpcoes">JÁ ESTOU AGENDADO</button>
+        </a>
+        <a href="{% url 'painel_totem_novo_atendimento' predio.id %}">
+            <button class="buttonOpcoes">QUERO SER ATENDIDO</button>
+        </a>
+    </div>
+</div>
+{% endblock %}

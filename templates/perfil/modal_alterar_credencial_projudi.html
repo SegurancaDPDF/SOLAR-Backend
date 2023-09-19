@@ -1,0 +1,25 @@
+<!-- Modal Alterar Dados Projudi -->
+<div id="modal-alterar-dados-projudi" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-center color-red"><i class="fas fa-gavel"></i> Alterar credencial</h3>
+    </div>
+    <div class="modal-body">
+        <h4>Sistema: Projudi</h4>
+        <form method="POST">
+            {% csrf_token %}
+            <label class="noupper">Usuário: [[ perfil.projudi ]]</label>
+            <input class="span12 noupper" type="text" name="usuario_projudi" ng-model='perfil.usuario_projudi'>
+        </form>
+            <div class="alert alert-success" ng-class="{'alert-error':(dados_resposta.erro)}"  ng-show="dados_resposta">[[dados_resposta.mensagem]]</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="alterar_senha_projudi()" >
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Alterar Dados Projudi -->

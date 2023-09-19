@@ -1,0 +1,37 @@
+<!-- Modal Visualizar Chat Por Ataução -->
+<div id="modal-visualizar-chat-por-atuacao" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-center"><i class="fas fa-envelope"></i> Visualizar Chat (por atuação) </h3>
+    </div>
+    <div class="modal-body">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <h3><label><b>Visualizar chat em:</b></label></h3>
+            <label class="checkbox">
+                {% for atuacao in atuacoes %}
+                    <label class="checkbox">
+                        {% with yesno_args="visualizap_"|add:atuacao.id|add:"_,visualizap_"|add:atuacao.id|add:"_" %}
+                        <input type="checkbox" ng-init="initial_visualizar_atuacao['{{ atuacao.id }}']={{ atuacao.visualiza_chat_edefensor|yesno:'true,false' }}"
+                               ng-model="visualizar_atuacao['{{ atuacao.id }}']"> {{ atuacao.defensoria.nome }}
+                        {% endwith %}
+                        
+                    </label>
+                {% endfor %}
+            </label>
+        </form>
+        <div class="alert alert-success" ng-class="{'alert-error':(dados_resposta.erro)}"  ng-show="dados_resposta">[[dados_resposta.mensagem]]</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success disabled" ng-hide='[[true]]'>Salvar</button>
+        <button class="btn btn-success" ng-show='[[true]]' ng-click='configurar_visualizacao_chat_por_atuacao()'>
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Visualizar Chat Por Ataução -->
+

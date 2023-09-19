@@ -1,0 +1,79 @@
+{% extends "perfil/default.html" %}
+{% load contrib_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Perfil{% endblock %}
+
+{% block css_pag %}
+
+    <style>
+        .jumbotron {
+            margin: 80px 0;
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
+
+{% block cabecalho_pag %}
+
+    {% if not procapi_versao_compativel %}
+        <div class="alert alert-block alert-error" style="margin: 10px 0 0;">
+            <h4>
+                <i class="fas fa-exclamation-triangle"></i> Atenção!
+            </h4>
+            O <b>ProcAPI</b> está inacessível ou desatualizado, verifique se está funcionando e atualizado com a versão <b>{{ procapi_versao_min }}</b> ou superior para voltar a utilizar os recursos do MNI.
+        </div>
+    {% endif %}
+
+    <div class="page-title clearfix">
+        <h3 class="pull-left">Selecione uma Comarca</h3>
+
+        <div class="pull-right actions-m18">
+            <div class="input-icon-append" style="margin-top: 0;">
+                <span class="icon"><i class="fas fa-search"></i></span>
+                <input name="filtro" id="filtro" ng-model="filtro" class="grd-white" type="text"
+                       placeholder="Procurar comarca...">
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block conteudo_pag %}
+
+    <div ng-init="init()">
+        <div ng-repeat="diretorias in grupos" class="row-fluid clearfix">
+            <div ng-repeat="diretoria in diretorias" class="span3">
+                <hr ng-show="$parent.$index">
+                <h5>
+                    <i class="fas fa-map-marker-alt"></i> [[ diretoria.nome ]]
+                    <span class="badge badge-info" ng-bind="diretoria.comarcas.length"></span>
+                </h5>
+                <ul class="unstyled">
+                    <li ng-repeat="comarca in diretoria.comarcas | filter:filtro">
+                        <div><b>[[ comarca.nome ]]</b></div>
+                        <a href="/comarca/[[ comarca.id ]]/?next={% url 'recepcao_index' %}" class="text-info">
+                            <i class="fas fa-book"></i> <small>Recepção</small>
+                        </a>
+                        <a href="/nucleo/nadep/comarca/[[ comarca.id ]]/" class="text-error">
+                            <i class="fas fa-leaf"></i> <small>Livre</small>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_pag %}
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_pag %}
+    {% endblock %}
+
+</script>

@@ -1,0 +1,49 @@
+{% extends "painel/default_no_header.html" %}
+{% load humanize %}
+{% load static %}
+
+
+{% block conteudo_pag %}
+{% csrf_token %}
+{% include 'painel/totem_header.html' %}
+<!-- CONTAINER DO MENU -->
+<div class="atendimentoContainer">
+    <label for="inputAtendimento"></label>
+    <input class="inputAtendimento" id="inputAtendimento" type="number" placeholder="Nº ATENDIMENTO"
+    style= "text-align: center;">
+    <div class="teclado">
+        <button class="buttonNumero" onclick="digitar(this)" value="1">1</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="2">2</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="3">3</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="4">4</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="5">5</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="6">6</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="7">7</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="8">8</button>
+        <button class="buttonNumero" onclick="digitar(this)" value="9">9</button>
+        <button class="buttonCorrigir" onclick="corrigir(document.getElementById('inputAtendimento').value)">
+            <span>CORRIGIR</span>
+            <i class="fas fa-backspace" style="color: #ffffff;"></i>
+
+        </button>
+        <button class="buttonNumero" onclick="digitar(this)" value="0">0</button>
+        <button class="buttonConfirmar" onclick="confirmar(document.getElementById('inputAtendimento').value)">
+            <span>CONFIRMAR</span>
+            <i class="fas fa-check-circle" style="color: #ffffff;"></i>
+
+        </button>
+        <a href="{% url 'painel_totem_set' predio.id %}">
+            <button class="buttonVoltar">
+                <span>Voltar</span>
+                <i class="fas fa-arrow-circle-left" style="color: #ffffff;"></i>
+    </div>
+    
+    
+</div>
+
+{% endblock %}
+
+
+{% block js_pag %}
+<script type="text/javascript" src="{% static 'js/app/controllers_painel.js' %}?v={{ config.JSVERSION }}"></script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "painel/default_no_header.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+    <style>
+      
+      :root {
+        --vermelho: {{ cor_padrao }} !important;
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/painel_atendimento_servicos.css' %}">
+{% endblock %}
+
+{% block conteudo_pag %}
+    {% csrf_token %}
+
+    <div ng-init="init()"></div>
+    <title>Painel - SOLAR | {{ config.NOME_INSTITUICAO }}</title>
+    <input id="predio_id" hidden value="{{ predio }}" title="prédio" placeholder="">
+
+    <div class="container">
+
+        <!-- HEADER -->
+        <header>
+          <!-- RELÓGIO -->
+          <div class="relogio">
+            <div class="font-lg" id="hora">00:00:00</div>
+            <div class="font-md" id="diaDaSemana">-</div>
+          </div>
+
+          <!-- CORREGEDORIA 
+          <div class="corregedoria">
+            <div class="font-md">{{ corregedoria.nome|upper|default:"CORREGEDORIA" }}</div>
+            <div class="font-sm">{{ corregedoria.telefone|default:"<TELEFONE>" }}</div>
+          </div>-->
+
+          <!-- IMAGEM -->
+          <img src="{{ config.PAINEL_SENHA_LOGO_URL }}" alt="{{ config.NOME_INSTITUICAO }}">
+        </header>
+
+        <!-- MAIN -->
+        <div class="left" id="left">
+          <span class="font-xl" id="nomeAssistido0"></span>
+          <span class="font-md" id="nomeDefensoria"></span>
+        </div>
+        <div class="right">
+          <div class="card">
+            <span class="font-lg" id="andar0"></span>
+            <span class="font-lg" id="tipoGuiche0"></span>
+            <span class="font-2xl" id="numeroGuiche0"></span>
+          </div>
+          <div class="font-md" id="prioridadeStatus">
+            NORMAL
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+          <span class="font-sm" style="margin-left: 25px;">CHAMADAS ANTERIORES</span>
+          <div class="wrapperChamadasAnteriores">
+            <div>
+              <span id="nomeAssistido1"></span>
+              <span class="font-lg">
+                <span id="tipoGuiche1"></span>
+                <span id="numeroGuiche1"></span>
+              </span>
+              <span id="andar1"></span>
+            </div>
+            <div>
+              <span id="nomeAssistido2"></span>
+              <span class="font-lg">
+                <span id="tipoGuiche2"></span>
+                <span id="numeroGuiche2"></span>
+              </span>
+              <span id="andar2"></span>
+            </div>
+            <div>
+              <span id="nomeAssistido3"></span>
+              <span class="font-lg">
+                <span id="tipoGuiche3"></span>
+                <span id="numeroGuiche3"></span>
+              </span>
+              <span id="andar3"></span>
+            </div>
+          </div>
+        </footer>
+      </div>
+<iframe src="{% static 'audio/silence.mp3' %}" allow="autoplay" id="audio" style="display:none" title="audio"></iframe>
+<audio id='somPainel'>
+    <source src="{% static 'audio/beep2.mp3' %}" type="audio/mp3">
+</audio>
+
+{% endblock %}
+
+{% block js_pag %}
+    <script type="text/javascript" src="{% static 'js/app/controllers_painel.js' %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static 'js/speechSynthesis/sinteseVoz.js' %}?v={{ config.JSVERSION }}"></script>
+{% endblock %}
+
+{% block js_ready_pag %}
+{% endblock %}

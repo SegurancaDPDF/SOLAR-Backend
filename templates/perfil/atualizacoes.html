@@ -1,0 +1,106 @@
+{% extends "default.html" %}
+{% load humanize %}
+
+{% block titulo %}Atualizações{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2><i class="helper-font-24 fas fa-bell"></i>Atualizações
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    <!-- NOVAS -->
+    <div class="page-title">
+        <h3 class="pull-left">
+            Novas ({{ novas.count }})
+        </h3>
+    </div>
+    <div class="clearfix">
+        <table id="assitidos" class="table table-bordered table-striped table-hover responsive display-data">
+            <thead>
+            <tr>
+                <th class="span2">Data</th>
+                <th>Descrição</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for atualizacao in novas %}
+                <tr>
+                    <td>
+                        {{ atualizacao.data | date:"d/m/Y" }}
+                    </td>
+                    <td>
+                        {% if atualizacao.tipo == 0 %}
+                            <span class="label label-success">Novo</span>
+                        {% elif atualizacao.tipo == 1 %}
+                            <span class="label label-warning">Atualização</span>
+                        {% else %}
+                            <span class="label label-important">Correção</span>
+                        {% endif %}
+                        {{ atualizacao.texto }}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">Nenhum registro encontrado</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ANTIGAS -->
+    <div class="page-title">
+        <h3 class="pull-left">
+            Anteriores ({{ velhas.count }})
+        </h3>
+    </div>
+    <div class="clearfix">
+        <table id="assitidos" class="table table-bordered table-striped table-hover responsive display-data">
+            <thead>
+            <tr>
+                <th class="span2">Data</th>
+                <th>Descrição</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for atualizacao in velhas %}
+                <tr>
+                    <td>
+                        {{ atualizacao.data | date:"d/m/Y" }}
+                    </td>
+                    <td>
+                        {% if atualizacao.tipo == 0 %}
+                            <span class="label label-success">Novo</span>
+                        {% elif atualizacao.tipo == 1 %}
+                            <span class="label label-warning">Atualização</span>
+                        {% else %}
+                            <span class="label label-important">Correção</span>
+                        {% endif %}
+                        {{ atualizacao.texto }}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">Nenhum registro encontrado</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% load humanize %}
+{% load static %}
+
+{% block css_pag %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/painel_atendimento_toten.css' %}">
+<link rel="stylesheet" href="/static/css/font-awesome.5.15.1.all.min.css">
+{% endblock %}
+
+
+
+{% csrf_token %}
+<!-- HEADER DO TOTEM -->
+<head>
+    <title>TOTEM</title>
+</head>
+<header>
+    
+    <!-- CONTAINER DA DATA / HORA -->
+    <div class="dataHoraContainer">
+        <div class="hora" id="hora">00:00:00</div>
+        <div class="diaDaSemana" id="diaDaSemana">-</div>
+    </div>
+    <!-- TITULO DO TOTEM -->
+    <div class="titulo" id="titulo">
+        {{ predio.nome }}
+    </div>
+    <!-- LOGO DA DEFENSORIA -->
+    <div class="logoContainer">
+        <img class="logo" src="{{ config.PAINEL_SENHA_LOGO_URL }}" alt="{{ config.NOME_INSTITUICAO }}">
+    </div>
+</header>
+
+
+<script type="text/javascript">
+    
+    // Desabilita menu ao clicar com o botão direito / dois dedos na tela
+    document.addEventListener("contextmenu", e => e.preventDefault());
+
+    const listaDiasDaSemana = ["DOMINGO", "SEGUNDA-FEIRA", "TERÇA-FEIRA", "QUARTA-FEIRA", "QUINTA-FEIRA", "SEXTA-FEIRA", "SÁBADO"];
+    let date = new Date();
+    diaDaSemana.innerText = listaDiasDaSemana[date.getDay()];
+
+    function relogio() {
+
+        date = new Date();
+        const hora = String(date.getHours()).padStart(2, '0');
+        const minuto = String(date.getMinutes()).padStart(2, '0');
+        const segundo = String(date.getSeconds()).padStart(2, '0');
+
+        const time = `${hora}:${minuto}:${segundo}`
+        document.getElementById("hora").innerText = time;
+        setTimeout(relogio, 1000);
+    }
+    relogio();
+
+</script>

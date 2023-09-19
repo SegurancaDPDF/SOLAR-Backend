@@ -1,0 +1,87 @@
+{% extends "painel/default_no_header.html" %}
+{% load humanize %}
+{% load static %}
+
+
+{% block conteudo_pag %}
+{% csrf_token %}
+{% include 'painel/totem_header.html' %}
+<!-- CONTAINER DO MENU -->
+<div class="menuContainer">
+    <div class="buttonsIndexContainer">
+
+        <button class="buttonOpcoes" onclick="(async () => { await novoAtendimento('prioritario') })()"
+            style="background-color: var(--prioridade);" type="submit">PRIORITÁRIO</button>
+
+        <button class="buttonOpcoes" onclick="(async () => {await novoAtendimento('geral') ;  })()"
+            style="background-color: rgb(42, 42, 142);" type="submit">NORMAL</button>
+
+        <div style="height: 100%;width: 100%;text-align: center;">
+            <a href="{% url 'painel_totem_set' predio.id %}" style="text-decoration:none!important ; color: #ffffff">
+                <button class="buttonVoltar3">
+                    <span>Voltar</span>
+                    <i class="fas fa-arrow-circle-left" style="color: #ffffff; text-decoration: none;"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // FONTE: https://developer.mozilla.org/pt-BR/docs/Web/Guide/Printing#imprimir_uma_p%C3%A1gina_externa_sem_abri-la
+    async function closePrint() {
+        await document.body.removeChild(this.__container__);
+    }
+
+    function setPrint() {
+        this.contentWindow.__container__ = this;
+        this.contentWindow.onbeforeunload = closePrint;
+        this.contentWindow.onafterprint = closePrint;
+        this.contentWindow.focus(); // Required for IE
+        this.contentWindow.print();
+    }
+
+    function printPage(sURL) {
+        var oHiddFrame = document.createElement("iframe");
+        oHiddFrame.onload = setPrint;
+        oHiddFrame.style.position = "fixed";
+        oHiddFrame.style.right = "0";
+        oHiddFrame.style.bottom = "0";
+        oHiddFrame.style.width = "0";
+        oHiddFrame.style.height = "0";
+        oHiddFrame.style.border = "0";
+        oHiddFrame.src = sURL;
+        document.body.innerHTML = '';
+        document.body.appendChild(oHiddFrame);
+    }
+    // Final da fonte
+
+    var socket = new WebSocket(`ws://${window.location.host}/ws/painel/{{ predio.id }}/`);
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    async function novoAtendimento(tipo) {
+        var csrftoken = getCookie('csrftoken');
+        var formData = new FormData();
+        formData.append('prioridade', tipo)
+
+        const response = await fetch("{% url 'painel_totem_novo_atendimento' predio.id %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        })
+
+        const atendimento = await response.json()
+        console.log(atendimento.numero_atendimento)
+        await printPage(`imprimir/?numero_atendimento=${atendimento.numero_atendimento}`)
+        socket.send(JSON.stringify({ message: 'novoatendimento' }));
+        setTimeout(() => { window.location.href = `{% url 'painel_totem_set' predio.id %}` }, 200)
+    }
+
+</script>
+{% endblock %}

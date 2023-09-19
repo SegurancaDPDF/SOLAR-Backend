@@ -1,0 +1,25 @@
+<!-- Modal Alterar Email -->
+<div id="modal-alterar-email" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="text-center"><i class="fas fa-envelope"></i> Alterar E-mail</h3>
+    </div>
+    <div class="modal-body">
+        <form method="POST">
+            {% csrf_token %}
+            <label>E-mail</label>
+            <input  class="span12" type="email" name="email" ng-model='perfil.email'>
+        </form>
+            <div class="alert alert-success" ng-class="{'alert-error':(dados_resposta.erro)}"  ng-show="dados_resposta">[[dados_resposta.mensagem]]</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success disabled" ng-hide='perfil.email'>Salvar</button>
+        <button class="btn btn-success" ng-show='perfil.email' ng-click='alterar_email_user()'>
+            <i class="fas fa-save"></i> Salvar
+        </button>
+        <a class="btn" data-dismiss="modal" aria-hidden="true">
+            <i class="fas fa-ban"></i> Cancelar
+        </a>
+    </div>
+</div>
+<!-- Modal Alterar Email -->

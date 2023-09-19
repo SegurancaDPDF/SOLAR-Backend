@@ -1,0 +1,59 @@
+{% extends "default.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block titulo %}Perfil{% endblock %}
+
+{% block css_app %}
+
+    {% block css_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block cabecalho_app %}
+
+    <h2><i class="helper-font-24 fas fa-user-cog"></i> Perfil
+        <small></small>
+    </h2>
+
+{% endblock %}
+
+{% block menu_app %}
+{% endblock %}
+
+{% block conteudo_app %}
+
+    {% block cabecalho_pag %}
+    {% endblock %}
+
+    {% block conteudo_pag %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block js_app %}
+
+    {% block js_pag %}
+    {% endblock %}
+
+    <script type="text/javascript" src="{% static "js/app/controllers_perfil_usuario.js" %}?v={{ config.JSVERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.password_strength.js" %}"></script>
+
+{% endblock %}
+
+<script type="text/javascript">
+
+    {% block js_ready_app %}
+
+        //Desativa evento padrao do click em links #
+        $('a[href="#"]').click(function (e) {
+            e.preventDefault();
+        });
+
+        {% block js_ready_pag %}
+        {% endblock %}
+
+    {% endblock %}
+
+</script>
